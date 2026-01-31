@@ -85,6 +85,8 @@ interface ExternalReviewResources_Shared {
     ok: string;
     /** Cancel */
     cancel: string;
+    /** Save */
+    save: string;
 }
 
 interface ExternalReviewResources {

@@ -21,6 +21,8 @@ interface LinkEditDialogProps {
     prolongDays: number;
 }
 
+const dateTimeFormat = "yyyy-MM-dd hh:mm";
+
 /**
  * Dialog component used to edit link created in manage links
  */
@@ -38,7 +40,7 @@ const LinkEditDialog = observer(
     }: LinkEditDialogProps) => {
         const [displayName, setDisplayName] = useState<string>(reviewLink.displayName || "");
         const [visitorGroups, setVisitorGroups] = useState<string[]>(reviewLink.visitorGroups || []);
-        const [validDate, setValidDate] = useState<string>(format(reviewLink.validTo, "yyyy-MM-dd hh:mm"));
+        const [validDate, setValidDate] = useState<string>(format(reviewLink.validTo, dateTimeFormat));
         const [prolongVisible, setProlongVisible] = useState<boolean>(true);
         const [pinCode, setPinCode] = useState<string>(reviewLink.pinCode || "");
         const [shouldUpdatePinCode, setShouldUpdatePinCode] = useState<boolean>(!reviewLink.pinCode);
@@ -54,7 +56,8 @@ const LinkEditDialog = observer(
                 return;
             }
             const newPin = shouldUpdatePinCode ? pinCode : null;
-            onClose(parse(validDate), newPin, displayName, visitorGroups);
+            const validTo = parse(validDate, dateTimeFormat, validDate);
+            onClose(validTo, newPin, displayName, visitorGroups);
         };
 
         const updatePinCode = (event: React.FormEvent<HTMLInputElement>) => {
@@ -78,7 +81,7 @@ const LinkEditDialog = observer(
             }
             dateCopy.setDate(dateCopy.getDate() + prolongDays);
 
-            setValidDate(format(dateCopy, "yyyy-MM-dd hh:mm"));
+            setValidDate(format(dateCopy, dateTimeFormat));
         };
 
         const prolongTitle = (resources.list.editdialog.prolongbydays || "").replace(
@@ -196,7 +199,7 @@ const LinkEditDialog = observer(
                         {resources.shared.cancel}
                     </DialogButton>
                     <DialogButton disabled={!canSave} raised dense action="save" isDefault>
-                        {resources.shared.ok}
+                        {resources.shared.save}
                     </DialogButton>
                 </DialogFooter>
             </Dialog>
