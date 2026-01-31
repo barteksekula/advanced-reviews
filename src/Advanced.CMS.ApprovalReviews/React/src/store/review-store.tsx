@@ -1,31 +1,31 @@
 import { format, formatDistance } from "date-fns";
-import da from "date-fns/locale/da";
-import de from "date-fns/locale/de";
-import en from "date-fns/locale/en-US";
-import es from "date-fns/locale/es";
-import fi from "date-fns/locale/fi";
-import fr from "date-fns/locale/fr";
-import it from "date-fns/locale/it";
-import ja from "date-fns/locale/ja";
-import no from "date-fns/locale/nb"; // date-fns uses bokmål as the default norwegian culture, not nynorsk as in epi
-import nl from "date-fns/locale/nl";
-import sv from "date-fns/locale/sv";
-import zh_cn from "date-fns/locale/zh-CN";
+import { da } from "date-fns/locale/da";
+import { de } from "date-fns/locale/de";
+import { enUS } from "date-fns/locale/en-US";
+import { es } from "date-fns/locale/es";
+import { fi } from "date-fns/locale/fi";
+import { fr } from "date-fns/locale/fr";
+import { it } from "date-fns/locale/it";
+import { ja } from "date-fns/locale/ja";
+import { nb } from "date-fns/locale/nb"; // date-fns uses bokmål as the default norwegian culture, not nynorsk as in epi
+import { nl } from "date-fns/locale/nl";
+import { sv } from "date-fns/locale/sv";
+import { zhCN } from "date-fns/locale/zh-CN";
 import { action, computed, makeAutoObservable, makeObservable, observable } from "mobx";
 
 const locales = {
     da,
     de,
-    en,
+    en: enUS,
     es,
     fi,
     fr,
     it,
     ja,
     nl,
-    no,
+    no: nb,
     sv,
-    zh_cn,
+    zh_cn: zhCN,
 };
 
 /**
