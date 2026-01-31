@@ -2,63 +2,49 @@ import "./drop-down-menu.scss";
 
 import Icon from "@mui/material/Icon";
 import Menu from "@mui/material/Menu";
-import React, { PropsWithChildren } from "react";
+import React, { PropsWithChildren, useCallback, useRef, useState } from "react";
 
 interface DropDownMenuProps {
     title?: string;
     icon: string | React.ReactNode;
 }
 
-export class DropDownMenu extends React.Component<PropsWithChildren<DropDownMenuProps>, any> {
-    constructor(props: PropsWithChildren<DropDownMenuProps>) {
-        super(props);
-        this.state = {
-            isMenuOpen: false,
-            anchorElement: null,
-        };
-    }
+export const DropDownMenu: React.FC<PropsWithChildren<DropDownMenuProps>> = ({ title, icon, children }) => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const anchorElementRef = useRef<HTMLDivElement>(null);
 
-    openMenu = () => {
-        this.setState({ isMenuOpen: true });
-    };
+    const openMenu = useCallback(() => {
+        setIsMenuOpen(true);
+    }, []);
 
-    closeMenu = () => {
-        this.setState({ isMenuOpen: false });
-    };
+    const closeMenu = useCallback(() => {
+        setIsMenuOpen(false);
+    }, []);
 
-    setAnchorElement = (element) => {
-        if (this.state.anchorElement) {
-            return;
-        }
-        this.setState({ anchorElement: element });
-    };
+    const iconContent = typeof icon === "string" ? <Icon>{icon}</Icon> : icon;
 
-    render() {
-        const iconContent = typeof this.props.icon === "string" ? <Icon>{this.props.icon}</Icon> : this.props.icon;
-
-        return (
-            <div className="mdc-menu-surface--anchor" ref={this.setAnchorElement}>
-                <div
-                    className="menu-button"
-                    onClick={this.openMenu}
-                    title={this.props.title}
-                    style={{ cursor: "pointer", display: "inline-flex", alignItems: "center" }}
-                >
-                    {iconContent}
-                </div>
-                <Menu
-                    className="epi-context-menu"
-                    open={this.state.isMenuOpen}
-                    anchorEl={this.state.anchorElement}
-                    onClose={this.closeMenu}
-                    anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "left",
-                    }}
-                >
-                    {this.props.children}
-                </Menu>
+    return (
+        <div className="mdc-menu-surface--anchor" ref={anchorElementRef}>
+            <div
+                className="menu-button"
+                onClick={openMenu}
+                title={title}
+                style={{ cursor: "pointer", display: "inline-flex", alignItems: "center" }}
+            >
+                {iconContent}
             </div>
-        );
-    }
-}
+            <Menu
+                className="epi-context-menu"
+                open={isMenuOpen}
+                anchorEl={anchorElementRef.current}
+                onClose={closeMenu}
+                anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "left",
+                }}
+            >
+                {children}
+            </Menu>
+        </div>
+    );
+};

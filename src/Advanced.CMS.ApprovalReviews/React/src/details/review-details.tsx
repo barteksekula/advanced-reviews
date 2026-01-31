@@ -1,9 +1,9 @@
 import "./review-details.scss";
 
 import Button from "@mui/material/Button";
-import { IReactionDisposer, reaction } from "mobx";
+import { reaction } from "mobx";
 import { inject, observer } from "mobx-react";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ScrollArea from "react-scrollbar";
 
 import Comment from "../comment/comment";
@@ -19,111 +19,105 @@ interface ReviewDetailsProps {
     onCancel: () => void;
 }
 
-class ReviewDetails extends React.Component<ReviewDetailsProps, NewPinDto> {
-    commentsChangedReaction: IReactionDisposer;
-    private scrollable: any;
+const ReviewDetails: React.FC<ReviewDetailsProps> = ({
+    iframe,
+    reviewStore,
+    resources,
+    currentEditLocation,
+    onCancel,
+}) => {
+    const [currentPriority, setCurrentPriority] = useState(currentEditLocation.priority);
+    const [currentScreenshot, setCurrentScreenshot] = useState<string>(null);
+    const [screenshotMode, setScreenshotMode] = useState(false);
+    const [currentCommentText, setCurrentCommentText] = useState("");
+    const scrollableRef = useRef<any>(null);
 
-    componentDidMount(): void {
-        this.scrollToBottom();
-    }
-
-    constructor(props: ReviewDetailsProps) {
-        super(props);
-        this.state = {
-            currentPriority: this.props.currentEditLocation.priority,
-            currentScreenshot: null,
-            screenshotMode: false,
-            currentCommentText: "",
-        };
-
-        this.commentsChangedReaction = reaction(
-            () => {
-                //uncomment the below code to see the trigger message
-                //return state.messages.map((a) => a)
-                return this.props.currentEditLocation.comments.slice();
-            },
-            () => {
-                this.scrollToBottom();
-            },
-        );
-    }
-
-    componentWillUnmount(): void {
-        this.commentsChangedReaction();
-    }
-
-    scrollToBottom = () => {
+    const scrollToBottom = () => {
         setTimeout(() => {
-            this.scrollable.scrollBottom();
+            scrollableRef.current?.scrollBottom();
         }, 0);
     };
 
-    addNewComment = () => {
-        this.props.reviewStore.addComment(this.state.currentCommentText, this.state.currentScreenshot).then(() => {
-            this.setState({ screenshotMode: false, currentScreenshot: null, currentCommentText: "" });
+    useEffect(() => {
+        scrollToBottom();
+    }, []);
+
+    useEffect(() => {
+        const dispose = reaction(
+            () => {
+                return currentEditLocation.comments.slice();
+            },
+            () => {
+                scrollToBottom();
+            },
+        );
+
+        return () => {
+            dispose();
+        };
+    }, [currentEditLocation.comments]);
+
+    const addNewComment = () => {
+        reviewStore.addComment(currentCommentText, currentScreenshot).then(() => {
+            setScreenshotMode(false);
+            setCurrentScreenshot(null);
+            setCurrentCommentText("");
         });
     };
 
-    updateComment = (comment: string, screenshot: string) => {
-        this.setState({ currentScreenshot: screenshot, currentCommentText: comment });
+    const updateComment = (comment: string, screenshot: string) => {
+        setCurrentScreenshot(screenshot);
+        setCurrentCommentText(comment);
     };
 
-    render() {
-        const canSave: boolean = this.state.currentCommentText.trim() !== "";
+    const canSave: boolean = currentCommentText.trim() !== "";
+    const res = resources!;
 
-        const res = this.props.resources!;
-
-        return (
-            <div className="review-details">
-                <div className="first-comment">
-                    <Comment comment={this.props.currentEditLocation.firstComment} amplify />
-                </div>
-                <ScrollArea
-                    speed={0.8}
-                    className="comments-list"
-                    horizontal={false}
-                    ref={(ref) => (this.scrollable = ref)}
-                >
-                    {this.props.currentEditLocation.comments.map((comment, idx) => (
-                        <Comment key={idx} comment={comment} />
-                    ))}
-                </ScrollArea>
-                {!this.props.currentEditLocation.isDone && (
-                    <>
-                        <LocationComment
-                            value={this.state.currentCommentText}
-                            currentScreenshot={this.state.currentScreenshot}
-                            onToggle={() => this.setState({ screenshotMode: !this.state.screenshotMode })}
-                            onChange={(comment, screenshot) => {
-                                this.updateComment(comment, screenshot);
-                            }}
-                            allowScreenshotAttachments={this.props.reviewStore.options.allowScreenshotAttachments}
-                        />
-                        {this.state.screenshotMode && (
-                            <ScreenshotDialog
-                                maxWidth={500}
-                                maxHeight={300}
-                                iframe={this.props.iframe}
-                                propertyName={this.props.currentEditLocation.propertyName}
-                                documentRelativePosition={this.props.currentEditLocation.documentRelativePosition}
-                                documentSize={this.props.currentEditLocation.documentSize}
-                                onImageSelected={(output) => {
-                                    this.setState({ currentScreenshot: output });
-                                }}
-                                toggle={() => this.setState({ screenshotMode: !this.state.screenshotMode })}
-                            />
-                        )}
-                        <div className="actions">
-                            <Button onClick={this.props.onCancel}>{res.dialog.close}</Button>
-                            <Button disabled={!canSave} onClick={this.addNewComment}>
-                                {res.dialog.addcomment}
-                            </Button>
-                        </div>
-                    </>
-                )}
+    return (
+        <div className="review-details">
+            <div className="first-comment">
+                <Comment comment={currentEditLocation.firstComment} amplify />
             </div>
-        );
-    }
-}
+            <ScrollArea speed={0.8} className="comments-list" horizontal={false} ref={scrollableRef}>
+                {currentEditLocation.comments.map((comment, idx) => (
+                    <Comment key={idx} comment={comment} />
+                ))}
+            </ScrollArea>
+            {!currentEditLocation.isDone && (
+                <>
+                    <LocationComment
+                        value={currentCommentText}
+                        currentScreenshot={currentScreenshot}
+                        onToggle={() => setScreenshotMode(!screenshotMode)}
+                        onChange={(comment, screenshot) => {
+                            updateComment(comment, screenshot);
+                        }}
+                        allowScreenshotAttachments={reviewStore.options.allowScreenshotAttachments}
+                    />
+                    {screenshotMode && (
+                        <ScreenshotDialog
+                            maxWidth={500}
+                            maxHeight={300}
+                            iframe={iframe}
+                            propertyName={currentEditLocation.propertyName}
+                            documentRelativePosition={currentEditLocation.documentRelativePosition}
+                            documentSize={currentEditLocation.documentSize}
+                            onImageSelected={(output) => {
+                                setCurrentScreenshot(output);
+                            }}
+                            toggle={() => setScreenshotMode(!screenshotMode)}
+                        />
+                    )}
+                    <div className="actions">
+                        <Button onClick={onCancel}>{res.dialog.close}</Button>
+                        <Button disabled={!canSave} onClick={addNewComment}>
+                            {res.dialog.addcomment}
+                        </Button>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
 
 export default inject("reviewStore", "resources")(observer(ReviewDetails));

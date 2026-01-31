@@ -1,7 +1,7 @@
-import { beforeEach, describe, test } from "vitest";
+import { beforeEach, describe, expect, test } from "vitest";
 
 import { Dimensions, PinPositioningDetails } from "../store/review-store";
-import PositionCalculator from "./position-calculator";
+import createPositionCalculator from "./position-calculator";
 
 const originalPinLocation: Dimensions = { x: 100, y: 200 };
 const originalDocumentLocation: Dimensions = { x: 800, y: 800 };
@@ -17,12 +17,12 @@ const getPin = (extraProps?): PinPositioningDetails => {
 
 describe("when property position data is not available", () => {
     let pin: PinPositioningDetails;
-    let positionCalculator: PositionCalculator;
+    let positionCalculator: ReturnType<typeof createPositionCalculator>;
 
     describe("and the document size is the same as the saved one", () => {
         beforeEach(() => {
             pin = getPin();
-            positionCalculator = new PositionCalculator(originalDocumentLocation, false);
+            positionCalculator = createPositionCalculator(originalDocumentLocation, false);
         });
 
         test("it should return original position", () => {
@@ -35,7 +35,7 @@ describe("when property position data is not available", () => {
         beforeEach(() => {
             pin = getPin();
             const newDocumentSize: Dimensions = { x: 1200, y: 600 };
-            positionCalculator = new PositionCalculator(newDocumentSize, false);
+            positionCalculator = createPositionCalculator(newDocumentSize, false);
         });
 
         test("it should return rescaled position relative to the new document size", () => {
@@ -50,7 +50,7 @@ describe("when property position data is not available", () => {
 
 // describe("when property position data is available", () => {
 //     let pin: PinPositioningDetails;
-//     let positionCalculator: PositionCalculator;
+//     let positionCalculator: ReturnType<typeof createPositionCalculator>;
 //
 //     beforeEach(() => {
 //         pin = getPin({
@@ -58,7 +58,7 @@ describe("when property position data is not available", () => {
 //             propertyPosition: { x: 1, y: 1 },
 //             propertySize: { x: 1, y: 1 }
 //         });
-//         positionCalculator = new PositionCalculator(originalDocumentLocation);
+//         positionCalculator = createPositionCalculator(originalDocumentLocation, false);
 //     });
 //
 //     test("it should return position relative to the document", () => {

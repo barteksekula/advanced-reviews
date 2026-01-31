@@ -9,9 +9,9 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import Switch from "@mui/material/Switch";
 import classNames from "classnames";
-import { IReactionDisposer, reaction } from "mobx";
+import { reaction } from "mobx";
 import { inject, observer } from "mobx-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import Comment from "../comment/comment";
 import Confirmation from "../confirmation/confirmation";
@@ -113,205 +113,197 @@ const Filters = inject("resources")(
     }),
 );
 
-class SlidingPanel extends React.Component<SlidingPanelProps, any> {
-    locationChangedReaction: IReactionDisposer;
+const SlidingPanel: React.FC<SlidingPanelProps> = ({ iframe, reviewStore, resources }) => {
+    const [panelVisible, setPanelVisible] = useState(false);
+    const [currentPinToRemove, setCurrentPinToRemove] = useState<PinLocation>(null);
 
-    constructor(props: SlidingPanelProps) {
-        super(props);
-        this.state = {
-            panelVisible: false,
-            currentPinToRemove: null,
-        };
-
-        this.locationChangedReaction = reaction(
+    useEffect(() => {
+        const dispose = reaction(
             () => {
-                return this.props.reviewStore.editedPinLocation;
+                return reviewStore.editedPinLocation;
             },
             () => {
-                this.setState({ panelVisible: true });
-                if (this.props.reviewStore.editedPinLocation) {
-                    this.props.reviewStore.editedPinLocation.updateCurrentUserLastRead();
+                setPanelVisible(true);
+                if (reviewStore.editedPinLocation) {
+                    reviewStore.editedPinLocation.updateCurrentUserLastRead();
                 }
             },
         );
-    }
 
-    onSelected = (index: number): void => {
+        return () => {
+            dispose();
+        };
+    }, [reviewStore]);
+
+    const onSelected = (index: number): void => {
         //TODO: implement scroll into view for point
-        this.props.reviewStore.selectedPinLocation = this.props.reviewStore.reviewLocations[index];
+        reviewStore.selectedPinLocation = reviewStore.reviewLocations[index];
     };
 
-    showPanel = () => {
-        this.props.reviewStore.selectedPinLocation = null;
-        this.props.reviewStore.editedPinLocation = null;
-        this.setState({ panelVisible: true });
+    const showPanel = () => {
+        reviewStore.selectedPinLocation = null;
+        reviewStore.editedPinLocation = null;
+        setPanelVisible(true);
     };
 
-    hidePanel = () => {
-        this.props.reviewStore.selectedPinLocation = null;
-        this.props.reviewStore.editedPinLocation = null;
-        this.setState({ panelVisible: false });
+    const hidePanel = () => {
+        reviewStore.selectedPinLocation = null;
+        reviewStore.editedPinLocation = null;
+        setPanelVisible(false);
     };
 
-    onEditClick(e: any, location: PinLocation) {
+    const onEditClick = (e: any, location: PinLocation) => {
         e.stopPropagation();
-        this.props.reviewStore.selectedPinLocation = location;
-        this.props.reviewStore.editedPinLocation = location;
-    }
-
-    resolveTask = () => {
-        this.props.reviewStore.toggleResolve();
+        reviewStore.selectedPinLocation = location;
+        reviewStore.editedPinLocation = location;
     };
 
-    onRemove = (action: boolean) => {
-        const pinToRemove = this.state.currentPinToRemove;
-        this.setState({ currentPinToRemove: null });
+    const resolveTask = () => {
+        reviewStore.toggleResolve();
+    };
+
+    const onRemove = (action: boolean) => {
+        const pinToRemove = currentPinToRemove;
+        setCurrentPinToRemove(null);
         if (!action) {
             return;
         }
-        this.props.reviewStore.remove(pinToRemove);
+        reviewStore.remove(pinToRemove);
     };
 
-    render() {
-        const { editedPinLocation, filter, reviewLocations, currentUser } = this.props.reviewStore!;
-        const res = this.props.resources!;
+    const { editedPinLocation, filter, reviewLocations, currentUser } = reviewStore!;
+    const res = resources!;
 
-        const chipPropertyNameSettings = {
-            title:
-                editedPinLocation && this.props.reviewStore.resolvePropertyDisplayName(editedPinLocation.propertyName),
-        };
+    const chipPropertyNameSettings = {
+        title: editedPinLocation && reviewStore.resolvePropertyDisplayName(editedPinLocation.propertyName),
+    };
 
-        return (
-            <>
-                {!this.state.panelVisible && (
-                    <>
-                        <div className="panel-container-settings narrow">
-                            <IconButton title={res.panel.expand} onClick={this.showPanel}>
-                                <Icon>first_page</Icon>
-                            </IconButton>
-                        </div>
-                        <div className={classNames("panel-container narrow", filter.reviewMode ? "review-mode" : "")}>
-                            <Legend filter={filter} />
-                        </div>
-                    </>
-                )}
-                {this.state.panelVisible && (
-                    <>
-                        <div className="panel-container-settings">
-                            <IconButton className="close-panel" onClick={this.hidePanel} title={res.panel.collapse}>
-                                <Icon>last_page</Icon>
-                            </IconButton>
-                        </div>
-                        <div className="panel-container">
-                            {editedPinLocation && (
-                                <div className="panel-header">
-                                    <Checkbox
-                                        id="resolved"
-                                        checked={this.props.reviewStore.editedPinLocation.isDone}
-                                        onChange={this.resolveTask}
+    return (
+        <>
+            {!panelVisible && (
+                <>
+                    <div className="panel-container-settings narrow">
+                        <IconButton title={res.panel.expand} onClick={showPanel}>
+                            <Icon>first_page</Icon>
+                        </IconButton>
+                    </div>
+                    <div className={classNames("panel-container narrow", filter.reviewMode ? "review-mode" : "")}>
+                        <Legend filter={filter} />
+                    </div>
+                </>
+            )}
+            {panelVisible && (
+                <>
+                    <div className="panel-container-settings">
+                        <IconButton className="close-panel" onClick={hidePanel} title={res.panel.collapse}>
+                            <Icon>last_page</Icon>
+                        </IconButton>
+                    </div>
+                    <div className="panel-container">
+                        {editedPinLocation && (
+                            <div className="panel-header">
+                                <Checkbox
+                                    id="resolved"
+                                    checked={reviewStore.editedPinLocation.isDone}
+                                    onChange={resolveTask}
+                                />
+                                <label htmlFor="resolved">{res.panel.resolved}</label>
+                                {editedPinLocation.propertyName && (
+                                    <Chip
+                                        sx={{
+                                            backgroundColor: "#673ab7", // $secondary700 from your SCSS
+                                            color: "#fafafa", // $surface50 from your SCSS
+                                            marginLeft: "8px",
+                                            "& .MuiChip-icon": {
+                                                color: "#fafafa", // Match the text color
+                                            },
+                                            "& .MuiChip-label": {
+                                                maxWidth: "100px",
+                                                textOverflow: "ellipsis",
+                                                overflow: "hidden",
+                                            },
+                                        }}
+                                        label={reviewStore.resolvePropertyDisplayName(editedPinLocation.propertyName)}
+                                        icon={<Icon>bookmark</Icon>}
+                                        {...chipPropertyNameSettings}
                                     />
-                                    <label htmlFor="resolved">{res.panel.resolved}</label>
-                                    {editedPinLocation.propertyName && (
-                                        <Chip
-                                            sx={{
-                                                backgroundColor: "#673ab7", // $secondary700 from your SCSS
-                                                color: "#fafafa", // $surface50 from your SCSS
-                                                marginLeft: "8px",
-                                                "& .MuiChip-icon": {
-                                                    color: "#fafafa", // Match the text color
-                                                },
-                                                "& .MuiChip-label": {
-                                                    maxWidth: "100px",
-                                                    textOverflow: "ellipsis",
-                                                    overflow: "hidden",
-                                                },
-                                            }}
-                                            label={this.props.reviewStore.resolvePropertyDisplayName(
-                                                editedPinLocation.propertyName,
-                                            )}
-                                            icon={<Icon>bookmark</Icon>}
-                                            {...chipPropertyNameSettings}
-                                        />
-                                    )}
-                                    <PinNavigator />
-                                </div>
-                            )}
-                            {!editedPinLocation && (
-                                <>
-                                    <Filters filter={filter} />
-                                    <h3>List of Pins</h3>
-                                    <List className="locations">
-                                        {reviewLocations.map((location, index) => (
-                                            <ListItem
-                                                key={location.id}
-                                                disablePadding
-                                                secondaryAction={
-                                                    <>
-                                                        {location.comments.length === 0 &&
-                                                            location.firstComment.author === currentUser && (
-                                                                <IconButton
-                                                                    className="delete"
-                                                                    title={res.removepindialog.title}
-                                                                    onClick={() =>
-                                                                        this.setState({ currentPinToRemove: location })
-                                                                    }
-                                                                    edge="end"
-                                                                    sx={{ mr: 1 }}
-                                                                >
-                                                                    <Icon>delete</Icon>
-                                                                </IconButton>
-                                                            )}
-                                                        <IconButton
-                                                            className="edit"
-                                                            title={res.panel.opendetails}
-                                                            onClick={(e) => this.onEditClick(e, location)}
-                                                            edge="end"
-                                                        >
-                                                            <Icon>edit</Icon>
-                                                        </IconButton>
-                                                    </>
-                                                }
+                                )}
+                                <PinNavigator />
+                            </div>
+                        )}
+                        {!editedPinLocation && (
+                            <>
+                                <Filters filter={filter} />
+                                <h3>List of Pins</h3>
+                                <List className="locations">
+                                    {reviewLocations.map((location, index) => (
+                                        <ListItem
+                                            key={location.id}
+                                            disablePadding
+                                            secondaryAction={
+                                                <>
+                                                    {location.comments.length === 0 &&
+                                                        location.firstComment.author === currentUser && (
+                                                            <IconButton
+                                                                className="delete"
+                                                                title={res.removepindialog.title}
+                                                                onClick={() => setCurrentPinToRemove(location)}
+                                                                edge="end"
+                                                                sx={{ mr: 1 }}
+                                                            >
+                                                                <Icon>delete</Icon>
+                                                            </IconButton>
+                                                        )}
+                                                    <IconButton
+                                                        className="edit"
+                                                        title={res.panel.opendetails}
+                                                        onClick={(e) => onEditClick(e, location)}
+                                                        edge="end"
+                                                    >
+                                                        <Icon>edit</Icon>
+                                                    </IconButton>
+                                                </>
+                                            }
+                                        >
+                                            <ListItemButton
+                                                title={res.panel.clicktoedit}
+                                                selected={reviewStore.selectedPinLocationIndex === index}
+                                                onClick={() => onSelected(index)}
+                                                onDoubleClick={(e) => onEditClick(e, location)}
                                             >
-                                                <ListItemButton
-                                                    title={res.panel.clicktoedit}
-                                                    selected={this.props.reviewStore.selectedPinLocationIndex === index}
-                                                    onClick={() => this.onSelected(index)}
-                                                    onDoubleClick={(e) => this.onEditClick(e, location)}
-                                                >
-                                                    <Comment
-                                                        comment={location.firstComment}
-                                                        isImportant={location.priority === Priority.Important}
-                                                        isDone={location.isDone}
-                                                    />
-                                                </ListItemButton>
-                                            </ListItem>
-                                        ))}
-                                    </List>
-                                </>
-                            )}
-                            {editedPinLocation && (
-                                <ReviewDetails
-                                    onCancel={() => (this.props.reviewStore.editedPinLocation = null)}
-                                    iframe={this.props.iframe}
-                                    currentEditLocation={this.props.reviewStore.editedPinLocation}
-                                />
-                            )}
-                            {!!this.state.currentPinToRemove && (
-                                <Confirmation
-                                    title={res.removepindialog.title}
-                                    description={res.removepindialog.description}
-                                    okName={res.removepindialog.ok}
-                                    cancelName={res.removepindialog.cancel}
-                                    open={!!this.state.currentPinToRemove}
-                                    onCloseDialog={this.onRemove}
-                                />
-                            )}
-                        </div>
-                    </>
-                )}
-            </>
-        );
-    }
-}
+                                                <Comment
+                                                    comment={location.firstComment}
+                                                    isImportant={location.priority === Priority.Important}
+                                                    isDone={location.isDone}
+                                                />
+                                            </ListItemButton>
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            </>
+                        )}
+                        {editedPinLocation && (
+                            <ReviewDetails
+                                onCancel={() => (reviewStore.editedPinLocation = null)}
+                                iframe={iframe}
+                                currentEditLocation={reviewStore.editedPinLocation}
+                            />
+                        )}
+                        {!!currentPinToRemove && (
+                            <Confirmation
+                                title={res.removepindialog.title}
+                                description={res.removepindialog.description}
+                                okName={res.removepindialog.ok}
+                                cancelName={res.removepindialog.cancel}
+                                open={!!currentPinToRemove}
+                                onCloseDialog={onRemove}
+                            />
+                        )}
+                    </div>
+                </>
+            )}
+        </>
+    );
+};
 
 export default inject("resources", "reviewStore")(observer(SlidingPanel));

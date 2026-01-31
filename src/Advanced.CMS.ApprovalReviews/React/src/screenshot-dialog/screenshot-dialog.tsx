@@ -6,9 +6,8 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import html2canvas from "html2canvas";
-import { computed, makeObservable } from "mobx";
 import { inject, observer } from "mobx-react";
-import React from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import ReactCrop, { Crop } from "react-image-crop";
 
 import DrawablePreview from "../drawable-preview/drawable-preview";
@@ -26,22 +25,16 @@ interface ScreenshotPickerProps {
     maxHeight: number;
 }
 
-interface ScreenshotPickerState {
-    crop: Crop;
-    input: string;
-    drawerInput: ResizeResult;
+interface ResizeResult {
+    image: string;
+    width: number;
+    height: number;
 }
 
 enum Mode {
     Default,
     Crop,
     Highlight,
-}
-
-interface ResizeResult {
-    image: string;
-    width: number;
-    height: number;
 }
 
 function resize(base64Str: string, maxWidth: number, maxHeight: number): Promise<ResizeResult> {
@@ -77,69 +70,156 @@ function resize(base64Str: string, maxWidth: number, maxHeight: number): Promise
     });
 }
 
-class ScreenshotDialog extends React.Component<ScreenshotPickerProps, ScreenshotPickerState> {
-    defaultCrop = {
+function getDefaultCrop(
+    propertyName: string | undefined,
+    iframe: HTMLIFrameElement,
+    documentRelativePosition: Dimensions,
+    documentSize: Dimensions,
+) {
+    const defaultCrop = {
         width: 50,
         height: 50,
         x: 10,
         y: 10,
     };
-    private imageRef: any;
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            crop: this.getDefaultCrop(),
-            input: null,
-            drawerInput: null,
-        };
-
-        makeObservable(this, {
-            mode: computed,
-        });
+    function offset(el: HTMLElement) {
+        const rect = el.getBoundingClientRect(),
+            scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
+            scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        return { top: rect.top + scrollTop, left: rect.left + scrollLeft };
     }
 
-    get mode() {
-        if (this.state.input) {
+    // if user didn't click on the property then try to show default crop on the pin location
+    function getDefaultDocumentCrop(position: Dimensions, size: Dimensions) {
+        const rectangleSize = 20;
+
+        if (!position || !size) {
+            return null;
+        }
+
+        if (size.x === 0 || size.y === 0) {
+            return null;
+        }
+
+        const defaultDocumentCrop: any = {};
+        defaultDocumentCrop.width = rectangleSize;
+        defaultDocumentCrop.height = rectangleSize;
+
+        // get x and y
+        defaultDocumentCrop.x = (position.x * 100) / size.x - rectangleSize / 2;
+        defaultDocumentCrop.y = (position.y * 100) / size.y - rectangleSize / 2;
+        if (defaultDocumentCrop.x < 0) {
+            defaultDocumentCrop.x = 0;
+        } else if (defaultDocumentCrop.x + rectangleSize > 100) {
+            defaultDocumentCrop.x = 100 - rectangleSize;
+        }
+        if (defaultDocumentCrop.y < 0) {
+            defaultDocumentCrop.y = 0;
+        } else if (defaultDocumentCrop.y + rectangleSize > 100) {
+            defaultDocumentCrop.y = 100 - rectangleSize;
+        }
+
+        return defaultDocumentCrop;
+    }
+
+    const defaultDocumentCrop =
+        getDefaultDocumentCrop(documentRelativePosition, documentSize) || Object.assign(defaultCrop);
+
+    if (!propertyName) {
+        return defaultDocumentCrop;
+    }
+
+    const propertyEl: HTMLElement = iframe.contentDocument.querySelector(`[data-epi-property-name='${propertyName}']`);
+    if (!propertyEl) {
+        return defaultDocumentCrop;
+    }
+
+    const iframeWidth = iframe.offsetWidth;
+    const iframeHeight = iframe.offsetHeight;
+
+    if (iframeWidth === 0 || iframeHeight === 0) {
+        return defaultDocumentCrop;
+    }
+
+    const elWidth = propertyEl.offsetWidth;
+    const elHeight = propertyEl.offsetHeight;
+
+    const percentageWidth = (elWidth * 100) / iframeWidth;
+    const percentageHeight = (elHeight * 100) / iframeHeight;
+
+    const elOffset = offset(propertyEl);
+    const percentX = (elOffset.left * 100) / iframeWidth;
+    const percentY = (elOffset.top * 100) / iframeHeight;
+
+    return {
+        width: percentageWidth,
+        height: percentageHeight,
+        x: percentX,
+        y: percentY,
+    };
+}
+
+const ScreenshotDialog: React.FC<ScreenshotPickerProps> = ({
+    iframe,
+    propertyName,
+    documentRelativePosition,
+    documentSize,
+    resources,
+    onImageSelected,
+    toggle,
+    maxWidth,
+    maxHeight,
+}) => {
+    const defaultCrop = useMemo(
+        () => getDefaultCrop(propertyName, iframe, documentRelativePosition, documentSize),
+        [propertyName, iframe, documentRelativePosition, documentSize],
+    );
+
+    const [crop, setCrop] = useState<Crop>(defaultCrop);
+    const [input, setInput] = useState<string>(null);
+    const [drawerInput, setDrawerInput] = useState<ResizeResult>(null);
+    const imageRef = useRef<any>(null);
+
+    const mode = useMemo(() => {
+        if (input) {
             return Mode.Crop;
         }
-        if (this.state.drawerInput) {
+        if (drawerInput) {
             return Mode.Highlight;
         }
-
         return Mode.Default;
-    }
+    }, [input, drawerInput]);
 
-    onCropChange = (crop) => {
-        this.setState({ crop });
-    };
-
-    componentDidMount(): void {
-        html2canvas(this.props.iframe.contentDocument.body, {
+    useEffect(() => {
+        html2canvas(iframe.contentDocument.body, {
             allowTaint: true,
             useCORS: true,
         }).then((canvas) => {
-            this.setState({ input: canvas.toDataURL() });
+            setInput(canvas.toDataURL());
         });
-    }
+    }, [iframe]);
 
-    cancel = () => {
-        this.setState({ crop: this.defaultCrop, input: null, drawerInput: null });
-        this.props.toggle();
+    const cancel = () => {
+        setCrop(defaultCrop);
+        setInput(null);
+        setDrawerInput(null);
+        toggle();
     };
 
-    crop = async () => {
-        if (!this.state.crop) {
+    const cropImage = async () => {
+        if (!crop) {
             return;
         }
 
-        const croppedImg = this.getCroppedImg(this.imageRef);
-        const resizedImage = await resize(croppedImg, this.props.maxWidth, this.props.maxHeight);
-        this.setState({ crop: this.defaultCrop, input: null, drawerInput: resizedImage });
+        const croppedImg = getCroppedImg(imageRef.current);
+        const resizedImage = await resize(croppedImg, maxWidth, maxHeight);
+        setCrop(defaultCrop);
+        setInput(null);
+        setDrawerInput(resizedImage);
     };
 
-    getCroppedImg(image) {
-        const crop = this.state.crop;
+    const getCroppedImg = (image) => {
         const canvas = document.createElement("canvas");
         const scaleX = image.naturalWidth / image.width;
         const scaleY = image.naturalHeight / image.height;
@@ -160,153 +240,74 @@ class ScreenshotDialog extends React.Component<ScreenshotPickerProps, Screenshot
         );
 
         return canvas.toDataURL();
-    }
-
-    onImageLoaded = (image) => {
-        this.imageRef = image;
     };
 
-    onCropComplete = (crop) => {
-        this.setState({ crop });
+    const onImageLoaded = (image) => {
+        imageRef.current = image;
     };
 
-    remove = () => {
-        this.props.onImageSelected(null);
-        this.setState({ crop: this.defaultCrop, input: null, drawerInput: null });
+    const onCropComplete = (newCrop) => {
+        setCrop(newCrop);
     };
 
-    onCancel = () => {
-        this.remove();
-        this.props.toggle();
+    const remove = () => {
+        onImageSelected(null);
+        setCrop(defaultCrop);
+        setInput(null);
+        setDrawerInput(null);
     };
 
-    onApplyDrawing = (img) => {
-        this.props.onImageSelected(img);
-        this.setState({ crop: this.defaultCrop, input: null, drawerInput: null });
-        this.props.toggle();
+    const onCancel = () => {
+        remove();
+        toggle();
     };
 
-    getDefaultCrop = () => {
-        function offset(el: HTMLElement) {
-            const rect = el.getBoundingClientRect(),
-                scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
-                scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            return { top: rect.top + scrollTop, left: rect.left + scrollLeft };
-        }
-
-        // if user didn't click on the property then try to show default crop on the pin location
-        function getDefaultDocumentCrop(position: Dimensions, size: Dimensions) {
-            const rectangleSize = 20;
-
-            if (!position || !size) {
-                return null;
-            }
-
-            if (size.x === 0 || size.y === 0) {
-                return null;
-            }
-
-            const defaultDocumentCrop: any = {};
-            defaultDocumentCrop.width = rectangleSize;
-            defaultDocumentCrop.height = rectangleSize;
-
-            // get x and y
-            defaultDocumentCrop.x = (position.x * 100) / size.x - rectangleSize / 2;
-            defaultDocumentCrop.y = (position.y * 100) / size.y - rectangleSize / 2;
-            if (defaultDocumentCrop.x < 0) {
-                defaultDocumentCrop.x = 0;
-            } else if (defaultDocumentCrop.x + rectangleSize > 100) {
-                defaultDocumentCrop.x = 100 - rectangleSize;
-            }
-            if (defaultDocumentCrop.y < 0) {
-                defaultDocumentCrop.y = 0;
-            } else if (defaultDocumentCrop.y + rectangleSize > 100) {
-                defaultDocumentCrop.y = 100 - rectangleSize;
-            }
-
-            return defaultDocumentCrop;
-        }
-
-        const defaultDocumentCrop =
-            getDefaultDocumentCrop(this.props.documentRelativePosition, this.props.documentSize) ||
-            Object.assign(this.defaultCrop);
-
-        if (!this.props.propertyName) {
-            return defaultDocumentCrop;
-        }
-
-        const propertyEl: HTMLElement = this.props.iframe.contentDocument.querySelector(
-            `[data-epi-property-name='${this.props.propertyName}']`,
-        );
-        if (!propertyEl) {
-            return defaultDocumentCrop;
-        }
-
-        const iframeWidth = this.props.iframe.offsetWidth;
-        const iframeHeight = this.props.iframe.offsetHeight;
-
-        if (iframeWidth === 0 || iframeHeight === 0) {
-            return defaultDocumentCrop;
-        }
-
-        const elWidth = propertyEl.offsetWidth;
-        const elHeight = propertyEl.offsetHeight;
-
-        const percentageWidth = (elWidth * 100) / iframeWidth;
-        const percentageHeight = (elHeight * 100) / iframeHeight;
-
-        const elOffset = offset(propertyEl);
-        const percentX = (elOffset.left * 100) / iframeWidth;
-        const percentY = (elOffset.top * 100) / iframeHeight;
-
-        return {
-            width: percentageWidth,
-            height: percentageHeight,
-            x: percentX,
-            y: percentY,
-        };
+    const onApplyDrawing = (img) => {
+        onImageSelected(img);
+        setCrop(defaultCrop);
+        setInput(null);
+        setDrawerInput(null);
+        toggle();
     };
 
-    render() {
-        return (
-            <Dialog className="screenshot-picker-dialog" open={this.mode !== Mode.Default} onClose={this.cancel}>
-                <DialogTitle>
-                    <div className="header">{this.props.resources.screenshot.cropandhighlight}</div>
-                </DialogTitle>
-                <DialogContent>
-                    <div className="screenshot-picker">
-                        {this.mode === Mode.Crop && (
-                            <>
-                                <ReactCrop
-                                    className="screenshot-cropper"
-                                    crop={this.state.crop}
-                                    onImageLoaded={this.onImageLoaded}
-                                    src={this.state.input}
-                                    onChange={this.onCropChange}
-                                    onComplete={this.onCropComplete}
-                                />
-                                <DialogActions>
-                                    <Button onClick={this.cancel}>cancel</Button>
-                                    <Button onClick={this.crop} disabled={!this.state.crop.width}>
-                                        Crop
-                                    </Button>
-                                </DialogActions>
-                            </>
-                        )}
-                        {this.mode === Mode.Highlight && (
-                            <DrawablePreview
-                                src={this.state.drawerInput.image}
-                                width={this.state.drawerInput.width}
-                                height={this.state.drawerInput.height}
-                                onCancel={this.onCancel}
-                                onApplyDrawing={this.onApplyDrawing}
+    return (
+        <Dialog className="screenshot-picker-dialog" open={mode !== Mode.Default} onClose={cancel}>
+            <DialogTitle>
+                <div className="header">{resources.screenshot.cropandhighlight}</div>
+            </DialogTitle>
+            <DialogContent>
+                <div className="screenshot-picker">
+                    {mode === Mode.Crop && (
+                        <>
+                            <ReactCrop
+                                className="screenshot-cropper"
+                                crop={crop}
+                                onImageLoaded={onImageLoaded}
+                                src={input}
+                                onChange={setCrop}
+                                onComplete={onCropComplete}
                             />
-                        )}
-                    </div>
-                </DialogContent>
-            </Dialog>
-        );
-    }
-}
+                            <DialogActions>
+                                <Button onClick={cancel}>cancel</Button>
+                                <Button onClick={cropImage} disabled={!crop.width}>
+                                    Crop
+                                </Button>
+                            </DialogActions>
+                        </>
+                    )}
+                    {mode === Mode.Highlight && (
+                        <DrawablePreview
+                            src={drawerInput.image}
+                            width={drawerInput.width}
+                            height={drawerInput.height}
+                            onCancel={onCancel}
+                            onApplyDrawing={onApplyDrawing}
+                        />
+                    )}
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+};
 
 export default inject("resources")(observer(ScreenshotDialog));

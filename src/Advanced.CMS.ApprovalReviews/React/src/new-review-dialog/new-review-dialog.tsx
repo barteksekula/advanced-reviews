@@ -6,7 +6,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import { inject, observer } from "mobx-react";
-import React from "react";
+import React, { useState } from "react";
 
 import { ContextMenu } from "../common/context-menu";
 import LocationComment from "../location-comment/location-comment";
@@ -23,102 +23,98 @@ interface NewReviewDialogProps {
     onCloseDialog(action: string, state: NewPinDto): void;
 }
 
-class NewReviewDialog extends React.Component<NewReviewDialogProps, NewPinDto> {
-    constructor(props: NewReviewDialogProps) {
-        super(props);
-        this.state = {
-            currentPriority: this.props.currentEditLocation.priority,
-            currentScreenshot: null,
-            screenshotMode: false,
-            currentCommentText: "",
-        };
-    }
+const NewReviewDialog: React.FC<NewReviewDialogProps> = ({
+    iframe,
+    reviewStore,
+    resources,
+    currentEditLocation,
+    onCloseDialog,
+}) => {
+    const [currentPriority, setCurrentPriority] = useState(currentEditLocation.priority);
+    const [currentScreenshot, setCurrentScreenshot] = useState<string>(null);
+    const [screenshotMode, setScreenshotMode] = useState(false);
+    const [currentCommentText, setCurrentCommentText] = useState("");
 
-    updateComment = (comment: string, screenshot: string) => {
-        this.setState({ currentScreenshot: screenshot, currentCommentText: comment });
+    const updateComment = (comment: string, screenshot: string) => {
+        setCurrentScreenshot(screenshot);
+        setCurrentCommentText(comment);
     };
 
-    render() {
-        const res = this.props.resources!;
-        const reviewStore = this.props.reviewStore;
+    const getState = (): NewPinDto => ({
+        currentPriority,
+        currentScreenshot,
+        screenshotMode,
+        currentCommentText,
+    });
 
-        const options = Object.keys(Priority).map((priority) => {
-            return {
-                name: res.priority[priority.toLowerCase()],
-                icon: priorityIconMappings[priority],
-                onSelected: () => {
-                    this.setState({ currentPriority: Priority[priority] });
-                },
-            };
-        });
+    const res = resources!;
 
-        const canSave: boolean = this.state.currentCommentText.trim() !== "";
+    const options = Object.keys(Priority).map((priority) => {
+        return {
+            name: res.priority[priority.toLowerCase()],
+            icon: priorityIconMappings[priority],
+            onSelected: () => {
+                setCurrentPriority(Priority[priority]);
+            },
+        };
+    });
 
-        return (
-            <>
-                <Dialog
-                    className="review-dialog"
-                    open={true}
-                    onClose={() => this.props.onCloseDialog("cancel", this.state)}
-                >
-                    <DialogTitle>
-                        <div className="header">
-                            <div className="left-align">
-                                {reviewStore.resolvePropertyDisplayName(this.props.currentEditLocation.propertyName) ||
-                                    res.dialog.reviewedit}
-                            </div>
-                            <div className="review-actions">
-                                <ContextMenu
-                                    icon={priorityIconMappings[this.state.currentPriority]}
-                                    title={res.dialog.changepriority}
-                                    menuItems={options}
-                                />
-                            </div>
+    const canSave: boolean = currentCommentText.trim() !== "";
+
+    return (
+        <>
+            <Dialog className="review-dialog" open={true} onClose={() => onCloseDialog("cancel", getState())}>
+                <DialogTitle>
+                    <div className="header">
+                        <div className="left-align">
+                            {reviewStore.resolvePropertyDisplayName(currentEditLocation.propertyName) ||
+                                res.dialog.reviewedit}
                         </div>
-                    </DialogTitle>
-                    <DialogContent>
-                        <div className="dialog-grid">
-                            <LocationComment
-                                value={this.state.currentCommentText}
-                                currentScreenshot={this.state.currentScreenshot}
-                                onToggle={() => this.setState({ screenshotMode: !this.state.screenshotMode })}
-                                onChange={(comment, screenshot) => {
-                                    this.updateComment(comment, screenshot);
-                                }}
-                                allowScreenshotAttachments={reviewStore.options.allowScreenshotAttachments}
+                        <div className="review-actions">
+                            <ContextMenu
+                                icon={priorityIconMappings[currentPriority]}
+                                title={res.dialog.changepriority}
+                                menuItems={options}
                             />
                         </div>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={() => this.props.onCloseDialog("cancel", this.state)}>
-                            {res.dialog.close}
-                        </Button>
-                        <Button
-                            variant="contained"
-                            onClick={() => this.props.onCloseDialog("save", this.state)}
-                            disabled={!canSave}
-                        >
-                            {res.dialog.save}
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-                {this.state.screenshotMode && (
-                    <ScreenshotDialog
-                        maxWidth={500}
-                        maxHeight={300}
-                        iframe={this.props.iframe}
-                        propertyName={this.props.currentEditLocation.propertyName}
-                        documentRelativePosition={this.props.currentEditLocation.documentRelativePosition}
-                        documentSize={this.props.currentEditLocation.documentSize}
-                        onImageSelected={(output) => {
-                            this.setState({ currentScreenshot: output });
-                        }}
-                        toggle={() => this.setState({ screenshotMode: !this.state.screenshotMode })}
-                    />
-                )}
-            </>
-        );
-    }
-}
+                    </div>
+                </DialogTitle>
+                <DialogContent>
+                    <div className="dialog-grid">
+                        <LocationComment
+                            value={currentCommentText}
+                            currentScreenshot={currentScreenshot}
+                            onToggle={() => setScreenshotMode(!screenshotMode)}
+                            onChange={(comment, screenshot) => {
+                                updateComment(comment, screenshot);
+                            }}
+                            allowScreenshotAttachments={reviewStore.options.allowScreenshotAttachments}
+                        />
+                    </div>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => onCloseDialog("cancel", getState())}>{res.dialog.close}</Button>
+                    <Button variant="contained" onClick={() => onCloseDialog("save", getState())} disabled={!canSave}>
+                        {res.dialog.save}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            {screenshotMode && (
+                <ScreenshotDialog
+                    maxWidth={500}
+                    maxHeight={300}
+                    iframe={iframe}
+                    propertyName={currentEditLocation.propertyName}
+                    documentRelativePosition={currentEditLocation.documentRelativePosition}
+                    documentSize={currentEditLocation.documentSize}
+                    onImageSelected={(output) => {
+                        setCurrentScreenshot(output);
+                    }}
+                    toggle={() => setScreenshotMode(!screenshotMode)}
+                />
+            )}
+        </>
+    );
+};
 
 export default inject("reviewStore", "resources")(observer(NewReviewDialog));

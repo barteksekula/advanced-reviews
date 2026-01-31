@@ -1,24 +1,22 @@
 import { Dimensions, PinPositioningDetails } from "../store/review-store";
 import offset from "./offset";
 
-export default class PositionCalculator {
-    private readonly _documentSize: Dimensions;
-    private readonly _external: boolean;
-    private readonly _document: Document;
+interface PositionCalculator {
+    calculate: (location: PinPositioningDetails) => Dimensions;
+}
 
-    constructor(documentSize: Dimensions, external: boolean, document?: Document) {
-        this._documentSize = documentSize;
-        this._external = external;
-        this._document = document;
-    }
-
-    private positionDomNode(
+export default function createPositionCalculator(
+    documentSize: Dimensions,
+    external: boolean,
+    document?: Document,
+): PositionCalculator {
+    const positionDomNode = (
         node: HTMLElement,
         documentRelativeOffset: Dimensions,
         nodePosition: Dimensions,
         nodeSize: Dimensions,
-    ) {
-        const nodeOffset = offset(node, this._external);
+    ): Dimensions => {
+        const nodeOffset = offset(node, external);
 
         const originalOffsetFromLeft = documentRelativeOffset.x - nodePosition.x;
         const originalOffsetFromTop = documentRelativeOffset.y - nodePosition.y;
@@ -33,40 +31,38 @@ export default class PositionCalculator {
             x: currentOffsetFromLeft + originalOffsetFromLeft * xPropertyFactor,
             y: currentOffsetFromTop + originalOffsetFromTop * yPropertyFactor,
         };
-    }
+    };
 
-    private resize(location: PinPositioningDetails) {
+    const resize = (location: PinPositioningDetails): Dimensions => {
         const xFactor = location.documentRelativePosition.x / location.documentSize.x;
         const yFactor = location.documentRelativePosition.y / location.documentSize.y;
 
         return {
-            x: xFactor * this._documentSize.x,
-            y: yFactor * this._documentSize.y,
+            x: xFactor * documentSize.x,
+            y: yFactor * documentSize.y,
         };
-    }
+    };
 
-    calculate(location: PinPositioningDetails): Dimensions {
-        if (this._document) {
+    const calculate = (location: PinPositioningDetails): Dimensions => {
+        if (document) {
             if (location.clickedDomNodeSelector && location.clickedDomNodePosition && location.clickedDomNodeSize) {
-                const node: HTMLElement = this._document.querySelector(location.clickedDomNodeSelector);
+                const node: HTMLElement = document.querySelector(location.clickedDomNodeSelector);
                 if (!node) {
-                    return this.resize(location);
+                    return resize(location);
                 }
 
-                return this.positionDomNode(
+                return positionDomNode(
                     node,
                     location.documentRelativePosition,
                     location.clickedDomNodePosition,
                     location.clickedDomNodeSize,
                 );
             } else if (location.propertyName && location.propertyPosition && location.propertySize) {
-                const node: HTMLElement = this._document.querySelector(
-                    `[data-epi-property-name='${location.propertyName}']`,
-                );
+                const node: HTMLElement = document.querySelector(`[data-epi-property-name='${location.propertyName}']`);
                 if (!node) {
-                    return this.resize(location);
+                    return resize(location);
                 }
-                return this.positionDomNode(
+                return positionDomNode(
                     node,
                     location.documentRelativePosition,
                     location.propertyPosition,
@@ -75,6 +71,10 @@ export default class PositionCalculator {
             }
         }
 
-        return this.resize(location);
-    }
+        return resize(location);
+    };
+
+    return {
+        calculate,
+    };
 }

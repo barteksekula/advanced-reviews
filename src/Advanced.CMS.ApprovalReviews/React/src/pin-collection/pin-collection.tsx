@@ -4,43 +4,41 @@ import { inject, observer } from "mobx-react";
 import React from "react";
 
 import Pin from "../pin/pin";
-import PositionCalculator from "../position-calculator/position-calculator";
+import createPositionCalculator from "../position-calculator/position-calculator";
 import { IReviewComponentStore, PinLocation } from "../store/review-store";
 
 interface PinCollectionProps {
     reviewStore?: IReviewComponentStore;
     newLocation?: PinLocation;
-    positionCalculator?: PositionCalculator;
+    positionCalculator?: ReturnType<typeof createPositionCalculator>;
 }
 
-class PinCollection extends React.Component<PinCollectionProps> {
-    onLocationClick = (e, location: PinLocation) => {
+const PinCollection: React.FC<PinCollectionProps> = ({ reviewStore, newLocation, positionCalculator }) => {
+    const onLocationClick = (e, location: PinLocation) => {
         e.stopPropagation();
-        this.props.reviewStore.selectedPinLocation = this.props.reviewStore.editedPinLocation = location;
+        reviewStore.selectedPinLocation = reviewStore.editedPinLocation = location;
     };
 
-    render() {
-        const { selectedPinLocation, filteredReviewLocations } = this.props.reviewStore!;
-        const locations = [...filteredReviewLocations];
+    const { selectedPinLocation, filteredReviewLocations } = reviewStore!;
+    const locations = [...filteredReviewLocations];
 
-        if (this.props.newLocation && !locations.some((location) => location === this.props.newLocation)) {
-            locations.push(this.props.newLocation);
-        }
-
-        return (
-            <div>
-                {locations.map((location) => (
-                    <Pin
-                        key={location.id || "unsaved"}
-                        location={location}
-                        position={this.props.positionCalculator.calculate(location)}
-                        showDialog={(e) => this.onLocationClick(e, location)}
-                        highlighted={location === selectedPinLocation}
-                    />
-                ))}
-            </div>
-        );
+    if (newLocation && !locations.some((location) => location === newLocation)) {
+        locations.push(newLocation);
     }
-}
+
+    return (
+        <div>
+            {locations.map((location) => (
+                <Pin
+                    key={location.id || "unsaved"}
+                    location={location}
+                    position={positionCalculator.calculate(location)}
+                    showDialog={(e) => onLocationClick(e, location)}
+                    highlighted={location === selectedPinLocation}
+                />
+            ))}
+        </div>
+    );
+};
 
 export default inject("reviewStore")(observer(PinCollection));
