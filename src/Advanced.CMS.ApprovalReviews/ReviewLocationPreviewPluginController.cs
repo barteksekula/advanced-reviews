@@ -1,10 +1,13 @@
 using EPiServer.Shell.Services.Rest;
 using Microsoft.AspNetCore.Mvc;
+using EditUrlResolver = EPiServer.Web.Routing.EditUrlResolver;
 
 namespace Advanced.CMS.ApprovalReviews;
 
 internal class ReviewLocationPreviewPluginController(
     IApprovalReviewsRepository repository,
+    IContentLoader contentLoader,
+    EditUrlResolver editUrlResolver,
     ReviewUrlGenerator reviewUrlGenerator)
     : Controller
 {
@@ -20,10 +23,21 @@ internal class ReviewLocationPreviewPluginController(
 
     public ActionResult GetAll()
     {
-        var result = repository.LoadAll().GroupBy(x => x.ContentLink.ToReferenceWithoutVersion()).Select(x => new
+        var result = repository.LoadAll().GroupBy(x => x.ContentLink.ToReferenceWithoutVersion()).Select(x =>
         {
-            Id = x.Key,
-            ContentLinks = x.Select(c => new { c.ContentLink, c.SerializedReview })
+            var content = contentLoader.Get<IContent>(x.Key);
+
+            return new
+            {
+                Id = x.Key,
+                content.Name,
+                ContentLinks = x.Select(c =>
+                {
+                    var editModeLink = editUrlResolver.GetEditViewUrl(c.ContentLink);
+
+                    return new { c.ContentLink, EditModeUrl = editModeLink, c.SerializedReview };
+                })
+            };
         });
 
         return new RestResult { Data = result };

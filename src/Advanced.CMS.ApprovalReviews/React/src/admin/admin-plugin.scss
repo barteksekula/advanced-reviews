@@ -1,55 +1,395 @@
+* {
+    box-sizing: border-box;
+}
+
+#admin-plugin-container {
+    overflow: initial !important;
+}
+
 body {
     margin: 0;
     padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f5f5f5;
+    overflow: hidden;
+    height: calc(100vh - 120px);
+    width: calc(100vw - 300px);
 }
 
 .root {
-    width: 50%;
-    margin: auto;
-    margin-top: 50px;
+    height: calc(100vh - 120px);
+    width: calc(100vw - 300px);
+    background-color: #fff;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    h2 {
+        font-size: 24px;
+        font-weight: 600;
+        color: #333;
+        margin: 20px 20px 4px 20px;
+        border-bottom: 3px solid #0073e6;
+        padding-bottom: 8px;
+    }
+
+    h6 {
+        font-size: 13px;
+        font-weight: normal;
+        color: #666;
+        margin: 0 20px 16px 20px;
+    }
 }
 
 .reviews-list {
-    display: table;
+    display: flex;
+    gap: 16px;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    padding: 0 20px 20px 20px;
 }
 
-.reviews-list .list,
-.reviews-list .details {
-    display: table-cell;
-    vertical-align: top;
+.list-container {
+    flex: 0 0 220px;
+    width: 220px;
+    background-color: #fafafa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100%;
+
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #c0c0c0;
+        border-radius: 4px;
+
+        &:hover {
+            background: #a0a0a0;
+        }
+    }
 }
 
-.reviews-list .list {
-    width: 150px;
-    min-width: 150px;
+.list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    > li {
+        margin-bottom: 10px;
+        background-color: #fff;
+        border-radius: 6px;
+        padding: 8px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    ul {
+        list-style: none;
+        margin: 4px 0 0 0;
+        padding: 0;
+    }
 }
 
-.reviews-list .main-link {
-    font-weight: bold;
-    width: 100%;
-    display: inline-block;
-    padding: 2px;
-    border-bottom: 1px solid #c0c0c0;
+.main-link {
+    font-weight: 600;
+    font-size: 11px;
+    color: #fff;
+    background: linear-gradient(135deg, #0073e6 0%, #005bb5 100%);
+    display: block;
+    padding: 6px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    word-break: break-all;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 115, 230, 0.2);
+
+    .content-name {
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 3px;
+        line-height: 1.2;
+        text-transform: none;
+        letter-spacing: normal;
+    }
+
+    .content-id {
+        font-size: 9px;
+        font-weight: 400;
+        opacity: 0.85;
+        line-height: 1.2;
+    }
 }
 
-.reviews-list .list > li {
-    margin-bottom: 15px;
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 6px;
+    margin: 2px 0;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+        background-color: #f0f7ff;
+    }
+
+    a {
+        font-size: 11px;
+        color: #0073e6;
+        text-decoration: none;
+        transition: color 0.2s ease;
+        word-break: break-all;
+
+        &:hover {
+            color: #005bb5;
+            text-decoration: underline;
+        }
+
+        &:first-child {
+            flex: 1;
+            margin-right: 6px;
+        }
+    }
 }
 
-.reviews-list .delete {
-    display: none;
-    float: right;
+.delete {
+    opacity: 0;
+    color: #d32f2f !important;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 3px;
+    transition:
+        opacity 0.2s ease,
+        background-color 0.2s ease;
+    white-space: nowrap;
+
+    &:hover {
+        background-color: #ffebee;
+        text-decoration: none !important;
+    }
 }
 
-.reviews-list .list .row:hover .delete {
-    display: inline-block;
+.row:hover .delete {
+    opacity: 1;
 }
 
-.reviews-list .details {
-    padding-left: 10px;
+.details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #fafafa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+    overflow: hidden;
+    height: 100%;
+    min-width: 0;
+    margin-right: 32px;
+
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: #c0c0c0;
+        border-radius: 4px;
+
+        &:hover {
+            background: #a0a0a0;
+        }
+    }
+
+    &.placeholder {
+        align-items: center;
+        justify-content: center;
+        background-color: #fff;
+        border: 2px dashed #e0e0e0;
+    }
+
+    .details-header {
+        flex-shrink: 0;
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #e0e0e0;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .details-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .details-content-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 4px;
+        word-break: break-all;
+    }
+
+    .details-version {
+        font-size: 12px;
+        font-weight: 500;
+        color: #666;
+        word-break: break-all;
+    }
+
+    .details-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .icon-button {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+
+        svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        &:active {
+            transform: scale(0.95);
+        }
+    }
+
+    .edit-button {
+        background-color: #e3f2fd;
+        color: #0073e6;
+
+        &:hover {
+            background-color: #0073e6;
+            color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 115, 230, 0.3);
+        }
+    }
+
+    .delete-button {
+        background-color: #ffebee;
+        color: #d32f2f;
+
+        &:hover {
+            background-color: #d32f2f;
+            color: #fff;
+            box-shadow: 0 2px 4px rgba(211, 47, 47, 0.3);
+        }
+    }
+
+    .json-container {
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    > div {
+        font-family: "Courier New", Courier, monospace;
+        word-break: break-word;
+    }
+
+    pre {
+        background-color: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        padding: 12px;
+        overflow: auto;
+        font-size: 12px;
+        line-height: 1.5;
+        margin: 0;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        flex: 1;
+        white-space: pre;
+        word-wrap: normal;
+    }
 }
 
-.reviews-list .details > div {
-    font-family: Courier;
-    word-break: break-word;
+.placeholder-content {
+    text-align: center;
+    max-width: 400px;
+
+    svg {
+        width: 80px;
+        height: 80px;
+        color: #c0c0c0;
+        margin-bottom: 20px;
+    }
+
+    h3 {
+        font-size: 20px;
+        font-weight: 600;
+        color: #666;
+        margin: 0 0 12px 0;
+    }
+
+    p {
+        font-size: 14px;
+        color: #999;
+        margin: 0;
+        line-height: 1.6;
+    }
+}
+
+.error-message {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border-left: 4px solid #d32f2f;
+    margin-bottom: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+
+    svg {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    p {
+        font-size: 16px;
+        margin: 0;
+    }
 }
