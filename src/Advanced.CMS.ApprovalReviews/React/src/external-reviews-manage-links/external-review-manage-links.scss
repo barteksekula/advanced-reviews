@@ -1,4 +1,4 @@
-@import "../_variables";
+@use "../_variables" as *;
 
 .external-reviews-list {
     height: calc(100% - 70px);

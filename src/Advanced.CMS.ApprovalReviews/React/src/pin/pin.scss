@@ -1,4 +1,4 @@
-@import "../_variables";
+@use "../_variables" as *;
 
 .review-location {
     position: absolute;

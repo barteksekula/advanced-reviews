@@ -1,5 +1,5 @@
 ﻿import react from "@vitejs/plugin-react";
-import eslint from "vite-plugin-eslint";
+import eslint from "vite-plugin-eslint2";
 import externalize from "vite-plugin-externalize-dependencies";
 
 const isWatch = process.argv.includes("--watch");
@@ -24,7 +24,6 @@ const plugins = [
     eslint({
         fix: !isProductionBuild,
         emitError: !isWatch,
-        failOnError: !isWatch,
         include: ["src/**/*.ts", "src/**/*.tsx"],
         exclude: ["**/*.js", "node_modules/**"],
     }),
@@ -33,6 +32,8 @@ const plugins = [
 export default {
     plugins: plugins,
     build: {
+        chunkSizeWarningLimit: 5000,
+        emptyOutDir: false,
         rollupOptions: {
             preserveEntrySignatures: "strict",
             input: "",
