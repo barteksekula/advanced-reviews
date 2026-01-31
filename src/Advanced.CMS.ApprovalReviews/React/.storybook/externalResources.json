@@ -1,49 +1,50 @@
 {
-  "component": {
-    "title": "External review links",
-    "description": "Manage list of external review links"
-  },
-  "removedialog": {
-    "cancel": "Cancel",
-    "description": "Are you sure you want to remove link?",
-    "ok": "Ok",
-    "title": "Remove link"
-  },
-  "list": {
-    "projectname": "Project",
-    "deletetitle": "delete",
-    "emptylist": "There are no external links for this content",
-    "itemvalidto": "Valid to",
-    "sharetitle": "share",
-    "viewlink": "View",
-    "editlink": "Edit",
-    "editdialog": {
-      "title": "Edit link",
-      "newitemtitle": "Add link",
-      "pincode": "PIN code",
-      "digits": "digits",
-      "displayname": "Display name",
-      "pincheckboxlabel": "Update PIN code",
-      "linksecured": "Link secured with PIN code",
-      "linknotsecured": "Link with no PIN code security",
-      "displaynamehelptext": "Optional link name",
-      "visitorgroups": "Visitor groups",
-      "visitorgroupshelptext": "Impersonate as selected visitor groups",
-      "validto": "Valid to",
-      "prolongbydays": "Prolong by [#days#] days"
+    "component": {
+        "title": "External review links",
+        "description": "Manage list of external review links"
+    },
+    "removedialog": {
+        "cancel": "Cancel",
+        "description": "Are you sure you want to remove link?",
+        "ok": "Ok",
+        "title": "Remove link"
+    },
+    "list": {
+        "projectname": "Project",
+        "deletetitle": "delete",
+        "emptylist": "There are no external links for this content",
+        "itemvalidto": "Valid to",
+        "sharetitle": "share",
+        "viewlink": "View",
+        "editlink": "Edit",
+        "editdialog": {
+            "title": "Edit link",
+            "newitemtitle": "Add link",
+            "pincode": "PIN code",
+            "digits": "digits",
+            "displayname": "Display name",
+            "pincheckboxlabel": "Update PIN code",
+            "linksecured": "Link secured with PIN code",
+            "linknotsecured": "Link with no PIN code security",
+            "displaynamehelptext": "Optional link name",
+            "visitorgroups": "Visitor groups",
+            "visitorgroupshelptext": "Impersonate as selected visitor groups",
+            "validto": "Valid to",
+            "prolongbydays": "Prolong by [#days#] days"
+        }
+    },
+    "sharedialog": {
+        "cancelbutton": "Cancel",
+        "dialogtitle": "Share link to the content with external editor",
+        "emailmessagelabel": "Email message",
+        "emailsubjectlabel": "Email subject",
+        "emailaddresslabel": "Email address",
+        "messagehint": "Text [#link#] will be replaced with link to content.",
+        "sendbutton": "Send"
+    },
+    "shared": {
+        "ok": "Ok",
+        "cancel": "Cancel",
+        "save": "Save"
     }
-  },
-  "sharedialog": {
-    "cancelbutton": "Cancel",
-    "dialogtitle": "Share link to the content with external editor",
-    "emailmessagelabel": "Email message",
-    "emailsubjectlabel": "Email subject",
-    "emailaddresslabel": "Email address",
-    "messagehint": "Text [#link#] will be replaced with link to content.",
-    "sendbutton": "Send"
-  },
-  "shared": {
-    "ok": "Ok",
-    "cancel": "Cancel"
-  }
 }

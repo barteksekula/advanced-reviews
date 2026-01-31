@@ -1,4 +1,4 @@
-import { storiesOf } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import { Provider } from "mobx-react";
 import React from "react";
 
@@ -9,11 +9,21 @@ import SlidingPanel from "./reviews-sliding-panel";
 
 const stores = createStores(new FakeAdvancedReviewService(), resources);
 
-storiesOf("Sliding panel", module).add("default", () => {
-    stores.reviewStore.load();
-    return (
-        <Provider {...stores}>
-            <SlidingPanel />
-        </Provider>
-    );
-});
+const meta: Meta<typeof SlidingPanel> = {
+    title: "Sliding panel",
+    component: SlidingPanel,
+};
+
+export default meta;
+type Story = StoryObj<typeof SlidingPanel>;
+
+export const Default: Story = {
+    render: () => {
+        stores.reviewStore.load();
+        return (
+            <Provider {...stores}>
+                <SlidingPanel />
+            </Provider>
+        );
+    },
+};

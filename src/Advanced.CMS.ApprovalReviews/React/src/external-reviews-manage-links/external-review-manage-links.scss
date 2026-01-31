@@ -2,53 +2,33 @@
 
 .external-reviews-list {
     height: calc(100% - 70px);
-    overflow-y: scroll;
+    overflow-y: auto;
 
     .list-item {
-        padding: 0 8px;
-        font-size: 0.75rem;
-        height: 55px;
-
-        .mdc-list-item__secondary-text {
-            font-size: 0.7rem;
-        }
-
-        .mdc-list-item__graphic {
-            margin-right: 8px;
-        }
+        position: relative;
 
         .item-inactive {
             color: $surface700;
             font-style: italic;
         }
 
-        a {
-            color: $mdc-theme-primary;
-            cursor: pointer;
+        .item-action {
+            opacity: 0;
+            transition: opacity 0.2s ease;
         }
 
-        .item-action {
-            display: none;
+        &:hover .item-action {
+            opacity: 1;
         }
 
         .info-icons {
             position: absolute;
             left: 2px;
             top: 2px;
-        }
-
-        .link-secured {
+            display: flex;
+            gap: 4px;
             font-size: 16px;
             color: #555;
-            float: left;
-        }
-
-        .epi-iconProject {
-            float: left;
-        }
-
-        &:hover .item-action {
-            display: inline-block;
         }
     }
 }
@@ -57,48 +37,27 @@
     font-style: italic;
     color: $surface700;
     height: calc(100% - 50px);
-
-    > span {
-        display: block;
-        text-align: center;
-        position: relative;
-        top: 50%;
-        transform: translateY(-50%);
-
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-    }
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
 }
 
 .external-link-edit-dialog {
-    width: 400px;
-
-    .checkbox-label {
-        line-height: 40px;
-        display: inline-block;
-    }
-
-    span {
-        font-size: 14px;
-        line-height: 36px;
-    }
-
     .visitor-groups-list {
         max-height: 200px;
         overflow-y: auto;
+        display: flex;
+        flex-direction: column;
     }
 
     .field-group {
         padding-bottom: 16px;
+    }
 
-        &.prolong {
-            height: 36px;
-
-            > span {
-                float: left;
-            }
-        }
+    .prolong {
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 }

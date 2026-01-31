@@ -1,8 +1,11 @@
 import "./external-review-manage-links.scss";
-import "@episerver/ui-framework/dist/main.css";
 
-import { IconButton, List, ListItem, ListItemGraphic, ListItemText } from "@episerver/ui-framework";
-import MaterialIcon from "@material/react-material-icon";
+import Icon from "@mui/material/Icon";
+import IconButton from "@mui/material/IconButton";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
 import { format } from "date-fns";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
@@ -115,24 +118,58 @@ const ExternalReviewWidgetContent = observer(
                 )}
 
                 {store.links.length > 0 && (
-                    <List twoLine className="external-reviews-list">
+                    <List className="external-reviews-list">
                         {store.links.map((item: ReviewLink) => {
                             const link = item.isActive ? (
-                                <a href={item.linkUrl} target="_blank">
+                                <a href={item.linkUrl} target="_blank" rel="noopener noreferrer">
                                     {item.displayName || item.token}
                                 </a>
                             ) : (
                                 <span className="item-inactive">{item.token}</span>
                             );
 
-                            const icon = <MaterialIcon icon={item.isEditable ? "rate_review" : "pageview"} />;
+                            const icon = <Icon>{item.isEditable ? "rate_review" : "pageview"}</Icon>;
 
                             return (
-                                <ListItem key={item.token} className="list-item">
-                                    {editableLinksEnabled && <ListItemGraphic graphic={icon} />}
+                                <ListItem
+                                    key={item.token}
+                                    className="list-item"
+                                    secondaryAction={
+                                        <>
+                                            <IconButton
+                                                className="item-action"
+                                                title={resources.list.editlink}
+                                                onClick={() => setLinkToEdit(item)}
+                                                edge="end"
+                                                sx={{ mr: 1 }}
+                                            >
+                                                <Icon>edit</Icon>
+                                            </IconButton>
+                                            <IconButton
+                                                className="item-action"
+                                                disabled={!item.isActive}
+                                                title={resources.list.sharetitle}
+                                                onClick={() => setLinkToShare(item)}
+                                                edge="end"
+                                                sx={{ mr: 1 }}
+                                            >
+                                                <Icon>share</Icon>
+                                            </IconButton>
+                                            <IconButton
+                                                className="item-action"
+                                                title={resources.list.deletetitle}
+                                                onClick={() => setLinkToDelete(item)}
+                                                edge="end"
+                                            >
+                                                <Icon>delete_outline</Icon>
+                                            </IconButton>
+                                        </>
+                                    }
+                                >
+                                    {editableLinksEnabled && <ListItemIcon>{icon}</ListItemIcon>}
                                     <ListItemText
-                                        primaryText={link}
-                                        secondaryText={
+                                        primary={link}
+                                        secondary={
                                             resources.list.itemvalidto +
                                             ": " +
                                             format(item.validTo, "MMM do yyyy HH:mm")
@@ -140,18 +177,17 @@ const ExternalReviewWidgetContent = observer(
                                     />
                                     <div className="info-icons">
                                         {item.pinCode && pinCodeSecurityEnabled && (
-                                            <MaterialIcon
-                                                icon="lock"
+                                            <Icon
                                                 className="link-secured"
                                                 title={resources.list.editdialog.linksecured}
-                                            />
+                                            >
+                                                lock
+                                            </Icon>
                                         )}
                                         {item.visitorGroups && item.visitorGroups.length > 0 && (
-                                            <MaterialIcon
-                                                icon="groups"
-                                                className="link-secured"
-                                                title="Visitor groups applied"
-                                            />
+                                            <Icon className="link-secured" title="Visitor groups applied">
+                                                groups
+                                            </Icon>
                                         )}
                                         {item.projectId > 0 && (
                                             <span
@@ -160,28 +196,6 @@ const ExternalReviewWidgetContent = observer(
                                             ></span>
                                         )}
                                     </div>
-                                    <IconButton
-                                        className="item-action"
-                                        title={resources.list.editlink}
-                                        onClick={() => setLinkToEdit(item)}
-                                    >
-                                        <MaterialIcon icon="edit" />
-                                    </IconButton>
-                                    <IconButton
-                                        className="item-action"
-                                        disabled={!item.isActive}
-                                        title={resources.list.sharetitle}
-                                        onClick={() => setLinkToShare(item)}
-                                    >
-                                        <MaterialIcon icon="share" />
-                                    </IconButton>
-                                    <IconButton
-                                        className="item-action"
-                                        title={resources.list.deletetitle}
-                                        onClick={() => setLinkToDelete(item)}
-                                    >
-                                        <MaterialIcon icon="delete_outline" />
-                                    </IconButton>
                                 </ListItem>
                             );
                         })}
@@ -192,7 +206,7 @@ const ExternalReviewWidgetContent = observer(
                         <ContextMenu icon="playlist_add" title="" menuItems={options} />
                     ) : (
                         <IconButton title="Add link" onClick={() => addNewLink(false)}>
-                            <MaterialIcon icon="playlist_add" />
+                            <Icon>playlist_add</Icon>
                         </IconButton>
                     )}
                 </div>

@@ -1,7 +1,7 @@
-import { action } from "@storybook/addon-actions";
-import { storiesOf } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import { Provider } from "mobx-react";
 import React, { useState } from "react";
+import { action } from "storybook/actions";
 
 import FakeAdvancedReviewService from "../../.storybook/fake-advanced-review-service";
 import resources from "../../.storybook/resources.json";
@@ -40,7 +40,7 @@ const Component = ({ propertyName }: ComponentProps) => {
                     onLoad={onIframeLoaded}
                     ref={setAnchorElement}
                     style={{ width: "100%", height: "985px" }}
-                    src="../../.storybook/fake_OPE.html"
+                    src="/fake_OPE.html"
                 />
             </div>
 
@@ -58,18 +58,26 @@ const Component = ({ propertyName }: ComponentProps) => {
     );
 };
 
-storiesOf("Screenshot picker", module)
-    .add("default", () => {
-        return (
-            <Provider {...stores}>
-                <Component propertyName="" />
-            </Provider>
-        );
-    })
-    .add("with property", () => {
-        return (
-            <Provider {...stores}>
-                <Component propertyName="MetaDescription2" />
-            </Provider>
-        );
-    });
+const meta: Meta<typeof ScreenshotDialog> = {
+    title: "Screenshot picker",
+    component: ScreenshotDialog,
+};
+
+export default meta;
+type Story = StoryObj<typeof ScreenshotDialog>;
+
+export const Default: Story = {
+    render: () => (
+        <Provider {...stores}>
+            <Component propertyName="" />
+        </Provider>
+    ),
+};
+
+export const WithProperty: Story = {
+    render: () => (
+        <Provider {...stores}>
+            <Component propertyName="MetaDescription2" />
+        </Provider>
+    ),
+};

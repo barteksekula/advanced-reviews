@@ -1,23 +1,14 @@
-import { action } from "@storybook/addon-actions";
-import { boolean, select, withKnobs } from "@storybook/addon-knobs";
-import { storiesOf } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import React from "react";
+import { action } from "storybook/actions";
 
 import FakeAdvancedReviewService from "../../.storybook/fake-advanced-review-service";
 import resources from "../../.storybook/resources.json";
 import { Comment, createStores, PinLocation, Priority } from "../store/review-store";
 import Pin from "./pin";
 
-const stories = storiesOf("Pin", module);
-stories.addDecorator(withKnobs);
-
 const stores = createStores(new FakeAdvancedReviewService(), resources);
 stores.reviewStore.load();
-
-const priorityOptions = {};
-priorityOptions[Priority.Important] = "Important";
-priorityOptions[Priority.Normal] = "Normal";
-priorityOptions[Priority.Trivial] = "Trivial";
 
 const getReviewLocation = (
     isDone: boolean = false,
@@ -37,13 +28,17 @@ const getReviewLocation = (
     return reviewLocation;
 };
 
-stories
-    .add("default", () => {
-        const location = getReviewLocation(
-            boolean("Is done", false),
-            select("Priority", priorityOptions, Priority.Normal),
-            boolean("Is new", false),
-        );
+const meta: Meta<typeof Pin> = {
+    title: "Pin",
+    component: Pin,
+};
+
+export default meta;
+type Story = StoryObj<typeof Pin>;
+
+export const Default: Story = {
+    render: () => {
+        const location = getReviewLocation(false, Priority.Normal, false);
         return (
             <Pin
                 location={location}
@@ -51,8 +46,11 @@ stories
                 position={location.documentRelativePosition}
             />
         );
-    })
-    .add("done", () => {
+    },
+};
+
+export const Done: Story = {
+    render: () => {
         const reviewLocation = getReviewLocation(true);
         return (
             <Pin
@@ -61,8 +59,11 @@ stories
                 position={reviewLocation.documentRelativePosition}
             />
         );
-    })
-    .add("high priority", () => {
+    },
+};
+
+export const HighPriority: Story = {
+    render: () => {
         const reviewLocation = getReviewLocation(false, Priority.Important);
         return (
             <Pin
@@ -71,8 +72,11 @@ stories
                 showDialog={action("selectLocation")}
             />
         );
-    })
-    .add("low priority", () => {
+    },
+};
+
+export const LowPriority: Story = {
+    render: () => {
         const reviewLocation = getReviewLocation(false, Priority.Trivial);
         return (
             <Pin
@@ -81,8 +85,11 @@ stories
                 showDialog={action("selectLocation")}
             />
         );
-    })
-    .add("updated", () => {
+    },
+};
+
+export const Updated: Story = {
+    render: () => {
         const reviewLocation = getReviewLocation(false, Priority.Normal, true);
         return (
             <Pin
@@ -91,4 +98,5 @@ stories
                 showDialog={action("selectLocation")}
             />
         );
-    });
+    },
+};

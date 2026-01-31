@@ -1,4 +1,4 @@
-import { storiesOf } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import React from "react";
 
 import res from "../../.storybook/externalResources.json";
@@ -20,8 +20,16 @@ const getDefaultProps = (store: FakeReviewLinksStore): ExternalReviewWidgetConte
     prolongDays: 5,
 });
 
-storiesOf("External reviews/Review component", module)
-    .add("default", () => {
+const meta: Meta<typeof ExternalReviewWidgetContent> = {
+    title: "External reviews/Review component",
+    component: ExternalReviewWidgetContent,
+};
+
+export default meta;
+type Story = StoryObj<typeof ExternalReviewWidgetContent>;
+
+export const Default: Story = {
+    render: () => {
         const store = new FakeReviewLinksStore();
         store.initialMailSubject = "Review request";
         store.initialEditMailMessage =
@@ -29,24 +37,36 @@ storiesOf("External reviews/Review component", module)
         store.initialViewMailMessage =
             "VIEW: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed egestas rutrum lacus eget dapibus. Aenean eleifend commodo felis vitae convallis.";
         return <ExternalReviewWidgetContent {...getDefaultProps(store)} />;
-    })
-    .add("empty", () => {
+    },
+};
+
+export const Empty: Story = {
+    render: () => {
         const store = new FakeReviewLinksStore();
         store.links = [];
         return <ExternalReviewWidgetContent {...getDefaultProps(store)} />;
-    })
-    .add("only view links", () => {
+    },
+};
+
+export const OnlyViewLinks: Story = {
+    render: () => {
         const store = new FakeReviewLinksStore();
         store.links = [];
         return <ExternalReviewWidgetContent {...getDefaultProps(store)} editableLinksEnabled={false} />;
-    })
-    .add("with PIN security", () => {
+    },
+};
+
+export const WithPINSecurity: Story = {
+    render: () => {
         const store = new FakeReviewLinksStore();
         return (
             <ExternalReviewWidgetContent {...getDefaultProps(store)} pinCodeSecurityEnabled={true} pinCodeLength={4} />
         );
-    })
-    .add("with required PIN security", () => {
+    },
+};
+
+export const WithRequiredPINSecurity: Story = {
+    render: () => {
         const store = new FakeReviewLinksStore();
         return (
             <ExternalReviewWidgetContent
@@ -56,10 +76,14 @@ storiesOf("External reviews/Review component", module)
                 pinCodeLength={4}
             />
         );
-    })
-    .add("with PIN security not enabled", () => {
+    },
+};
+
+export const WithPINSecurityNotEnabled: Story = {
+    render: () => {
         const store = new FakeReviewLinksStore();
         return (
             <ExternalReviewWidgetContent {...getDefaultProps(store)} pinCodeSecurityEnabled={false} pinCodeLength={4} />
         );
-    });
+    },
+};

@@ -1,5 +1,5 @@
-import { Input, TextField } from "@episerver/ui-framework";
-import { storiesOf } from "@storybook/react";
+import TextField from "@mui/material/TextField";
+import type { Meta, StoryObj } from "@storybook/react";
 import { Provider } from "mobx-react";
 import React, { useEffect, useState } from "react";
 
@@ -41,41 +41,58 @@ function Component({ initialLocale = "en" }) {
                     id="iframe"
                     ref={setAnchorElement}
                     style={{ width: "100%", height: "985px" }}
-                    src="../../.storybook/fake_OPE.html"
+                    src="/fake_OPE.html"
                 />
             </div>
             {!!anchorElement && iframeLoaded && <IframeWithPins iframe={anchorElement} />}
             <div className="user-picker">
-                <TextField label="Current user">
-                    <Input value={text} onChange={(e: React.FormEvent<any>) => setText(e.currentTarget.value)} />
-                </TextField>
+                <TextField
+                    label="Current user"
+                    value={text}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setText(e.target.value)}
+                />
             </div>
         </div>
     );
 }
 
-storiesOf("Dojo component", module)
-    .add("default", () => {
+const meta: Meta<typeof IframeWithPins> = {
+    title: "Dojo component",
+    component: IframeWithPins,
+};
+
+export default meta;
+type Story = StoryObj<typeof IframeWithPins>;
+
+export const Default: Story = {
+    render: () => {
         stores.reviewStore.load();
         return (
             <Provider {...stores}>
                 <Component />
             </Provider>
         );
-    })
-    .add("Empty list", () => {
+    },
+};
+
+export const EmptyList: Story = {
+    render: () => {
         stores.reviewStore.reviewLocations = [];
         return (
             <Provider {...stores}>
                 <Component />
             </Provider>
         );
-    })
-    .add("Swedish locale", () => {
+    },
+};
+
+export const SwedishLocale: Story = {
+    render: () => {
         stores.reviewStore.load();
         return (
             <Provider {...stores}>
                 <Component initialLocale="sv" />
             </Provider>
         );
-    });
+    },
+};

@@ -1,7 +1,7 @@
-import { decorate } from "@storybook/addon-actions";
-import { storiesOf } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import { Provider } from "mobx-react";
 import React from "react";
+import { action } from "storybook/actions";
 
 import FakeAdvancedReviewService from "../../.storybook/fake-advanced-review-service";
 import resources from "../../.storybook/resources.json";
@@ -85,7 +85,7 @@ const reviewLocation2 = new PinLocation(stores.reviewStore, {
 });
 
 function createEmptyLocation(): PinLocation {
-    return new PinLocation(this, {
+    return new PinLocation(stores.reviewStore, {
         id: "1",
         documentRelativePosition: { x: 10, y: 80 },
         propertyName: "Content area 1",
@@ -97,41 +97,57 @@ function createEmptyLocation(): PinLocation {
 
 stores.reviewStore.reviewLocations = [reviewLocation1];
 
-const firstArg = decorate([(args) => args.slice(0, 1)]);
+const meta: Meta<typeof NewReviewDialog> = {
+    title: "Dialog",
+    component: NewReviewDialog,
+};
 
-storiesOf("Dialog", module)
-    .add("default", () => {
+export default meta;
+type Story = StoryObj<typeof NewReviewDialog>;
+
+export const Default: Story = {
+    render: () => {
         stores.reviewStore.reviewLocations = [reviewLocation1];
         return (
             <Provider {...stores}>
-                <NewReviewDialog currentEditLocation={reviewLocation1} onCloseDialog={firstArg.action("test1")} />
+                <NewReviewDialog currentEditLocation={reviewLocation1} onCloseDialog={action("test1")} />
             </Provider>
         );
-    })
-    .add("with two comments", () => {
+    },
+};
+
+export const WithTwoComments: Story = {
+    render: () => {
         stores.reviewStore.reviewLocations = [reviewLocation1, reviewLocation2];
         return (
             <Provider {...stores}>
-                <NewReviewDialog currentEditLocation={reviewLocation1} onCloseDialog={firstArg.action("test1")} />
+                <NewReviewDialog currentEditLocation={reviewLocation1} onCloseDialog={action("test1")} />
             </Provider>
         );
-    })
-    .add("with empty comment", () => {
+    },
+};
+
+export const WithEmptyComment: Story = {
+    render: () => {
         const location = createEmptyLocation();
         stores.reviewStore.reviewLocations = [location];
         return (
             <Provider {...stores}>
-                <NewReviewDialog currentEditLocation={location} onCloseDialog={firstArg.action("test1")} />
+                <NewReviewDialog currentEditLocation={location} onCloseDialog={action("test1")} />
             </Provider>
         );
-    })
-    .add("with long property name", () => {
+    },
+};
+
+export const WithLongPropertyName: Story = {
+    render: () => {
         const location = createEmptyLocation();
         location.propertyName = "veryyyy long propertyyyyyyyyy nameeeeeeeeeeeeeeeeeeeeee";
         stores.reviewStore.reviewLocations = [location];
         return (
             <Provider {...stores}>
-                <NewReviewDialog currentEditLocation={location} onCloseDialog={firstArg.action("test1")} />
+                <NewReviewDialog currentEditLocation={location} onCloseDialog={action("test1")} />
             </Provider>
         );
-    });
+    },
+};

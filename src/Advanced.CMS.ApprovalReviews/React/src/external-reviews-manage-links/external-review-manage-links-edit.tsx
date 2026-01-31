@@ -1,7 +1,12 @@
-import "@material/react-dialog/index.scss";
-
-import { Checkbox, Input, TextButton, TextField } from "@episerver/ui-framework";
-import Dialog, { DialogButton, DialogContent, DialogFooter, DialogTitle } from "@material/react-dialog";
+import Button from "@mui/material/Button";
+import Checkbox from "@mui/material/Checkbox";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormHelperText from "@mui/material/FormHelperText";
+import TextField from "@mui/material/TextField";
 import { format, parse } from "date-fns";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
@@ -44,7 +49,19 @@ const LinkEditDialog = observer(
         const [prolongVisible, setProlongVisible] = useState<boolean>(true);
         const [pinCode, setPinCode] = useState<string>(reviewLink.pinCode || "");
         const [shouldUpdatePinCode, setShouldUpdatePinCode] = useState<boolean>(!reviewLink.pinCode);
-        const [canSave, setCanSave] = useState(!pinCodeSecurityRequired || !!reviewLink.pinCode);
+        // canSave logic:
+        // - Editable links don't need PIN, so always allow save
+        // - Non-editable links without existing PIN and with PIN required: must enter valid PIN first
+        // - All other cases: allow save
+        const [canSave, setCanSave] = useState(() => {
+            if (reviewLink.isEditable) {
+                return true; // Editable links don't use PIN security
+            }
+            if (!reviewLink.pinCode && pinCodeSecurityRequired) {
+                return false; // New non-editable link with PIN required - must enter valid PIN
+            }
+            return true; // Existing link or PIN not required
+        });
 
         if (prolongDays <= 0) {
             prolongDays = 5;
@@ -60,8 +77,8 @@ const LinkEditDialog = observer(
             onClose(validTo, newPin, displayName, visitorGroups);
         };
 
-        const updatePinCode = (event: React.FormEvent<HTMLInputElement>) => {
-            const newValue = event.currentTarget.value;
+        const updatePinCode = (event: React.ChangeEvent<HTMLInputElement>) => {
+            const newValue = event.target.value;
             if (!!newValue && !/^\d+$/.test(newValue)) {
                 return;
             }
@@ -90,7 +107,7 @@ const LinkEditDialog = observer(
         );
 
         return (
-            <Dialog open={open} scrimClickAction="" escapeKeyAction="" onClose={onCloseDialog}>
+            <Dialog open={open} onClose={() => onCloseDialog("cancel")} maxWidth="sm" fullWidth>
                 <DialogTitle>
                     {reviewLink.isPersisted ? resources.list.editdialog.title : resources.list.editdialog.newitemtitle}
                 </DialogTitle>
@@ -101,65 +118,56 @@ const LinkEditDialog = observer(
                                 {resources.list.editdialog.validto}: {validDate}
                             </span>{" "}
                             {prolongVisible && (
-                                <TextButton title={prolongTitle} onClick={updateValidDate}>
+                                <Button variant="text" title={prolongTitle} onClick={updateValidDate}>
                                     Prolong
-                                </TextButton>
+                                </Button>
                             )}
                         </div>
                     )}
                     {pinCodeSecurityEnabled && !reviewLink.isEditable && (
                         <div className="field-group">
                             {!!reviewLink.pinCode && (
-                                <>
-                                    <Checkbox
-                                        nativeControlId="pinCodeActive"
-                                        checked={shouldUpdatePinCode}
-                                        onChange={() => setShouldUpdatePinCode(!shouldUpdatePinCode)}
-                                    />
-                                    <label className="checkbox-label" htmlFor="pinCodeActive">
-                                        {resources.list.editdialog.pincheckboxlabel}
-                                    </label>
-                                </>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={shouldUpdatePinCode}
+                                            onChange={() => setShouldUpdatePinCode(!shouldUpdatePinCode)}
+                                        />
+                                    }
+                                    label={resources.list.editdialog.pincheckboxlabel}
+                                />
                             )}
                             <TextField
                                 label={`${resources.list.editdialog.pincode} (${pinCodeLength} ${resources.list.editdialog.digits})`}
-                                style={{ width: "100%" }}
-                            >
-                                <Input
-                                    name="pin-code"
-                                    autoComplete="new-password"
-                                    disabled={!shouldUpdatePinCode}
-                                    value={pinCode}
-                                    onChange={updatePinCode}
-                                    required={pinCodeSecurityRequired}
-                                    type="password"
-                                    maxLength={pinCodeLength}
-                                />
-                            </TextField>
-                            <div className="mdc-text-field-helper-line">
-                                <p className="mdc-text-field-helper-text mdc-text-field-helper-text--persistent">
-                                    {!!pinCode
-                                        ? resources.list.editdialog.linksecured
-                                        : resources.list.editdialog.linknotsecured}
-                                </p>
-                            </div>
+                                fullWidth
+                                disabled={!shouldUpdatePinCode}
+                                value={pinCode}
+                                onChange={updatePinCode}
+                                required={pinCodeSecurityRequired}
+                                type="password"
+                                autoComplete="new-password"
+                                inputProps={{ maxLength: pinCodeLength }}
+                                margin="normal"
+                            />
+                            <FormHelperText>
+                                {!!pinCode
+                                    ? resources.list.editdialog.linksecured
+                                    : resources.list.editdialog.linknotsecured}
+                            </FormHelperText>
                         </div>
                     )}
                     <div className="field-group">
-                        <TextField label={resources.list.editdialog.displayname} style={{ width: "100%" }} autoFocus>
-                            <Input
-                                name="display-name"
-                                value={displayName}
-                                onChange={(event: React.FormEvent<HTMLInputElement>) =>
-                                    setDisplayName(event.currentTarget.value)
-                                }
-                            />
-                        </TextField>
-                        <div className="mdc-text-field-helper-line">
-                            <p className="mdc-text-field-helper-text mdc-text-field-helper-text--persistent">
-                                {resources.list.editdialog.displaynamehelptext}
-                            </p>
-                        </div>
+                        <TextField
+                            label={resources.list.editdialog.displayname}
+                            fullWidth
+                            autoFocus
+                            value={displayName}
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                                setDisplayName(event.target.value)
+                            }
+                            margin="normal"
+                        />
+                        <FormHelperText>{resources.list.editdialog.displaynamehelptext}</FormHelperText>
                     </div>
                     <div className="field-group">
                         <span>
@@ -167,41 +175,36 @@ const LinkEditDialog = observer(
                         </span>
                         <div className="visitor-groups-list">
                             {availableVisitorGroups.map((v) => (
-                                <div key={v.id}>
-                                    <Checkbox
-                                        nativeControlId={v.id}
-                                        checked={visitorGroups.indexOf(v.id) !== -1}
-                                        onChange={(e) => {
-                                            const selectedGroups = [...visitorGroups];
-                                            if (e.target.checked) {
-                                                setVisitorGroups([...selectedGroups, v.id]);
-                                            } else {
-                                                selectedGroups.splice(selectedGroups.indexOf(v.id), 1);
-                                                setVisitorGroups([...selectedGroups]);
-                                            }
-                                        }}
-                                    />
-                                    <label className="checkbox-label" htmlFor={v.id}>
-                                        {v.name}
-                                    </label>
-                                </div>
+                                <FormControlLabel
+                                    key={v.id}
+                                    control={
+                                        <Checkbox
+                                            id={v.id}
+                                            checked={visitorGroups.indexOf(v.id) !== -1}
+                                            onChange={(e) => {
+                                                const selectedGroups = [...visitorGroups];
+                                                if (e.target.checked) {
+                                                    setVisitorGroups([...selectedGroups, v.id]);
+                                                } else {
+                                                    selectedGroups.splice(selectedGroups.indexOf(v.id), 1);
+                                                    setVisitorGroups([...selectedGroups]);
+                                                }
+                                            }}
+                                        />
+                                    }
+                                    label={v.name}
+                                />
                             ))}
                         </div>
-                        <div className="mdc-text-field-helper-line">
-                            <p className="mdc-text-field-helper-text mdc-text-field-helper-text--persistent">
-                                {resources.list.editdialog.visitorgroupshelptext}
-                            </p>
-                        </div>
+                        <FormHelperText>{resources.list.editdialog.visitorgroupshelptext}</FormHelperText>
                     </div>
                 </DialogContent>
-                <DialogFooter>
-                    <DialogButton dense action="cancel">
-                        {resources.shared.cancel}
-                    </DialogButton>
-                    <DialogButton disabled={!canSave} raised dense action="save" isDefault>
+                <DialogActions>
+                    <Button onClick={() => onCloseDialog("cancel")}>{resources.shared.cancel}</Button>
+                    <Button disabled={!canSave} onClick={() => onCloseDialog("save")} variant="contained" autoFocus>
                         {resources.shared.save}
-                    </DialogButton>
-                </DialogFooter>
+                    </Button>
+                </DialogActions>
             </Dialog>
         );
     },
