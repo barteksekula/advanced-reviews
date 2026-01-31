@@ -1,6 +1,10 @@
 import "./new-review-dialog.scss";
 
-import Dialog, { DialogButton, DialogContent, DialogFooter, DialogTitle } from "@material/react-dialog";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
 import { inject, observer } from "mobx-react";
 import React from "react";
 
@@ -58,9 +62,7 @@ export default class NewReviewDialog extends React.Component<NewReviewDialogProp
                 <Dialog
                     className="review-dialog"
                     open={true}
-                    scrimClickAction=""
-                    escapeKeyAction=""
-                    onClose={(action) => this.props.onCloseDialog(action, this.state)}
+                    onClose={() => this.props.onCloseDialog("cancel", this.state)}
                 >
                     <DialogTitle>
                         <div className="header">
@@ -90,14 +92,18 @@ export default class NewReviewDialog extends React.Component<NewReviewDialogProp
                             />
                         </div>
                     </DialogContent>
-                    <DialogFooter>
-                        <DialogButton dense action="cancel">
+                    <DialogActions>
+                        <Button onClick={() => this.props.onCloseDialog("cancel", this.state)}>
                             {res.dialog.close}
-                        </DialogButton>
-                        <DialogButton raised dense action="save" isDefault disabled={!canSave}>
+                        </Button>
+                        <Button
+                            variant="contained"
+                            onClick={() => this.props.onCloseDialog("save", this.state)}
+                            disabled={!canSave}
+                        >
                             {res.dialog.save}
-                        </DialogButton>
-                    </DialogFooter>
+                        </Button>
+                    </DialogActions>
                 </Dialog>
                 {this.state.screenshotMode && (
                     <ScreenshotDialog

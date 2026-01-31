@@ -1,6 +1,6 @@
 import "./comment.scss";
 
-import MaterialIcon from "@material/react-material-icon";
+import Icon from "@mui/material/Icon";
 import classNames from "classnames";
 import { inject, observer } from "mobx-react";
 import React from "react";
@@ -29,11 +29,11 @@ export default class Comment extends React.Component<CommentProps, any> {
         return (
             <div className="comment">
                 <div className="avatar">
-                    <img src={getUserAvatarUrl(this.props.comment.author)} />
+                    <img src={getUserAvatarUrl(this.props.comment.author)} alt={this.props.comment.author} />
                 </div>
                 <div className="message">
                     <div>
-                        {this.props.isImportant && <MaterialIcon icon="priority_high" title={res.priority.important} />}
+                        {this.props.isImportant && <Icon title={res.priority.important}>priority_high</Icon>}
                         <span className="author" title={this.props.comment.author}>
                             {this.props.comment.author}
                         </span>
@@ -43,7 +43,7 @@ export default class Comment extends React.Component<CommentProps, any> {
                         {this.props.comment.screenshot && (
                             <div className="screenshot">
                                 <DropDownMenu icon="image" title={res.panel.showscreenshot}>
-                                    <img src={this.props.comment.screenshot} />
+                                    <img src={this.props.comment.screenshot} alt="screenshot" />
                                 </DropDownMenu>
                             </div>
                         )}

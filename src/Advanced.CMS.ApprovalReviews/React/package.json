@@ -40,11 +40,8 @@
     "dependencies": {
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.0",
-        "@episerver/ui-framework": "^0.8.1",
         "@eslint/compat": "^1.2.4",
-        "@material/react-dialog": "^0.15.0",
-        "@material/react-material-icon": "^0.15.0",
-        "@material/react-snackbar": "^0.15.0",
+        "@mui/icons-material": "^7.3.7",
         "@mui/material": "^7.3.7",
         "@typescript-eslint/eslint-plugin": "^8.18.1",
         "@vitejs/plugin-react": "^4.3.4",

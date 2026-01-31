@@ -1,4 +1,4 @@
-import { TextButton } from "@episerver/ui-framework";
+import Button from "@mui/material/Button";
 import { inject } from "mobx-react";
 import React from "react";
 
@@ -116,9 +116,9 @@ export default class DrawablePreview extends React.Component<DrawablePreviewProp
                     onMouseUp={this.handleMouseUp}
                 />
                 <div className="mdc-dialog__actions">
-                    <TextButton onClick={this.cancel}>{resources.screenshot.cancel}</TextButton>
-                    <TextButton onClick={this.clear}>{resources.screenshot.clear}</TextButton>
-                    <TextButton onClick={this.done}>{resources.screenshot.apply}</TextButton>
+                    <Button onClick={this.cancel}>{resources.screenshot.cancel}</Button>
+                    <Button onClick={this.clear}>{resources.screenshot.clear}</Button>
+                    <Button onClick={this.done}>{resources.screenshot.apply}</Button>
                 </div>
             </>
         );

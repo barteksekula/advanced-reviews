@@ -9,6 +9,7 @@ interface IframeOverlayProps {
     iframe: HTMLIFrameElement;
     reviewStore?: IReviewComponentStore;
     external: boolean;
+    children?: React.ReactNode;
 
     reviewLocationCreated(location: PinLocation): void;
 }

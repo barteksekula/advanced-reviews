@@ -1,5 +1,3 @@
-import "@episerver/ui-framework/dist/main.css";
-
 import axios from "axios";
 import { Provider } from "mobx-react";
 import React, { useState } from "react";
@@ -79,7 +77,7 @@ class ExternalReviewService implements AdvancedReviewService {
                     id: id,
                 })
                 .then(function () {
-                    resolve();
+                    resolve(null);
                 })
                 .catch(function (error) {
                     reject(error);

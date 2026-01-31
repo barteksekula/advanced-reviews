@@ -1,6 +1,6 @@
 import "./pin.scss";
 
-import MaterialIcon from "@material/react-material-icon";
+import Icon from "@mui/material/Icon";
 import classNames from "classnames";
 import React, { CSSProperties, FunctionComponent, useEffect, useRef } from "react";
 
@@ -53,11 +53,9 @@ const Pin: FunctionComponent<PinProps> = (props: PinProps) => {
                 <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" fontWeight="bold" fill="black" />
             </svg>
             {location.priority !== Priority.Normal && (
-                <MaterialIcon
-                    className="priority-icon"
-                    icon={priorityIconMappings[location.priority]}
-                    title={location.priority}
-                />
+                <Icon className="priority-icon" title={location.priority}>
+                    {priorityIconMappings[location.priority]}
+                </Icon>
             )}
         </div>
     );

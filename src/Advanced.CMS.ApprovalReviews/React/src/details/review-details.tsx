@@ -1,6 +1,6 @@
 import "./review-details.scss";
 
-import { TextButton } from "@episerver/ui-framework";
+import Button from "@mui/material/Button";
 import { IReactionDisposer, reaction } from "mobx";
 import { inject, observer } from "mobx-react";
 import React from "react";
@@ -117,10 +117,10 @@ export class ReviewDetails extends React.Component<ReviewDetailsProps, NewPinDto
                             />
                         )}
                         <div className="actions">
-                            <TextButton onClick={this.props.onCancel}>{res.dialog.close}</TextButton>
-                            <TextButton disabled={!canSave} onClick={this.addNewComment}>
+                            <Button onClick={this.props.onCancel}>{res.dialog.close}</Button>
+                            <Button disabled={!canSave} onClick={this.addNewComment}>
                                 {res.dialog.addcomment}
-                            </TextButton>
+                            </Button>
                         </div>
                     </>
                 )}

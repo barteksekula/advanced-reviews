@@ -1,6 +1,9 @@
-import "@material/react-dialog/index.scss";
-
-import Dialog, { DialogButton, DialogContent, DialogFooter, DialogTitle } from "@material/react-dialog";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 import React from "react";
 
 interface ConfirmationDialogProps {
@@ -21,22 +24,17 @@ const ConfirmationDialog = ({
     onCloseDialog,
 }: ConfirmationDialogProps) => {
     return (
-        <Dialog
-            open={open}
-            scrimClickAction=""
-            escapeKeyAction=""
-            onClose={(action) => onCloseDialog(action === "save")}
-        >
+        <Dialog open={open} onClose={() => onCloseDialog(false)}>
             <DialogTitle>{title}</DialogTitle>
-            <DialogContent>{description}</DialogContent>
-            <DialogFooter>
-                <DialogButton dense action="cancel">
-                    {cancelName}
-                </DialogButton>
-                <DialogButton raised dense action="save" isDefault>
+            <DialogContent>
+                <DialogContentText>{description}</DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={() => onCloseDialog(false)}>{cancelName}</Button>
+                <Button variant="contained" onClick={() => onCloseDialog(true)}>
                     {okName}
-                </DialogButton>
-            </DialogFooter>
+                </Button>
+            </DialogActions>
         </Dialog>
     );
 };

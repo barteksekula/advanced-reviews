@@ -1,16 +1,16 @@
 import "./drop-down-menu.scss";
 
-import { Corner, MenuSurface } from "@episerver/ui-framework";
-import MaterialIcon from "@material/react-material-icon";
-import React from "react";
+import Icon from "@mui/material/Icon";
+import Menu from "@mui/material/Menu";
+import React, { PropsWithChildren } from "react";
 
 interface DropDownMenuProps {
     title?: string;
-    icon: string;
+    icon: string | React.ReactNode;
 }
 
-export class DropDownMenu extends React.Component<DropDownMenuProps, any> {
-    constructor(props: DropDownMenuProps) {
+export class DropDownMenu extends React.Component<PropsWithChildren<DropDownMenuProps>, any> {
+    constructor(props: PropsWithChildren<DropDownMenuProps>) {
         super(props);
         this.state = {
             isMenuOpen: false,
@@ -34,23 +34,30 @@ export class DropDownMenu extends React.Component<DropDownMenuProps, any> {
     };
 
     render() {
+        const iconContent = typeof this.props.icon === "string" ? <Icon>{this.props.icon}</Icon> : this.props.icon;
+
         return (
             <div className="mdc-menu-surface--anchor" ref={this.setAnchorElement}>
-                <MaterialIcon
+                <div
                     className="menu-button"
-                    icon={this.props.icon}
                     onClick={this.openMenu}
                     title={this.props.title}
-                />
-                <MenuSurface
+                    style={{ cursor: "pointer", display: "inline-flex", alignItems: "center" }}
+                >
+                    {iconContent}
+                </div>
+                <Menu
                     className="epi-context-menu"
                     open={this.state.isMenuOpen}
-                    anchorCorner={Corner.BOTTOM_LEFT}
+                    anchorEl={this.state.anchorElement}
                     onClose={this.closeMenu}
-                    anchorElement={this.state.anchorElement}
+                    anchorOrigin={{
+                        vertical: "bottom",
+                        horizontal: "left",
+                    }}
                 >
                     {this.props.children}
-                </MenuSurface>
+                </Menu>
             </div>
         );
     }

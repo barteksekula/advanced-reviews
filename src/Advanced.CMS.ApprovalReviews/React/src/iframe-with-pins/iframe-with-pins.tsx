@@ -1,6 +1,5 @@
-import "@material/react-snackbar/index.scss";
-
-import { Snackbar } from "@material/react-snackbar";
+import Button from "@mui/material/Button";
+import Snackbar from "@mui/material/Snackbar";
 import { inject, observer } from "mobx-react";
 import React from "react";
 
@@ -119,11 +118,15 @@ export default class IframeWithPins extends React.Component<IframeWithPinsProps,
                         <PinCollection newLocation={this.state.newLocation} positionCalculator={positionCalculator} />
                         {showReviewIntro && (
                             <Snackbar
-                                timeoutMs={10000}
+                                open={true}
+                                autoHideDuration={10000}
                                 onClose={this.onIntroClose}
                                 message="You are now in content review mode. Click on text to create new review entry."
-                                actionText="Do not show this again"
-                                stacked={true}
+                                action={
+                                    <Button color="secondary" size="small" onClick={this.onIntroClose}>
+                                        Do not show this again
+                                    </Button>
+                                }
                             />
                         )}
                     </IframeOverlay>

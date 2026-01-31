@@ -1,5 +1,8 @@
-import { List, ListItem, ListItemGraphic, ListItemText } from "@episerver/ui-framework";
-import MaterialIcon from "@material/react-material-icon";
+import Icon from "@mui/material/Icon";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
 import React from "react";
 
 import { DropDownMenu } from "./drop-down-menu";
@@ -35,11 +38,15 @@ export class ContextMenu extends React.Component<ContextMenuProps, any> {
 
     render() {
         const list = (
-            <List singleSelection handleSelect={this.onSelected}>
-                {this.props.menuItems.map((item) => (
-                    <ListItem key={item.name}>
-                        {item.icon ? <ListItemGraphic graphic={<MaterialIcon icon={item.icon} />} /> : null}
-                        <ListItemText primaryText={item.name} />
+            <List>
+                {this.props.menuItems.map((item, index) => (
+                    <ListItem key={item.name} onClick={() => this.onSelected(index)} style={{ cursor: "pointer" }}>
+                        {item.icon && (
+                            <ListItemIcon>
+                                <Icon>{item.icon}</Icon>
+                            </ListItemIcon>
+                        )}
+                        <ListItemText primary={item.name} />
                     </ListItem>
                 ))}
             </List>

@@ -1,7 +1,9 @@
-import "@material/react-dialog/index.scss";
-
-import { Input, TextField } from "@episerver/ui-framework";
-import Dialog, { DialogButton, DialogContent, DialogFooter, DialogTitle } from "@material/react-dialog";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import TextField from "@mui/material/TextField";
 import React, { useState } from "react";
 
 interface ConfirmDialogProps {
@@ -13,39 +15,35 @@ interface ConfirmDialogProps {
 const ConfirmDialog = ({ open, onClose, initialUserName }: ConfirmDialogProps) => {
     const [userName, setUserName] = useState<string>(initialUserName);
 
-    const onDialogClose = (action: string) => {
-        if (action !== "save") {
-            onClose(null);
-            return;
-        }
+    const onDialogClose = () => {
+        onClose(null);
+    };
 
+    const onSave = () => {
         onClose(userName);
     };
 
-    const inputProps = {
-        isValid: !!userName,
-    };
-
     return (
-        <Dialog open={open} scrimClickAction="" escapeKeyAction="" onClose={onDialogClose}>
+        <Dialog open={open} onClose={onDialogClose}>
             <DialogTitle>Confirm your name</DialogTitle>
             <DialogContent>
                 <p>Please enter your name. It will be used as an author of the comments.</p>
-                <div>
-                    <TextField label="Display name" autoFocus required style={{ width: "100%" }}>
-                        <Input
-                            value={userName}
-                            onChange={(e: React.FormEvent<any>) => setUserName(e.currentTarget.value)}
-                            {...inputProps}
-                        />
-                    </TextField>
-                </div>
+                <TextField
+                    label="Display name"
+                    autoFocus
+                    required
+                    fullWidth
+                    value={userName}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserName(e.target.value)}
+                    error={!userName}
+                    margin="normal"
+                />
             </DialogContent>
-            <DialogFooter>
-                <DialogButton raised dense action="save" disabled={!userName} isDefault>
+            <DialogActions>
+                <Button variant="contained" onClick={onSave} disabled={!userName}>
                     Save
-                </DialogButton>
-            </DialogFooter>
+                </Button>
+            </DialogActions>
         </Dialog>
     );
 };

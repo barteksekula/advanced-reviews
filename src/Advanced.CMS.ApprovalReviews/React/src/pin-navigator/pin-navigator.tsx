@@ -1,7 +1,9 @@
 import "./pin-navigator.scss";
 
-import { IconButton, TextButton } from "@episerver/ui-framework";
-import MaterialIcon from "@material/react-material-icon";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import ListIcon from "@mui/icons-material/List";
+import IconButton from "@mui/material/IconButton";
 import { inject, observer } from "mobx-react";
 import React from "react";
 
@@ -56,29 +58,33 @@ export default class PinNavigator extends React.Component<PinNavigatorProps, any
             <div className="pin-navigator">
                 {reviewLocations.length > 1 && (
                     <>
-                        <TextButton
+                        <IconButton
                             className="next-prev-icon"
                             title={prevTitle}
-                            aria-pressed="false"
                             disabled={!isPrevEnabled}
+                            onClick={() => this.showReview(-1)}
                         >
-                            <MaterialIcon icon="chevron_left" onClick={() => this.showReview(-1)} />
-                        </TextButton>
+                            <ChevronLeftIcon />
+                        </IconButton>
                         <span className="pager">
                             {currentItemIndex + 1} / {reviewLocations.length}
                         </span>
-                        <TextButton
+                        <IconButton
                             className="next-prev-icon"
                             title={nextTitle}
                             onClick={() => this.showReview(1)}
                             disabled={!isNextEnabled}
                         >
-                            <MaterialIcon icon="chevron_right" />
-                        </TextButton>
+                            <ChevronRightIcon />
+                        </IconButton>
                     </>
                 )}
-                <IconButton className="next-prev-icon" title={res.panel.gobacktolist} aria-pressed="false">
-                    <MaterialIcon icon="list" onClick={() => (this.props.reviewStore.editedPinLocation = null)} />
+                <IconButton
+                    className="next-prev-icon"
+                    title={res.panel.gobacktolist}
+                    onClick={() => (this.props.reviewStore.editedPinLocation = null)}
+                >
+                    <ListIcon />
                 </IconButton>
             </div>
         );

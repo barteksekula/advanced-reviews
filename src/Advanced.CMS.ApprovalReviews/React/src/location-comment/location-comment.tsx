@@ -1,9 +1,11 @@
 import "./location-comment.scss";
 
-import { IconButton, Input, TextField } from "@episerver/ui-framework";
-import MaterialIcon from "@material/react-material-icon";
+import ImageIcon from "@mui/icons-material/Image";
+import RemoveIcon from "@mui/icons-material/Remove";
+import IconButton from "@mui/material/IconButton";
+import TextField from "@mui/material/TextField";
 import { inject } from "mobx-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
 
 import { DropDownMenu } from "../common/drop-down-menu";
 
@@ -17,35 +19,30 @@ interface LocationCommentProps {
 }
 
 const LocationComment = inject("resources")((props: LocationCommentProps) => {
-    const [commentInput, setCommentInput] = useState(null);
+    const textFieldRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        if (commentInput) {
-            commentInput.inputElement.focus();
+        if (textFieldRef.current) {
+            textFieldRef.current.focus();
         }
     });
 
     const resources = props.resources!;
-
-    const textAreaProps = {
-        textarea: true,
-    };
 
     return (
         <>
             <TextField
                 className="location-comment-field"
                 label={`${resources.dialog.addcomment}...`}
-                {...textAreaProps}
-            >
-                <Input
-                    ref={(input: any) => setCommentInput(input)}
-                    value={props.value}
-                    onChange={(e: React.FormEvent<any>) =>
-                        props.onChange(e.currentTarget.value, props.currentScreenshot)
-                    }
-                />
-            </TextField>
+                multiline
+                rows={4}
+                fullWidth
+                inputRef={textFieldRef}
+                value={props.value}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    props.onChange(e.target.value, props.currentScreenshot)
+                }
+            />
             {props.allowScreenshotAttachments && (
                 <>
                     {!props.currentScreenshot && (
@@ -54,7 +51,7 @@ const LocationComment = inject("resources")((props: LocationCommentProps) => {
                             title={resources.panel.attachscreenshot}
                             onClick={() => props.onToggle()}
                         >
-                            <MaterialIcon icon="image" />
+                            <ImageIcon />
                         </IconButton>
                     )}
                     {props.currentScreenshot && (
@@ -66,7 +63,7 @@ const LocationComment = inject("resources")((props: LocationCommentProps) => {
                                 onClick={() => props.onChange(props.value, null)}
                                 title={resources.panel.removescreenshot}
                             >
-                                <MaterialIcon icon="remove" />
+                                <RemoveIcon />
                             </IconButton>
                         </div>
                     )}

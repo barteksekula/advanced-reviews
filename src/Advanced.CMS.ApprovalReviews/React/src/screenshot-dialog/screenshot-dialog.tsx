@@ -1,7 +1,10 @@
 import "./screenshot-dialog.scss";
 
-import { TextButton } from "@episerver/ui-framework";
-import Dialog, { DialogContent, DialogTitle } from "@material/react-dialog";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
 import html2canvas from "html2canvas";
 import { computed } from "mobx";
 import { inject, observer } from "mobx-react";
@@ -264,12 +267,7 @@ export default class ScreenshotDialog extends React.Component<ScreenshotPickerPr
 
     render() {
         return (
-            <Dialog
-                className="screenshot-picker-dialog"
-                open={this.mode !== Mode.Default}
-                scrimClickAction=""
-                escapeKeyAction=""
-            >
+            <Dialog className="screenshot-picker-dialog" open={this.mode !== Mode.Default} onClose={this.cancel}>
                 <DialogTitle>
                     <div className="header">{this.props.resources.screenshot.cropandhighlight}</div>
                 </DialogTitle>
@@ -285,12 +283,12 @@ export default class ScreenshotDialog extends React.Component<ScreenshotPickerPr
                                     onChange={this.onCropChange}
                                     onComplete={this.onCropComplete}
                                 />
-                                <div className="mdc-dialog__actions">
-                                    <TextButton onClick={this.cancel}>cancel</TextButton>
-                                    <TextButton onClick={this.crop} disabled={!this.state.crop.width}>
+                                <DialogActions>
+                                    <Button onClick={this.cancel}>cancel</Button>
+                                    <Button onClick={this.crop} disabled={!this.state.crop.width}>
                                         Crop
-                                    </TextButton>
-                                </div>
+                                    </Button>
+                                </DialogActions>
                             </>
                         )}
                         {this.mode === Mode.Highlight && (

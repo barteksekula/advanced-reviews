@@ -1,8 +1,11 @@
 import "./external-review-share-dialog.scss";
 
-import { Input, TextField } from "@episerver/ui-framework";
-import Dialog, { DialogButton, DialogContent, DialogFooter, DialogTitle } from "@material/react-dialog";
-import MaterialIcon from "@material/react-material-icon";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import TextField from "@mui/material/TextField";
 import React, { useEffect, useState } from "react";
 
 export interface LinkShareResult {
@@ -30,21 +33,8 @@ const ShareDialog = ({ open, onClose, initialSubject, initialMessage, resources 
         setMessage(initialMessage);
     }, [open]);
 
-    const onDialogClose = (action: string) => {
-        if (action !== "save") {
-            onClose(null);
-            return;
-        }
-
-        onClose({
-            email,
-            subject,
-            message,
-        });
-    };
-
-    const onEmailTextChanged = (e: React.FormEvent<any>) => {
-        const newValue = e.currentTarget.value;
+    const onEmailTextChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = e.target.value;
         setEmail(newValue);
         setIsValidEmail(checkIsValidEmail(newValue));
     };
@@ -54,71 +44,49 @@ const ShareDialog = ({ open, onClose, initialSubject, initialMessage, resources 
         return emailReg.test(str);
     };
 
-    const textAreaProps = {
-        textarea: true,
-    };
-
-    const isValidProps = {
-        isValid: isValidEmail,
-    };
-
     return (
-        <Dialog open={open} scrimClickAction="" escapeKeyAction="" onClose={onDialogClose}>
+        <Dialog open={open} onClose={() => onClose(null)}>
             <DialogTitle>{resources.sharedialog.dialogtitle}</DialogTitle>
             <DialogContent className="share-dialog-content">
-                <div className="text-field-container">
-                    <TextField
-                        label={resources.sharedialog.emailaddresslabel}
-                        style={{ width: "100%" }}
-                        autoFocus
-                        required
-                    >
-                        <Input value={email} onChange={onEmailTextChanged} {...isValidProps} />
-                    </TextField>
-                </div>
-                <div className="text-field-container">
-                    <TextField
-                        label={resources.sharedialog.emailsubjectlabel}
-                        autoFocus
-                        required
-                        style={{ width: "100%" }}
-                    >
-                        <Input
-                            value={subject}
-                            onChange={(event: React.FormEvent<any>) => setSubject(event.currentTarget.value)}
-                        />
-                    </TextField>
-                </div>
-                <div className="text-field-container">
-                    <TextField
-                        label={resources.sharedialog.emailmessagelabel}
-                        required
-                        style={{ width: "100%" }}
-                        {...textAreaProps}
-                    >
-                        <Input
-                            rows={15}
-                            value={message}
-                            onChange={(e: React.FormEvent<any>) => setMessage(e.currentTarget.value)}
-                        />
-                    </TextField>
-                </div>
+                <TextField
+                    label={resources.sharedialog.emailaddresslabel}
+                    fullWidth
+                    autoFocus
+                    required
+                    value={email}
+                    onChange={onEmailTextChanged}
+                    error={email !== "" && !isValidEmail}
+                    margin="normal"
+                />
+                <TextField
+                    label={resources.sharedialog.emailsubjectlabel}
+                    fullWidth
+                    required
+                    value={subject}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => setSubject(event.target.value)}
+                    margin="normal"
+                />
+                <TextField
+                    label={resources.sharedialog.emailmessagelabel}
+                    fullWidth
+                    required
+                    multiline
+                    rows={15}
+                    value={message}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMessage(e.target.value)}
+                    margin="normal"
+                />
             </DialogContent>
-            <DialogFooter>
-                <DialogButton dense action="cancel">
-                    {resources.sharedialog.cancelbutton}
-                </DialogButton>
-                <DialogButton
-                    raised
-                    dense
-                    action="save"
+            <DialogActions>
+                <Button onClick={() => onClose(null)}>{resources.sharedialog.cancelbutton}</Button>
+                <Button
+                    variant="contained"
+                    onClick={() => onClose({ email, subject, message })}
                     disabled={!isValidEmail}
-                    isDefault
-                    icon={<MaterialIcon icon="send" />}
                 >
                     {resources.sharedialog.sendbutton}
-                </DialogButton>
-            </DialogFooter>
+                </Button>
+            </DialogActions>
         </Dialog>
     );
 };
