@@ -1,6 +1,4 @@
 @import "../_variables";
-@import "@material/switch/mixins";
-@import "@material/react-switch/index";
 
 $border: 1px solid $surface500;
 
@@ -15,37 +13,6 @@ $border: 1px solid $surface500;
 
     &.narrow {
         right: 80px;
-    }
-}
-
-@mixin colored-switch($color) {
-    @media all and (-ms-high-contrast: none) {
-        .mdc-switch.mdc-switch--checked .mdc-switch__thumb,
-        .mdc-switch.mdc-switch--checked .mdc-switch__track {
-            background-color: $color;
-            border-color: $color;
-        }
-    }
-
-    .mdc-switch {
-        --mdc-theme-secondary: #{$color};
-    }
-
-    label {
-        color: #{$color};
-    }
-}
-
-@mixin colored-checkbox($color) {
-    @media all and (-ms-high-contrast: none) {
-        :enabled:checked.mdc-checkbox__native-control ~ .mdc-checkbox__background {
-            background-color: $color;
-            border-color: $color;
-        }
-    }
-
-    .mdc-checkbox {
-        --mdc-theme-secondary: #{$color};
     }
 }
 
@@ -78,16 +45,17 @@ $border: 1px solid $surface500;
             border: 0;
         }
 
-        .unread {
-            @include colored-checkbox(#4caf50);
+        // MUI Checkbox colors for narrow mode
+        .unread .MuiCheckbox-root {
+            color: #4caf50;
         }
 
-        .active {
-            @include colored-checkbox(#f44336);
+        .active .MuiCheckbox-root {
+            color: #f44336;
         }
 
-        .resolved {
-            @include colored-checkbox(#818181);
+        .resolved .MuiCheckbox-root {
+            color: #818181;
         }
     }
 
@@ -102,28 +70,42 @@ $border: 1px solid $surface500;
     .type-filters {
         border-top: $border;
 
-        .unread {
-            @include colored-switch($success500);
-        }
+        // MUI Switch colors
+        .unread .MuiSwitch-switchBase.Mui-checked {
+            color: $success500;
 
-        .active {
-            @include colored-switch(#f44336);
-        }
-
-        .resolved {
-            @include colored-switch(#818181);
-        }
-    }
-
-    .type-filter {
-        div {
-            display: table;
-
-            span {
-                padding-left: 10px;
-                display: table-cell;
-                vertical-align: middle;
+            + .MuiSwitch-track {
+                background-color: $success500;
             }
+        }
+
+        .active .MuiSwitch-switchBase.Mui-checked {
+            color: #f44336;
+
+            + .MuiSwitch-track {
+                background-color: #f44336;
+            }
+        }
+
+        .resolved .MuiSwitch-switchBase.Mui-checked {
+            color: #818181;
+
+            + .MuiSwitch-track {
+                background-color: #818181;
+            }
+        }
+
+        // Colored labels to match switches
+        .unread label {
+            color: $success500;
+        }
+
+        .active label {
+            color: #f44336;
+        }
+
+        .resolved label {
+            color: #818181;
         }
     }
 
@@ -132,28 +114,16 @@ $border: 1px solid $surface500;
         max-height: calc(100% - 220px);
         overflow-y: auto;
 
-        .mdc-list-item {
-            cursor: pointer;
-            padding: 20px 0;
-        }
-
+        // Hide action buttons by default, show on hover
         .delete,
         .edit {
-            display: none;
-            position: absolute;
+            opacity: 0;
+            transition: opacity 0.2s ease;
         }
 
-        .edit {
-            right: 2px;
-        }
-
-        .delete {
-            right: 32px;
-        }
-
-        li:hover .edit,
-        li:hover .delete {
-            display: block;
+        .MuiListItem-root:hover .delete,
+        .MuiListItem-root:hover .edit {
+            opacity: 1;
         }
     }
 
@@ -166,9 +136,9 @@ $border: 1px solid $surface500;
         height: 40px;
         border-bottom: $border;
         display: flex;
+        align-items: center;
 
         .pin-navigator {
-            margin-top: -3px;
             margin-left: auto;
         }
 

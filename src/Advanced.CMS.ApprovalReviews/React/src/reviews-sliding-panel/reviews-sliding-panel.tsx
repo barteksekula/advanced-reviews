@@ -1,9 +1,13 @@
 import "./reviews-sliding-panel.scss";
 
-import { Checkbox, IconButton, List, ListItem } from "@episerver/ui-framework";
-import MaterialIcon from "@material/react-material-icon";
-import Switch from "@material/react-switch";
+import Checkbox from "@mui/material/Checkbox";
 import Chip from "@mui/material/Chip";
+import Icon from "@mui/material/Icon";
+import IconButton from "@mui/material/IconButton";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import Switch from "@mui/material/Switch";
 import classNames from "classnames";
 import { IReactionDisposer, reaction } from "mobx";
 import { inject, observer } from "mobx-react";
@@ -63,7 +67,7 @@ const PinTypeFilters = inject("resources")(
                 <div className="type-filters">
                     <div className="filter unread" title={resources.panel.showunread}>
                         <Switch
-                            nativeControlId="showUnread"
+                            id="showUnread"
                             checked={filter.showUnread}
                             onChange={() => (filter.showUnread = !filter.showUnread)}
                         />
@@ -71,7 +75,7 @@ const PinTypeFilters = inject("resources")(
                     </div>
                     <div className="filter active" title={resources.panel.showactive}>
                         <Switch
-                            nativeControlId="showActive"
+                            id="showActive"
                             checked={filter.showActive}
                             onChange={() => (filter.showActive = !filter.showActive)}
                         />
@@ -79,7 +83,7 @@ const PinTypeFilters = inject("resources")(
                     </div>
                     <div className="filter resolved" title={resources.panel.showresolved}>
                         <Switch
-                            nativeControlId="showResolved"
+                            id="showResolved"
                             checked={filter.showResolved}
                             onChange={() => (filter.showResolved = !filter.showResolved)}
                         />
@@ -97,7 +101,7 @@ const Filters = inject("resources")(
             <div>
                 <div className="filter" title={resources.panel.reviewmode}>
                     <Switch
-                        nativeControlId="modeSwitcher"
+                        id="modeSwitcher"
                         checked={filter.reviewMode}
                         onChange={() => (filter.reviewMode = !filter.reviewMode)}
                     />
@@ -186,7 +190,7 @@ export default class SlidingPanel extends React.Component<SlidingPanelProps, any
                     <>
                         <div className="panel-container-settings narrow">
                             <IconButton title={res.panel.expand} onClick={this.showPanel}>
-                                <MaterialIcon icon="first_page" />
+                                <Icon>first_page</Icon>
                             </IconButton>
                         </div>
                         <div className={classNames("panel-container narrow", filter.reviewMode ? "review-mode" : "")}>
@@ -198,14 +202,14 @@ export default class SlidingPanel extends React.Component<SlidingPanelProps, any
                     <>
                         <div className="panel-container-settings">
                             <IconButton className="close-panel" onClick={this.hidePanel} title={res.panel.collapse}>
-                                <MaterialIcon icon="last_page" />
+                                <Icon>last_page</Icon>
                             </IconButton>
                         </div>
                         <div className="panel-container">
                             {editedPinLocation && (
                                 <div className="panel-header">
                                     <Checkbox
-                                        nativeControlId="resolved"
+                                        id="resolved"
                                         checked={this.props.reviewStore.editedPinLocation.isDone}
                                         onChange={this.resolveTask}
                                     />
@@ -228,7 +232,7 @@ export default class SlidingPanel extends React.Component<SlidingPanelProps, any
                                             label={this.props.reviewStore.resolvePropertyDisplayName(
                                                 editedPinLocation.propertyName,
                                             )}
-                                            icon={<MaterialIcon icon="bookmark" />}
+                                            icon={<Icon>bookmark</Icon>}
                                             {...chipPropertyNameSettings}
                                         />
                                     )}
@@ -239,44 +243,50 @@ export default class SlidingPanel extends React.Component<SlidingPanelProps, any
                                 <>
                                     <Filters filter={filter} />
                                     <h3>List of Pins</h3>
-                                    <List
-                                        singleSelection
-                                        selectedIndex={this.props.reviewStore.selectedPinLocationIndex}
-                                        handleSelect={(activatedIndex) => this.onSelected(activatedIndex)}
-                                        className="locations"
-                                    >
-                                        {reviewLocations.map((location) => (
+                                    <List className="locations">
+                                        {reviewLocations.map((location, index) => (
                                             <ListItem
-                                                title={res.panel.clicktoedit}
                                                 key={location.id}
-                                                onDoubleClick={(e) => this.onEditClick(e, location)}
+                                                disablePadding
+                                                secondaryAction={
+                                                    <>
+                                                        {location.comments.length === 0 &&
+                                                            location.firstComment.author === currentUser && (
+                                                                <IconButton
+                                                                    className="delete"
+                                                                    title={res.removepindialog.title}
+                                                                    onClick={() =>
+                                                                        this.setState({ currentPinToRemove: location })
+                                                                    }
+                                                                    edge="end"
+                                                                    sx={{ mr: 1 }}
+                                                                >
+                                                                    <Icon>delete</Icon>
+                                                                </IconButton>
+                                                            )}
+                                                        <IconButton
+                                                            className="edit"
+                                                            title={res.panel.opendetails}
+                                                            onClick={(e) => this.onEditClick(e, location)}
+                                                            edge="end"
+                                                        >
+                                                            <Icon>edit</Icon>
+                                                        </IconButton>
+                                                    </>
+                                                }
                                             >
-                                                <div>
+                                                <ListItemButton
+                                                    title={res.panel.clicktoedit}
+                                                    selected={this.props.reviewStore.selectedPinLocationIndex === index}
+                                                    onClick={() => this.onSelected(index)}
+                                                    onDoubleClick={(e) => this.onEditClick(e, location)}
+                                                >
                                                     <Comment
                                                         comment={location.firstComment}
                                                         isImportant={location.priority === Priority.Important}
                                                         isDone={location.isDone}
                                                     />
-                                                </div>
-                                                {location.comments.length === 0 &&
-                                                    location.firstComment.author === currentUser && (
-                                                        <IconButton
-                                                            className="delete"
-                                                            title={res.removepindialog.title}
-                                                            onClick={() =>
-                                                                this.setState({ currentPinToRemove: location })
-                                                            }
-                                                        >
-                                                            <MaterialIcon icon="delete" />
-                                                        </IconButton>
-                                                    )}
-                                                <IconButton
-                                                    className="edit"
-                                                    title={res.panel.opendetails}
-                                                    onClick={(e) => this.onEditClick(e, location)}
-                                                >
-                                                    <MaterialIcon icon="edit" />
-                                                </IconButton>
+                                                </ListItemButton>
                                             </ListItem>
                                         ))}
                                     </List>
