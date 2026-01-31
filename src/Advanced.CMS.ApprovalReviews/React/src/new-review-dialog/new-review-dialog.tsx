@@ -23,10 +23,7 @@ interface NewReviewDialogProps {
     onCloseDialog(action: string, state: NewPinDto): void;
 }
 
-@inject("reviewStore")
-@inject("resources")
-@observer
-export default class NewReviewDialog extends React.Component<NewReviewDialogProps, NewPinDto> {
+class NewReviewDialog extends React.Component<NewReviewDialogProps, NewPinDto> {
     constructor(props: NewReviewDialogProps) {
         super(props);
         this.state = {
@@ -123,3 +120,5 @@ export default class NewReviewDialog extends React.Component<NewReviewDialogProp
         );
     }
 }
+
+export default inject("reviewStore", "resources")(observer(NewReviewDialog));

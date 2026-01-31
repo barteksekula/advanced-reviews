@@ -17,10 +17,7 @@ interface CommentProps {
     isDone?: boolean;
 }
 
-@inject("resources")
-@inject("reviewStore")
-@observer
-export default class Comment extends React.Component<CommentProps, any> {
+class Comment extends React.Component<CommentProps, any> {
     render() {
         const { getUserAvatarUrl } = this.props.reviewStore!;
 
@@ -56,3 +53,5 @@ export default class Comment extends React.Component<CommentProps, any> {
         );
     }
 }
+
+export default inject("resources", "reviewStore")(observer(Comment));

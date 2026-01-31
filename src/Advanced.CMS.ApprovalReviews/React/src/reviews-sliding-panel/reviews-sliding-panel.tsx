@@ -15,7 +15,7 @@ import React from "react";
 
 import Comment from "../comment/comment";
 import Confirmation from "../confirmation/confirmation";
-import { ReviewDetails } from "../details/review-details";
+import ReviewDetails from "../details/review-details";
 import PinNavigator from "../pin-navigator/pin-navigator";
 import { IReviewComponentStore, PinLocation, Priority } from "../store/review-store";
 
@@ -113,10 +113,7 @@ const Filters = inject("resources")(
     }),
 );
 
-@inject("resources")
-@inject("reviewStore")
-@observer
-export default class SlidingPanel extends React.Component<SlidingPanelProps, any> {
+class SlidingPanel extends React.Component<SlidingPanelProps, any> {
     locationChangedReaction: IReactionDisposer;
 
     constructor(props: SlidingPanelProps) {
@@ -316,3 +313,5 @@ export default class SlidingPanel extends React.Component<SlidingPanelProps, any
         );
     }
 }
+
+export default inject("resources", "reviewStore")(observer(SlidingPanel));

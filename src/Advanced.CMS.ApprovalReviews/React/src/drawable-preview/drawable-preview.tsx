@@ -28,8 +28,7 @@ function drawImageOnCanvas(base64Image, canvas) {
     };
 }
 
-@inject("resources")
-export default class DrawablePreview extends React.Component<DrawablePreviewProps, any> {
+class DrawablePreview extends React.Component<DrawablePreviewProps, any> {
     canvasRef: React.RefObject<HTMLCanvasElement>;
 
     constructor(props: any) {
@@ -124,3 +123,5 @@ export default class DrawablePreview extends React.Component<DrawablePreviewProp
         );
     }
 }
+
+export default inject("resources")(DrawablePreview);

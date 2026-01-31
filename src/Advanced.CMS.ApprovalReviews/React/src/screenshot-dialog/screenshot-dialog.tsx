@@ -6,7 +6,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import html2canvas from "html2canvas";
-import { computed } from "mobx";
+import { computed, makeObservable } from "mobx";
 import { inject, observer } from "mobx-react";
 import React from "react";
 import ReactCrop, { Crop } from "react-image-crop";
@@ -77,9 +77,7 @@ function resize(base64Str: string, maxWidth: number, maxHeight: number): Promise
     });
 }
 
-@inject("resources")
-@observer
-export default class ScreenshotDialog extends React.Component<ScreenshotPickerProps, ScreenshotPickerState> {
+class ScreenshotDialog extends React.Component<ScreenshotPickerProps, ScreenshotPickerState> {
     defaultCrop = {
         width: 50,
         height: 50,
@@ -95,9 +93,13 @@ export default class ScreenshotDialog extends React.Component<ScreenshotPickerPr
             input: null,
             drawerInput: null,
         };
+
+        makeObservable(this, {
+            mode: computed,
+        });
     }
 
-    @computed get mode() {
+    get mode() {
         if (this.state.input) {
             return Mode.Crop;
         }
@@ -306,3 +308,5 @@ export default class ScreenshotDialog extends React.Component<ScreenshotPickerPr
         );
     }
 }
+
+export default inject("resources")(observer(ScreenshotDialog));

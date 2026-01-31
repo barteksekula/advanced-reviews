@@ -21,9 +21,7 @@ interface IframeWithPinsProps {
     external?: boolean;
 }
 
-@inject("reviewStore")
-@observer
-export default class IframeWithPins extends React.Component<IframeWithPinsProps, IframeState> {
+class IframeWithPins extends React.Component<IframeWithPinsProps, IframeState> {
     constructor(props: IframeWithPinsProps) {
         super(props);
 
@@ -143,3 +141,5 @@ export default class IframeWithPins extends React.Component<IframeWithPinsProps,
         );
     }
 }
+
+export default inject("reviewStore")(observer(IframeWithPins));

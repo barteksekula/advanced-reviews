@@ -25,6 +25,8 @@ const plugins = [
         fix: !isProductionBuild,
         emitError: !isWatch,
         failOnError: !isWatch,
+        include: ["src/**/*.ts", "src/**/*.tsx"],
+        exclude: ["**/*.js", "node_modules/**"],
     }),
 ];
 

@@ -13,9 +13,7 @@ interface PinCollectionProps {
     positionCalculator?: PositionCalculator;
 }
 
-@inject("reviewStore")
-@observer
-export default class PinCollection extends React.Component<PinCollectionProps> {
+class PinCollection extends React.Component<PinCollectionProps> {
     onLocationClick = (e, location: PinLocation) => {
         e.stopPropagation();
         this.props.reviewStore.selectedPinLocation = this.props.reviewStore.editedPinLocation = location;
@@ -44,3 +42,5 @@ export default class PinCollection extends React.Component<PinCollectionProps> {
         );
     }
 }
+
+export default inject("reviewStore")(observer(PinCollection));

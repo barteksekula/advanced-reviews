@@ -14,10 +14,7 @@ interface PinNavigatorProps {
     reviewStore?: IReviewComponentStore;
 }
 
-@inject("reviewStore")
-@inject("resources")
-@observer
-export default class PinNavigator extends React.Component<PinNavigatorProps, any> {
+class PinNavigator extends React.Component<PinNavigatorProps, any> {
     showReview(incrementBy: number): void {
         const { editedPinLocation, reviewLocations } = this.props.reviewStore!;
         let reviewIndex = reviewLocations.indexOf(editedPinLocation) + incrementBy;
@@ -90,3 +87,5 @@ export default class PinNavigator extends React.Component<PinNavigatorProps, any
         );
     }
 }
+
+export default inject("reviewStore", "resources")(observer(PinNavigator));

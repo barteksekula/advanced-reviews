@@ -11,7 +11,7 @@ import no from "date-fns/locale/nb"; // date-fns uses bokmål as the default nor
 import nl from "date-fns/locale/nl";
 import sv from "date-fns/locale/sv";
 import zh_cn from "date-fns/locale/zh-CN";
-import { action, computed, observable } from "mobx";
+import { action, computed, makeAutoObservable, makeObservable, observable } from "mobx";
 
 const locales = {
     da,
@@ -41,16 +41,21 @@ export class Comment {
 
     constructor(store: IReviewComponentStore) {
         this.store = store;
+
+        makeObservable(this, {
+            formattedDate: computed,
+            userFriendlyDate: computed,
+        });
     }
 
-    @computed get formattedDate() {
+    get formattedDate() {
         if (!this.date) {
             return "";
         }
         return format(this.date, "MMM do yyyy");
     }
 
-    @computed get userFriendlyDate() {
+    get userFriendlyDate() {
         if (!this.date) {
             return "";
         }
@@ -109,7 +114,7 @@ export interface PinPositioningDetails {
 export class PinLocation implements PinPositioningDetails {
     id: string;
     propertyName?: string;
-    @observable isDone: boolean;
+    isDone: boolean = false;
     documentRelativePosition: Dimensions;
     documentSize: Dimensions;
     propertyPosition?: Dimensions;
@@ -121,14 +126,14 @@ export class PinLocation implements PinPositioningDetails {
     clickedDomNodeSelector?: string;
     clickedDomNodeSize?: Dimensions;
     clickedDomNodePosition?: Dimensions;
-    @observable priority: Priority = Priority.Normal;
-    @observable comments: Comment[] = [];
+    priority: Priority = Priority.Normal;
+    comments: Comment[] = [];
     /**
      * FirstComment is a main comment added when saving review location for the first time
      */
-    @observable firstComment: Comment;
+    firstComment: Comment = null;
 
-    @computed get formattedFirstComment(): string {
+    get formattedFirstComment(): string {
         if (!this.firstComment.date) {
             return "";
         }
@@ -148,31 +153,44 @@ export class PinLocation implements PinPositioningDetails {
         return result;
     }
 
-    @computed get displayName(): string {
+    get displayName(): string {
         return this.propertyName || this.firstComment.text;
     }
 
     /**
      * List of users and date when they last saw the review.
      */
-    @observable usersLastRead: UsersLastReadHashmap = {};
+    usersLastRead: UsersLastReadHashmap = {};
 
     private _rootStore: IReviewComponentStore;
 
     constructor(rootStore: IReviewComponentStore, point: any) {
+        makeObservable(this, {
+            isDone: observable,
+            priority: observable,
+            comments: observable,
+            firstComment: observable,
+            usersLastRead: observable,
+            formattedFirstComment: computed,
+            displayName: computed,
+            isUpdatedReview: computed,
+            updateCurrentUserLastRead: action,
+            clearLastUsersRead: action,
+        });
+
         this._rootStore = rootStore;
         this.firstComment = new Comment(this._rootStore);
         Object.keys(point).forEach((key) => (this[key] = point[key]));
     }
 
-    @action updateCurrentUserLastRead(): void {
+    updateCurrentUserLastRead(): void {
         if (!this._rootStore) {
             return;
         }
         this.usersLastRead[this._rootStore.currentUser] = new Date();
     }
 
-    @action clearLastUsersRead(): void {
+    clearLastUsersRead(): void {
         this.usersLastRead = {};
     }
 
@@ -180,7 +198,7 @@ export class PinLocation implements PinPositioningDetails {
         return typeof obj === "string" ? new Date(obj) : obj;
     };
 
-    @computed get isUpdatedReview() {
+    get isUpdatedReview() {
         if (!this._rootStore) {
             return false;
         }
@@ -296,20 +314,24 @@ export interface IReviewComponentStore {
 }
 
 class ReviewCollectionFilter {
-    @observable reviewMode: boolean = true;
-    @observable showUnread: boolean = true;
-    @observable showActive: boolean = true;
-    @observable showResolved: boolean = false;
+    reviewMode: boolean = true;
+    showUnread: boolean = true;
+    showActive: boolean = true;
+    showResolved: boolean = false;
+
+    constructor() {
+        makeAutoObservable(this);
+    }
 }
 
 class ReviewComponentStore implements IReviewComponentStore {
-    @observable reviewLocations: PinLocation[] = [];
-    @observable editedPinLocation: PinLocation;
-    @observable selectedPinLocation: PinLocation;
-    @observable propertyNameMapping: object;
-    @observable options: ExternalReviewOptions;
+    reviewLocations: PinLocation[] = [];
+    editedPinLocation: PinLocation = null;
+    selectedPinLocation: PinLocation = null;
+    propertyNameMapping: object = null;
+    options: ExternalReviewOptions = null;
 
-    filter: ReviewCollectionFilter = new ReviewCollectionFilter();
+    filter: ReviewCollectionFilter;
 
     currentUser = "";
 
@@ -320,7 +342,26 @@ class ReviewComponentStore implements IReviewComponentStore {
     _advancedReviewService: any;
 
     constructor(advancedReviewService: AdvancedReviewService) {
+        makeObservable(this, {
+            reviewLocations: observable,
+            editedPinLocation: observable,
+            selectedPinLocation: observable,
+            propertyNameMapping: observable,
+            options: observable,
+            selectedPinLocationIndex: computed,
+            filteredReviewLocations: computed,
+            load: action.bound,
+            updateDisplayNamesDictionary: action.bound,
+            resolvePropertyDisplayName: action,
+            toggleResolve: action.bound,
+            addComment: action.bound,
+            save: action.bound,
+            remove: action.bound,
+            getUserAvatarUrl: action.bound,
+        });
+
         this._advancedReviewService = advancedReviewService;
+        this.filter = new ReviewCollectionFilter();
     }
 
     private parseComment(json: any): Comment {
@@ -329,7 +370,6 @@ class ReviewComponentStore implements IReviewComponentStore {
             : Comment.create("", "", this);
     }
 
-    @action.bound
     load(): void {
         this._advancedReviewService.load().then((reviewLocations) => {
             this.reviewLocations = reviewLocations.map((x: any) => {
@@ -352,7 +392,7 @@ class ReviewComponentStore implements IReviewComponentStore {
         });
     }
 
-    @computed get selectedPinLocationIndex(): number {
+    get selectedPinLocationIndex(): number {
         if (!this.selectedPinLocation) {
             return -1;
         }
@@ -360,7 +400,7 @@ class ReviewComponentStore implements IReviewComponentStore {
         return this.reviewLocations.indexOf(this.selectedPinLocation);
     }
 
-    @computed get filteredReviewLocations(): PinLocation[] {
+    get filteredReviewLocations(): PinLocation[] {
         return this.reviewLocations.filter((location) => {
             return (
                 (this.filter.showResolved && location.isDone) ||
@@ -370,12 +410,10 @@ class ReviewComponentStore implements IReviewComponentStore {
         });
     }
 
-    @action.bound
     updateDisplayNamesDictionary(propertyNameMapping: object): void {
         this.propertyNameMapping = propertyNameMapping;
     }
 
-    @action
     resolvePropertyDisplayName(propertyName: string): string {
         if (!this.propertyNameMapping) {
             return propertyName;
@@ -389,13 +427,11 @@ class ReviewComponentStore implements IReviewComponentStore {
         return displayName;
     }
 
-    @action.bound
     toggleResolve(): Promise<PinLocation> {
         this.editedPinLocation.isDone = !this.editedPinLocation.isDone;
         return this.saveLocation(this.editedPinLocation);
     }
 
-    @action.bound
     addComment(commentText: string, screenshot?: string): Promise<PinLocation> {
         const comment = Comment.create(this.currentUser, commentText, this, null, screenshot);
         this.editedPinLocation.comments.push(comment);
@@ -404,7 +440,6 @@ class ReviewComponentStore implements IReviewComponentStore {
     }
 
     //TODO: convert to async method
-    @action.bound
     save(item: NewPinDto, editedReview: PinLocation): Promise<PinLocation> {
         editedReview.priority = item.currentPriority;
         editedReview.firstComment = Comment.create(
@@ -417,7 +452,6 @@ class ReviewComponentStore implements IReviewComponentStore {
         return this.saveLocation(editedReview);
     }
 
-    @action.bound
     remove(pin: PinLocation): Promise<void> {
         return new Promise((resolve, reject) => {
             this._advancedReviewService
@@ -432,7 +466,7 @@ class ReviewComponentStore implements IReviewComponentStore {
         });
     }
 
-    @action.bound getUserAvatarUrl(userName: string): string {
+    getUserAvatarUrl(userName: string): string {
         const encodedUserName = encodeURIComponent(userName);
         return `${this.avatarUrl}/${encodedUserName}`;
     }

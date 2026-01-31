@@ -1,25 +1,25 @@
-import { action, computed, observable } from "mobx";
+import { action, computed, makeObservable, observable } from "mobx";
 
 export class ReviewLink {
-    @observable token: string;
-    @observable displayName: string;
-    @observable linkUrl: string;
-    @observable validTo: Date;
-    @observable isEditable: boolean;
-    @observable pinCode: string;
-    @observable projectId: number;
+    token: string;
+    displayName: string;
+    linkUrl: string;
+    validTo: Date;
+    isEditable: boolean;
+    pinCode: string;
+    projectId: number;
     projectName: string;
-    @observable visitorGroups: string[];
+    visitorGroups: string[];
 
-    @computed get isActive(): boolean {
+    get isActive(): boolean {
         return this.validTo > new Date();
     }
 
-    @computed get isPersisted(): boolean {
+    get isPersisted(): boolean {
         return !!this.token;
     }
 
-    @action.bound setValidDateFromStr(validToStr: string): void {
+    setValidDateFromStr(validToStr: string): void {
         try {
             this.validTo = new Date(validToStr);
         } catch (error) {
@@ -46,6 +46,22 @@ export class ReviewLink {
         this.pinCode = pinCode;
         this.projectName = projectName;
         this.visitorGroups = visitorGroups;
+        this.validTo = null; // Initialize before makeObservable
+
+        makeObservable(this, {
+            token: observable,
+            displayName: observable,
+            linkUrl: observable,
+            validTo: observable,
+            isEditable: observable,
+            pinCode: observable,
+            projectId: observable,
+            visitorGroups: observable,
+            isActive: computed,
+            isPersisted: computed,
+            setValidDateFromStr: action,
+        });
+
         this.setValidDateFromStr(validToStr);
     }
 }
@@ -77,10 +93,14 @@ export class ExternalReviewStore implements IExternalReviewStore {
 
     initialEditMailMessage: string;
 
-    @observable links: ReviewLink[] = [];
+    links: ReviewLink[] = [];
 
     constructor(externalReviewService: ExternalReviewService) {
         this._externalReviewService = externalReviewService;
+
+        makeObservable(this, {
+            links: observable,
+        });
     }
 
     addLink(isEditable: boolean): Promise<ReviewLink> {

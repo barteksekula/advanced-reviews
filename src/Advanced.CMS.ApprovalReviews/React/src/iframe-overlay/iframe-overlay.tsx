@@ -21,9 +21,7 @@ const getClosest = (element, selector): HTMLElement => {
     return null;
 };
 
-@inject("reviewStore")
-@observer
-export default class IframeOverlay extends React.Component<IframeOverlayProps, any> {
+class IframeOverlay extends React.Component<IframeOverlayProps, any> {
     calculatePositionInterval: number;
     private overlayRef: React.RefObject<HTMLDivElement>;
     private overlayDocumentRef: React.RefObject<HTMLDivElement>;
@@ -179,3 +177,5 @@ export default class IframeOverlay extends React.Component<IframeOverlayProps, a
         );
     }
 }
+
+export default inject("reviewStore")(observer(IframeOverlay));

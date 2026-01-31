@@ -19,10 +19,7 @@ interface ReviewDetailsProps {
     onCancel: () => void;
 }
 
-@inject("reviewStore")
-@inject("resources")
-@observer
-export class ReviewDetails extends React.Component<ReviewDetailsProps, NewPinDto> {
+class ReviewDetails extends React.Component<ReviewDetailsProps, NewPinDto> {
     commentsChangedReaction: IReactionDisposer;
     private scrollable: any;
 
@@ -128,3 +125,5 @@ export class ReviewDetails extends React.Component<ReviewDetailsProps, NewPinDto
         );
     }
 }
+
+export default inject("reviewStore", "resources")(observer(ReviewDetails));
