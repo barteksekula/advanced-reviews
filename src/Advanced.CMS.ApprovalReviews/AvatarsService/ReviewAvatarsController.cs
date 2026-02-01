@@ -1,6 +1,4 @@
-﻿using System.Drawing.Imaging;
-using System.Runtime.Versioning;
-using System.Web;
+﻿using System.Web;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Advanced.CMS.ApprovalReviews.AvatarsService;
@@ -8,7 +6,6 @@ namespace Advanced.CMS.ApprovalReviews.AvatarsService;
 /// <summary>
 /// Handler used to get user avatar based on username
 /// </summary>
-[SupportedOSPlatform("windows")]
 internal class ReviewAvatarsController(ICustomAvatarResolver customAvatarResolver) : Controller
 {
     private readonly IdenticonGenerator _identiconGenerator = new();
@@ -24,25 +21,15 @@ internal class ReviewAvatarsController(ICustomAvatarResolver customAvatarResolve
         }
 
         userName = HttpUtility.UrlDecode(userName);
-        using (var memoryStream = new MemoryStream())
+
+        var customAvatar = customAvatarResolver.GetImage(userName);
+        if (customAvatar != null)
         {
-            var customAvatar = customAvatarResolver.GetImage(userName);
-            if (customAvatar != null)
-            {
-                memoryStream.Write(customAvatar, 0, customAvatar.Length);
-            }
-            else
-            {
-                var identicon = _identiconGenerator.CreateIdenticon(userName, 100);
-                var encoder = ImageCodecInfo.GetImageEncoders().First(c => c.FormatID == ImageFormat.Jpeg.Guid);
-                var encParams = new EncoderParameters { Param = new[] { new EncoderParameter(Encoder.Quality, 90L) } };
-                identicon.Save(memoryStream, encoder, encParams);
-            }
-
-            var bytesInStream = memoryStream.ToArray();
-
-            return File(bytesInStream, "Image/jpeg");
+            return File(customAvatar, "image/png");
         }
+
+        var identicon = _identiconGenerator.CreateIdenticon(userName, 100);
+        return File(identicon, "image/png");
     }
 
     public bool IsReusable => false;
