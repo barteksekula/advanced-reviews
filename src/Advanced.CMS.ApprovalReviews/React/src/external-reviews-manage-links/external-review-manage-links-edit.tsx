@@ -160,7 +160,6 @@ const LinkEditDialog = observer(
                         <TextField
                             label={resources.list.editdialog.displayname}
                             fullWidth
-                            autoFocus
                             value={displayName}
                             onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                                 setDisplayName(event.target.value)

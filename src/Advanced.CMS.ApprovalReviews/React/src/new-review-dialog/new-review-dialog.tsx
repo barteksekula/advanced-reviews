@@ -73,14 +73,20 @@ const NewReviewDialog: React.FC<NewReviewDialogProps> = ({
 
     return (
         <>
-            <Dialog className="review-dialog" open={true} onClose={() => onCloseDialog("cancel", getState())}>
+            <Dialog
+                className="review-dialog"
+                open={true}
+                onClose={() => onCloseDialog("cancel", getState())}
+                maxWidth="sm"
+                fullWidth
+            >
                 <DialogTitle>
-                    <div className="header">
-                        <div className="left-align">
+                    <div className="dialog-title-header">
+                        <div className="dialog-title-text">
                             {reviewStore.resolvePropertyDisplayName(currentEditLocation.propertyName) ||
                                 res.dialog.reviewedit}
                         </div>
-                        <div className="review-actions">
+                        <div>
                             <IconButton title={res.dialog.changepriority} onClick={handleMenuOpen}>
                                 <Icon>{priorityIconMappings[currentPriority]}</Icon>
                             </IconButton>
@@ -90,7 +96,11 @@ const NewReviewDialog: React.FC<NewReviewDialogProps> = ({
                                 onClose={handleMenuClose}
                                 anchorOrigin={{
                                     vertical: "bottom",
-                                    horizontal: "left",
+                                    horizontal: "right",
+                                }}
+                                transformOrigin={{
+                                    vertical: "top",
+                                    horizontal: "right",
                                 }}
                             >
                                 {Object.keys(Priority).map((priority) => (
@@ -106,7 +116,33 @@ const NewReviewDialog: React.FC<NewReviewDialogProps> = ({
                     </div>
                 </DialogTitle>
                 <DialogContent>
-                    <div className="dialog-grid">
+                    <div className="dialog-content-container">
+                        {reviewStore.options.allowScreenshotAttachments && (
+                            <div className="screenshot-controls">
+                                <IconButton
+                                    color={currentScreenshot ? "primary" : "default"}
+                                    title={currentScreenshot ? res.panel.showscreenshot : res.panel.attachscreenshot}
+                                    onClick={() => setScreenshotMode(!screenshotMode)}
+                                >
+                                    <Icon>{currentScreenshot ? "check_circle" : "add_photo_alternate"}</Icon>
+                                </IconButton>
+                                <span
+                                    className="screenshot-label"
+                                    onClick={() => setScreenshotMode(!screenshotMode)}
+                                >
+                                    {currentScreenshot ? res.panel.showscreenshot : res.panel.attachscreenshot}
+                                </span>
+                                {currentScreenshot && (
+                                    <IconButton
+                                        size="small"
+                                        title={res.panel.removescreenshot}
+                                        onClick={() => updateComment(currentCommentText, null)}
+                                    >
+                                        <Icon fontSize="small">close</Icon>
+                                    </IconButton>
+                                )}
+                            </div>
+                        )}
                         <LocationComment
                             value={currentCommentText}
                             currentScreenshot={currentScreenshot}
@@ -114,7 +150,7 @@ const NewReviewDialog: React.FC<NewReviewDialogProps> = ({
                             onChange={(comment, screenshot) => {
                                 updateComment(comment, screenshot);
                             }}
-                            allowScreenshotAttachments={reviewStore.options.allowScreenshotAttachments}
+                            allowScreenshotAttachments={false}
                         />
                     </div>
                 </DialogContent>

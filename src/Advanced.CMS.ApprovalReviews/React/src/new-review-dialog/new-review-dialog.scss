@@ -1,42 +1,38 @@
-.mdc-dialog {
-    &.review-dialog {
-        z-index: 750;
+.review-dialog {
+    z-index: 750;
 
-        .mdc-dialog__title {
-            margin-top: 0;
-            margin-bottom: 0;
-            font-size: 1.25rem;
-            line-height: 1rem;
-            padding: 0 12px;
+    .dialog-title-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-            &:before {
-                height: inherit;
-            }
-        }
+    .dialog-title-text {
+        font-weight: 500;
+        font-size: 1.25rem;
+    }
 
-        .mdc-dialog__content {
-            padding: 0 12px;
-            position: relative;
+    .dialog-content-container {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        padding-top: 8px;
+    }
 
-            .attach-screenshot {
-                right: 10px;
-                bottom: 105px;
-            }
-        }
+    .screenshot-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
+    .screenshot-label {
+        font-size: 0.875rem;
+        color: #666;
+        cursor: pointer;
+        user-select: none;
 
-            .review-actions {
-                margin-top: -3px;
-            }
-        }
-
-        .dialog-grid {
-            width: 300px;
-            height: 150px;
+        &:hover {
+            color: #333;
         }
     }
 }
