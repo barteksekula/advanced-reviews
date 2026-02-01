@@ -1,11 +1,12 @@
 import "./comment.scss";
 
 import Icon from "@mui/material/Icon";
+import IconButton from "@mui/material/IconButton";
+import Popover from "@mui/material/Popover";
 import classNames from "classnames";
 import { inject, observer } from "mobx-react";
-import React from "react";
+import React, { useState } from "react";
 
-import { DropDownMenu } from "../common/drop-down-menu";
 import { Comment as CommentItem, IReviewComponentStore } from "../store/review-store";
 
 interface CommentProps {
@@ -20,6 +21,15 @@ interface CommentProps {
 const Comment: React.FC<CommentProps> = ({ reviewStore, resources, comment, amplify, isImportant, isDone }) => {
     const { getUserAvatarUrl } = reviewStore!;
     const res = resources!;
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handlePopoverClose = () => {
+        setAnchorEl(null);
+    };
 
     return (
         <div className="comment">
@@ -37,9 +47,28 @@ const Comment: React.FC<CommentProps> = ({ reviewStore, resources, comment, ampl
                     </span>
                     {comment.screenshot && (
                         <div className="screenshot">
-                            <DropDownMenu icon="image" title={res.panel.showscreenshot}>
-                                <img src={comment.screenshot} alt="screenshot" />
-                            </DropDownMenu>
+                            <IconButton
+                                size="small"
+                                title={res.panel.showscreenshot}
+                                onClick={handlePopoverOpen}
+                            >
+                                <Icon>image</Icon>
+                            </IconButton>
+                            <Popover
+                                open={Boolean(anchorEl)}
+                                anchorEl={anchorEl}
+                                onClose={handlePopoverClose}
+                                anchorOrigin={{
+                                    vertical: "bottom",
+                                    horizontal: "left",
+                                }}
+                                transformOrigin={{
+                                    vertical: "top",
+                                    horizontal: "left",
+                                }}
+                            >
+                                <img src={comment.screenshot} alt="screenshot" style={{ maxWidth: "600px", display: "block" }} />
+                            </Popover>
                         </div>
                     )}
                 </div>

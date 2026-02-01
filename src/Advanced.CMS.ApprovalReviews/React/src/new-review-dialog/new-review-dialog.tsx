@@ -5,10 +5,15 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
+import Icon from "@mui/material/Icon";
+import IconButton from "@mui/material/IconButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import { inject, observer } from "mobx-react";
 import React, { useState } from "react";
 
-import { ContextMenu } from "../common/context-menu";
 import LocationComment from "../location-comment/location-comment";
 import ScreenshotDialog from "../screenshot-dialog/screenshot-dialog";
 import priorityIconMappings from "../store/priority-icon-mappings";
@@ -34,6 +39,20 @@ const NewReviewDialog: React.FC<NewReviewDialogProps> = ({
     const [currentScreenshot, setCurrentScreenshot] = useState<string>(null);
     const [screenshotMode, setScreenshotMode] = useState(false);
     const [currentCommentText, setCurrentCommentText] = useState("");
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handlePriorityChange = (priority: Priority) => {
+        setCurrentPriority(priority);
+        handleMenuClose();
+    };
 
     const updateComment = (comment: string, screenshot: string) => {
         setCurrentScreenshot(screenshot);
@@ -49,15 +68,6 @@ const NewReviewDialog: React.FC<NewReviewDialogProps> = ({
 
     const res = resources!;
 
-    const options = Object.keys(Priority).map((priority) => {
-        return {
-            name: res.priority[priority.toLowerCase()],
-            icon: priorityIconMappings[priority],
-            onSelected: () => {
-                setCurrentPriority(Priority[priority]);
-            },
-        };
-    });
 
     const canSave: boolean = currentCommentText.trim() !== "";
 
@@ -71,11 +81,27 @@ const NewReviewDialog: React.FC<NewReviewDialogProps> = ({
                                 res.dialog.reviewedit}
                         </div>
                         <div className="review-actions">
-                            <ContextMenu
-                                icon={priorityIconMappings[currentPriority]}
-                                title={res.dialog.changepriority}
-                                menuItems={options}
-                            />
+                            <IconButton title={res.dialog.changepriority} onClick={handleMenuOpen}>
+                                <Icon>{priorityIconMappings[currentPriority]}</Icon>
+                            </IconButton>
+                            <Menu
+                                anchorEl={anchorEl}
+                                open={Boolean(anchorEl)}
+                                onClose={handleMenuClose}
+                                anchorOrigin={{
+                                    vertical: "bottom",
+                                    horizontal: "left",
+                                }}
+                            >
+                                {Object.keys(Priority).map((priority) => (
+                                    <MenuItem key={priority} onClick={() => handlePriorityChange(Priority[priority])}>
+                                        <ListItemIcon>
+                                            <Icon>{priorityIconMappings[priority]}</Icon>
+                                        </ListItemIcon>
+                                        <ListItemText>{res.priority[priority.toLowerCase()]}</ListItemText>
+                                    </MenuItem>
+                                ))}
+                            </Menu>
                         </div>
                     </div>
                 </DialogTitle>

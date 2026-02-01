@@ -3,11 +3,10 @@ import "./location-comment.scss";
 import ImageIcon from "@mui/icons-material/Image";
 import RemoveIcon from "@mui/icons-material/Remove";
 import IconButton from "@mui/material/IconButton";
+import Popover from "@mui/material/Popover";
 import TextField from "@mui/material/TextField";
 import { inject } from "mobx-react";
-import React, { useEffect, useRef } from "react";
-
-import { DropDownMenu } from "../common/drop-down-menu";
+import React, { useEffect, useRef, useState } from "react";
 
 interface LocationCommentProps {
     currentScreenshot: string;
@@ -20,12 +19,21 @@ interface LocationCommentProps {
 
 const LocationComment = inject("resources")((props: LocationCommentProps) => {
     const textFieldRef = useRef<HTMLInputElement>(null);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
     useEffect(() => {
         if (textFieldRef.current) {
             textFieldRef.current.focus();
         }
     });
+
+    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handlePopoverClose = () => {
+        setAnchorEl(null);
+    };
 
     const resources = props.resources!;
 
@@ -56,9 +64,27 @@ const LocationComment = inject("resources")((props: LocationCommentProps) => {
                     )}
                     {props.currentScreenshot && (
                         <div className="attach-screenshot">
-                            <DropDownMenu icon="image" title={resources.panel.showscreenshot}>
-                                <img src={props.currentScreenshot} alt="screenshot" />
-                            </DropDownMenu>
+                            <IconButton
+                                title={resources.panel.showscreenshot}
+                                onClick={handlePopoverOpen}
+                            >
+                                <ImageIcon />
+                            </IconButton>
+                            <Popover
+                                open={Boolean(anchorEl)}
+                                anchorEl={anchorEl}
+                                onClose={handlePopoverClose}
+                                anchorOrigin={{
+                                    vertical: "bottom",
+                                    horizontal: "left",
+                                }}
+                                transformOrigin={{
+                                    vertical: "top",
+                                    horizontal: "left",
+                                }}
+                            >
+                                <img src={props.currentScreenshot} alt="screenshot" style={{ maxWidth: "600px", display: "block" }} />
+                            </Popover>
                             <IconButton
                                 onClick={() => props.onChange(props.value, null)}
                                 title={resources.panel.removescreenshot}

@@ -12,28 +12,8 @@
     overflow-y: auto;
 }
 
-.mdc-menu-surface {
-    //TODO: menu-surface overlapped when in dialog
-    z-index: 1500 !important;
-
-    .mdc-list {
-        .mdc-list-item {
-            cursor: pointer;
-
-            .mdc-list-item__graphic {
-                margin-right: 10px;
-            }
-        }
-    }
-}
-
 .user-picker {
     position: absolute;
     left: 0;
     bottom: 0;
-}
-
-//TODO: menu-surface float?
-.mdc-menu-surface--anchor {
-    display: inline-block;
 }

@@ -107,7 +107,7 @@ const DrawablePreview: React.FC<DrawablePreviewProps> = ({
                 }}
                 onMouseUp={handleMouseUp}
             />
-            <div className="mdc-dialog__actions">
+            <div>
                 <Button onClick={cancel}>{resources.screenshot.cancel}</Button>
                 <Button onClick={clear}>{resources.screenshot.clear}</Button>
                 <Button onClick={done}>{resources.screenshot.apply}</Button>

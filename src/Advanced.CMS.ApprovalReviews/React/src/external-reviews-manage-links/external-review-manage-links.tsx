@@ -6,11 +6,12 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import { format } from "date-fns";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
 
-import { ContextMenu } from "../common/context-menu";
 import Confirmation from "../confirmation/confirmation";
 import { IExternalReviewStore, ReviewLink } from "./external-review-links-store";
 import LinkEditDialog from "./external-review-manage-links-edit";
@@ -49,8 +50,17 @@ const ExternalReviewWidgetContent = observer(
         const [currentLinkToDelete, setLinkToDelete] = useState<ReviewLink>(null);
         const [currentLinkToShare, setLinkToShare] = useState<ReviewLink>(null);
         const [currentLinkToEdit, setLinkToEdit] = useState<ReviewLink>(null);
+        const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
         const isPinRequired = pinCodeSecurityEnabled && pinCodeSecurityRequired;
+
+        const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+            setAnchorEl(event.currentTarget);
+        };
+
+        const handleMenuClose = () => {
+            setAnchorEl(null);
+        };
 
         const onDelete = (action: boolean) => {
             setLinkToDelete(null);
@@ -87,6 +97,7 @@ const ExternalReviewWidgetContent = observer(
         };
 
         const addNewLink = (isEditable) => {
+            handleMenuClose();
             if (isEditable || !isPinRequired) {
                 store.addLink(isEditable);
                 return;
@@ -96,18 +107,6 @@ const ExternalReviewWidgetContent = observer(
             setLinkToEdit(temporaryLink);
         };
 
-        const options = [
-            {
-                name: resources.list.viewlink,
-                icon: "pageview",
-                onSelected: () => addNewLink(false),
-            },
-            {
-                name: resources.list.editlink,
-                icon: "rate_review",
-                onSelected: () => addNewLink(true),
-            },
-        ];
 
         return (
             <>
@@ -203,7 +202,33 @@ const ExternalReviewWidgetContent = observer(
                 )}
                 <div>
                     {editableLinksEnabled ? (
-                        <ContextMenu icon="playlist_add" title="" menuItems={options} />
+                        <>
+                            <IconButton title="Add link" onClick={handleMenuOpen}>
+                                <Icon>playlist_add</Icon>
+                            </IconButton>
+                            <Menu
+                                anchorEl={anchorEl}
+                                open={Boolean(anchorEl)}
+                                onClose={handleMenuClose}
+                                anchorOrigin={{
+                                    vertical: "bottom",
+                                    horizontal: "left",
+                                }}
+                            >
+                                <MenuItem onClick={() => addNewLink(false)}>
+                                    <ListItemIcon>
+                                        <Icon>pageview</Icon>
+                                    </ListItemIcon>
+                                    <ListItemText>{resources.list.viewlink}</ListItemText>
+                                </MenuItem>
+                                <MenuItem onClick={() => addNewLink(true)}>
+                                    <ListItemIcon>
+                                        <Icon>rate_review</Icon>
+                                    </ListItemIcon>
+                                    <ListItemText>{resources.list.editlink}</ListItemText>
+                                </MenuItem>
+                            </Menu>
+                        </>
                     ) : (
                         <IconButton title="Add link" onClick={() => addNewLink(false)}>
                             <Icon>playlist_add</Icon>
