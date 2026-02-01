@@ -2,6 +2,7 @@ import Button from "@mui/material/Button";
 import Snackbar from "@mui/material/Snackbar";
 import { inject, observer } from "mobx-react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 
 import IframeOverlay from "../iframe-overlay/iframe-overlay";
 import NewReviewDialog from "../new-review-dialog/new-review-dialog";
@@ -24,6 +25,9 @@ const IframeWithPins: React.FC<IframeWithPinsProps> = ({ iframe, reviewStore, ex
 
     const [newLocation, setNewLocation] = useState<PinLocation>(null);
     const [documentSize, setDocumentSize] = useState<Dimensions>(getIframeDimensions());
+    const [showReviewIntro, setShowReviewIntro] = useState<boolean>(
+        reviewStore.reviewLocations.length === 0 && localStorage.getItem("reviewIntro") !== "false",
+    );
 
     const updateDimensions = useCallback(() => {
         setDocumentSize(getIframeDimensions());
@@ -72,15 +76,11 @@ const IframeWithPins: React.FC<IframeWithPinsProps> = ({ iframe, reviewStore, ex
         //TODO: show screenshot after save this.setState({ isScreenshotMode: true });
     };
 
-    const onIntroClose = (reason): void => {
-        if (reason !== "action") {
-            return;
-        }
+    const onIntroClose = (): void => {
+        setShowReviewIntro(false);
         localStorage.setItem("reviewIntro", "false");
     };
 
-    const showReviewIntro: boolean =
-        reviewStore.reviewLocations.length === 0 && localStorage.getItem("reviewIntro") !== "false";
 
     const positionCalculator = useMemo(
         () => createPositionCalculator(documentSize, external, iframe.contentDocument),
@@ -96,19 +96,6 @@ const IframeWithPins: React.FC<IframeWithPinsProps> = ({ iframe, reviewStore, ex
                     external={external}
                 >
                     <PinCollection newLocation={newLocation} positionCalculator={positionCalculator} />
-                    {showReviewIntro && (
-                        <Snackbar
-                            open={true}
-                            autoHideDuration={10000}
-                            onClose={onIntroClose}
-                            message="You are now in content review mode. Click on text to create new review entry."
-                            action={
-                                <Button color="secondary" size="small" onClick={onIntroClose}>
-                                    Do not show this again
-                                </Button>
-                            }
-                        />
-                    )}
                 </IframeOverlay>
             )}
             <ReviewsSlidingPanel iframe={iframe} />
@@ -119,6 +106,22 @@ const IframeWithPins: React.FC<IframeWithPinsProps> = ({ iframe, reviewStore, ex
                     onCloseDialog={(action, state) => onCloseDialog(action, state)}
                 />
             )}
+            {showReviewIntro &&
+                createPortal(
+                    <Snackbar
+                        open={true}
+                        autoHideDuration={10000}
+                        onClose={onIntroClose}
+                        message="You are now in content review mode. Click on text to create new review entry."
+                        action={
+                            <Button color="secondary" size="small" onClick={onIntroClose}>
+                                Do not show this again
+                            </Button>
+                        }
+                        sx={{ zIndex: 999999 }}
+                    />,
+                    document.body,
+                )}
         </>
     );
 };
