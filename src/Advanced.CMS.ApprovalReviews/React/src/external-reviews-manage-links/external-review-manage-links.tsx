@@ -107,6 +107,13 @@ const ExternalReviewWidgetContent = observer(
             setLinkToEdit(temporaryLink);
         };
 
+        if (!store.enabled) {
+            return (
+                <div className="empty-list">
+                    <span>{resources.list.onlypages}</span>
+                </div>
+            );
+        }
 
         return (
             <>

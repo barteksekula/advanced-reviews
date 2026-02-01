@@ -45,17 +45,17 @@ export default declare([WidgetBase, _ContentContextMixin], {
         );
     },
     contextChanged: function () {
-        if (!this.params.isEnabled) {
+        if (!this.params.isEnabled || !this._currentContext || !this._currentContext.capabilities.isPage) {
+            this.store.disable();
             return;
         }
 
-        if (
-            !this._currentContext ||
-            (this._currentContext.type !== "epi.cms.project" && this._currentContext.type !== "epi.cms.contentdata")
-        ) {
+        if (this._currentContext.type !== "epi.cms.project" && this._currentContext.type !== "epi.cms.contentdata") {
+            this.store.disable();
             return;
         }
 
+        this.store.enable();
         this.store.load();
     },
     destroy: function () {

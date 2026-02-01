@@ -295,6 +295,9 @@ export interface IReviewComponentStore {
 
     load(): void;
 
+    enable(): void;
+    disable(): void;
+
     /**
      * @param propertyNameMapping update mapping dictionary
      */
@@ -329,6 +332,7 @@ class ReviewComponentStore implements IReviewComponentStore {
     editedPinLocation: PinLocation = null;
     selectedPinLocation: PinLocation = null;
     propertyNameMapping: object = null;
+    enabled: boolean = false;
     options: ExternalReviewOptions = null;
 
     filter: ReviewCollectionFilter;
@@ -351,6 +355,7 @@ class ReviewComponentStore implements IReviewComponentStore {
             selectedPinLocationIndex: computed,
             filteredReviewLocations: computed,
             load: action.bound,
+            enabled: observable,
             updateDisplayNamesDictionary: action.bound,
             resolvePropertyDisplayName: action,
             toggleResolve: action.bound,
@@ -390,6 +395,14 @@ class ReviewComponentStore implements IReviewComponentStore {
                 });
             });
         });
+    }
+
+    enable() {
+        this.enabled = true;
+    }
+
+    disable() {
+        this.enabled = false;
     }
 
     get selectedPinLocationIndex(): number {

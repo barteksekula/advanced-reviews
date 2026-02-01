@@ -87,3 +87,12 @@ export const WithPINSecurityNotEnabled: Story = {
         );
     },
 };
+
+export const NotEnabled: Story = {
+    render: () => {
+        const store = new FakeReviewLinksStore();
+        store.enabled = false;
+        return <ExternalReviewWidgetContent {...getDefaultProps(store)} />;
+    },
+};
+

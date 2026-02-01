@@ -69,6 +69,8 @@ export class ReviewLink {
 export interface IExternalReviewStore {
     links: ReviewLink[];
 
+    enabled: boolean;
+
     initialMailSubject: string;
 
     initialViewMailMessage: string;
@@ -82,6 +84,10 @@ export interface IExternalReviewStore {
     share(item: ReviewLink, email: string, subject: string, message: string): void;
 
     edit(item: ReviewLink, validTo: Date, pinCode: string, displayName: string, visitorGroups: string[]): void;
+
+    enable(): void;
+
+    disable(): void;
 }
 
 export class ExternalReviewStore implements IExternalReviewStore {
@@ -95,12 +101,25 @@ export class ExternalReviewStore implements IExternalReviewStore {
 
     links: ReviewLink[] = [];
 
+    enabled = true;
+
     constructor(externalReviewService: ExternalReviewService) {
         this._externalReviewService = externalReviewService;
 
         makeObservable(this, {
             links: observable,
+            enabled: observable,
+            enable: action,
+            disable: action,
         });
+    }
+
+    enable(): void {
+        this.enabled = true;
+    }
+
+    disable(): void {
+        this.enabled = false;
     }
 
     addLink(isEditable: boolean): Promise<ReviewLink> {

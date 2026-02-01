@@ -52,6 +52,8 @@ interface ExternalReviewResources_List {
     deletetitle: string;
     /** There are no external links for this content */
     emptylist: string;
+    /** External links can only be added to pages */
+    onlypages: string;
     /** Valid to */
     itemvalidto: string;
     /** share */

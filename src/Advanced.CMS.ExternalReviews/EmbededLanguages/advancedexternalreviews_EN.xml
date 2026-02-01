@@ -16,6 +16,7 @@
         <projectname>Project</projectname>
         <deletetitle>delete</deletetitle>
         <emptylist>There are no external links for this content</emptylist>
+        <onlypages>External links can only be added to pages</onlypages>
         <itemvalidto>Valid to</itemvalidto>
         <sharetitle>share</sharetitle>
         <viewlink>View</viewlink>
