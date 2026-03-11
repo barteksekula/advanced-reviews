@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using Advanced.CMS.ExternalReviews.ReviewLinksRepository;
 using EPiServer.Authorization;
+using EPiServer.Cms.Shell.UI.Rest;
 using EPiServer.Core.Internal;
 using EPiServer.DataAccess;
 using EPiServer.Framework.Blobs;
@@ -19,6 +20,15 @@ public static class ContentRepositoryTestExtensions
     {
         var page = repo.GetDefault<StandardPage>(ContentReference.StartPage);
         page.PageName = name ?? Guid.NewGuid().ToString();
+        repo.Save(page, AccessLevel.NoAccess);
+        return page;
+    }
+
+    public static StandardPage CreatePageInDifferentLanguage(this IContentRepository repo, string name = null)
+    {
+        var page = repo.GetDefault<StandardPage>(ContentReference.StartPage);
+        page.PageName = (name ?? Guid.NewGuid().ToString()) + "sv";
+        page.Language = new CultureInfo("sv");
         repo.Save(page, AccessLevel.NoAccess);
         return page;
     }
@@ -205,6 +215,14 @@ public static class ContentRepositoryTestExtensions
     {
         ContentRepository.Publish(page, AccessLevel.NoAccess);
         return page;
+    }
+
+    public static StandardPage Translate(this StandardPage page, string language = "sv")
+    {
+        var translatedPage = ContentRepository.CreateLanguageBranch<StandardPage>(page.ContentLink, new CultureInfo(language));
+        translatedPage.PageName = page.PageName + "_" + language;
+        ContentRepository.Save(translatedPage, AccessLevel.NoAccess);
+        return translatedPage;
     }
 
     public static ContentReference CreateTargetFolder(this IContentRepository repo)

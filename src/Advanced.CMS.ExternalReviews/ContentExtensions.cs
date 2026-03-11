@@ -1,5 +1,4 @@
 ﻿using EPiServer.Logging;
-using EPiServer.Security;
 using EPiServer.ServiceLocation;
 
 namespace Advanced.CMS.ExternalReviews;
@@ -7,27 +6,6 @@ namespace Advanced.CMS.ExternalReviews;
 public static class ContentExtensions
 {
     private static readonly ILogger _log = LogManager.GetLogger(typeof(ContentExtensions));
-
-    public static IContent AllowAccessToEveryone(this IContent content)
-    {
-        if (content is not PageData page)
-        {
-            return content;
-        }
-
-        var writable = page.CreateWritableClone();
-        var contentAccessControlList = new ContentAccessControlList();
-        if (contentAccessControlList.Contains(EveryoneRole.RoleName))
-        {
-            contentAccessControlList.Remove(EveryoneRole.RoleName);
-        }
-
-        contentAccessControlList.AddEntry(new AccessControlEntry(EveryoneRole.RoleName,
-            AccessLevel.FullAccess));
-
-        writable.ACL = contentAccessControlList;
-        return writable;
-    }
 
     public static ContentReference LoadUnpublishedVersion(this ContentReference baseReference)
     {

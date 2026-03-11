@@ -1,10 +1,6 @@
-﻿using System;
-using Advanced.CMS.ExternalReviews.ReviewLinksRepository;
-using EPiServer;
-using EPiServer.Core;
+﻿using Advanced.CMS.ExternalReviews.ReviewLinksRepository;
 using EPiServer.Framework;
 using EPiServer.Framework.Initialization;
-using EPiServer.Logging;
 using EPiServer.ServiceLocation;
 using EPiServer.Web;
 
@@ -13,8 +9,6 @@ namespace Advanced.CMS.ExternalReviews;
 [ModuleDependency(typeof(InitializationModule))]
 internal class CustomContentLoaderInitialization : IInitializableModule
 {
-    private static readonly ILogger _log = LogManager.GetLogger(typeof(CustomContentLoaderInitialization));
-
     public void Initialize(InitializationEngine context)
     {
         var events = ServiceLocator.Current.GetInstance<IContentEvents>();
@@ -74,17 +68,7 @@ internal class CustomContentLoaderInitialization : IInitializableModule
         externalReviewState.SetCachedLink(content);
 
         e.ContentLink = unpublished;
-        try
-        {
-            e.Content = content.AllowAccessToEveryone();
-        }
-        //Issues with AllowAccessToEveryone. This method seems to be failing intermittently, so better to wrap in a naive try/catch and fallback to default ACL
-        catch (Exception ex)
-        {
-            _log.Debug($"Not possible to grant contentLink={content.ContentLink} available to everyone", ex);
-            e.Content = content;
-        }
-
+        e.Content = content;
         e.CancelAction = true;
     }
 }
