@@ -4,6 +4,9 @@
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Advanced.CMS.AdvancedReviews.IntegrationTests" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Advanced.CMS.ApprovalReviews\Advanced.CMS.ApprovalReviews.csproj" />
   </ItemGroup>
   <ItemGroup>

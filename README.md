@@ -203,6 +203,7 @@ There are few settings related with external review. They are all set using Opti
  | EditLinkValidTo | 5 days | For how long editable link is valid |
  | ProlongDays | 5 days | Number of days added to link valid date |
  | InterceptGetChildren | false | When true, intercepts all calls to ContentLoader.GetChildren to show draft content in external reviews. This setting may affect performance and is intrusive to the regular EPiServer page lifecycle |
+ | MaxExpectedContentLoadsPerRequest | 500 | Maximum number of content loads expected per request in external review context. A warning is logged when this threshold is exceeded, which may indicate recursive content loading |
  | PinCodeSecurity | [PinCodeSecurityOptions](#PinCodeSecurityOptions) | Settings specific to links security |
  | Restrictions | [ExternalReviewRestrictionOptions](#ExternalReviewRestrictionOptions) | Restrictions around external reviewers |
 

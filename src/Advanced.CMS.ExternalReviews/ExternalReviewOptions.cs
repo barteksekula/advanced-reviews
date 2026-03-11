@@ -86,6 +86,12 @@ public class ExternalReviewOptions
     /// This settings may greatly affect the performance, and is very intrusive into the regular episerver page lifecycle
     /// </summary>
     public bool InterceptGetChildren { get; set; } = false;
+
+    /// <summary>
+    /// Maximum number of content loads expected per request in external review context.
+    /// A warning is logged when this threshold is exceeded, which may indicate recursive content loading.
+    /// </summary>
+    public int MaxExpectedContentLoadsPerRequest { get; set; } = 100;
 }
 
 public class ExternalReviewRestrictionOptions

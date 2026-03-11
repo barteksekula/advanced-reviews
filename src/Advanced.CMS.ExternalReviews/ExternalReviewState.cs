@@ -65,6 +65,12 @@ internal class ExternalReviewState(IHttpContextAccessor httpContextAccessor)
         set => httpContextAccessor.HttpContext.Items["ProjectId"] = value;
     }
 
+    public int LoadingContentCallCount
+    {
+        get => httpContextAccessor.HttpContext?.Items["LoadingContentCallCount"] as int? ?? 0;
+        set => httpContextAccessor.HttpContext.Items["LoadingContentCallCount"] = value;
+    }
+
     public bool IsInExternalReviewContext => !string.IsNullOrWhiteSpace(Token);
     public bool IsInProjectReviewContext => ProjectId.HasValue;
 

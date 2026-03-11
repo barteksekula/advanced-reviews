@@ -1,5 +1,6 @@
 using System.Net;
 using Advanced.CMS.AdvancedReviews.IntegrationTests.Tooling;
+using Advanced.CMS.ExternalReviews;
 using EPiServer.ServiceLocation;
 using EPiServer.Web.Routing;
 using TestSite.Models;
@@ -52,6 +53,11 @@ public class When_Translating_Page(When_Translating_Page.TestFixture fixture)
         var responseReviewLink = await fixture.Client.SendAsync(messageReviewLink);
         var responseTextReviewLink = await responseReviewLink.Content.ReadAsStringAsync();
         Assert.Contains(fixture.Page.PageName + "_sv", responseTextReviewLink);
+
+        var maxExpected = fixture.Services.GetInstance<ExternalReviewOptions>().MaxExpectedContentLoadsPerRequest;
+        Assert.True(
+            CustomContentLoaderInitialization.LastRequestContentLoadCount < maxExpected,
+            $"Content load count ({CustomContentLoaderInitialization.LastRequestContentLoadCount}) exceeded threshold ({maxExpected}). Possible recursive content loading.");
     }
 }
 

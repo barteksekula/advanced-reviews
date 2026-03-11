@@ -1,6 +1,7 @@
 ﻿using Advanced.CMS.ExternalReviews.ReviewLinksRepository;
 using EPiServer.Framework;
 using EPiServer.Framework.Initialization;
+using EPiServer.Logging;
 using EPiServer.ServiceLocation;
 using EPiServer.Web;
 
@@ -9,6 +10,10 @@ namespace Advanced.CMS.ExternalReviews;
 [ModuleDependency(typeof(InitializationModule))]
 internal class CustomContentLoaderInitialization : IInitializableModule
 {
+    private static readonly ILogger _log = LogManager.GetLogger(typeof(CustomContentLoaderInitialization));
+
+    internal static int LastRequestContentLoadCount;
+
     public void Initialize(InitializationEngine context)
     {
         var events = ServiceLocator.Current.GetInstance<IContentEvents>();
@@ -44,6 +49,14 @@ internal class CustomContentLoaderInitialization : IInitializableModule
         }
 
         externalReviewState.CustomLoaded.Add(e.ContentLink.ToString());
+
+        externalReviewState.LoadingContentCallCount++;
+        LastRequestContentLoadCount = externalReviewState.LoadingContentCallCount;
+        var options = ServiceLocator.Current.GetInstance<ExternalReviewOptions>();
+        if (externalReviewState.LoadingContentCallCount == options.MaxExpectedContentLoadsPerRequest + 1)
+        {
+            _log.Warning($"Advanced Reviews: Content load count exceeded threshold of {options.MaxExpectedContentLoadsPerRequest} for token {externalReviewState.Token}. This may indicate a recursive content loading issue.");
+        }
 
         var unpublished = e.ContentLink.LoadUnpublishedVersion();
         if (unpublished == null)
