@@ -32,7 +32,7 @@ public class When_Page_Renders_BreadCrumb_With_Children_Names(
     }
 
     [Fact]
-    public async Task Get_Children_Call_Returns_Unpublished_Content_Items()
+    public async Task Get_Children_Call_Does_Not_Return_Unpublished_Content_Items()
     {
         fixture.Page.UpdatePage();
 
