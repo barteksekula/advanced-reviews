@@ -12,6 +12,6 @@
   <ItemGroup>
     <None Remove="ClientResources/dist/**" />
     <None Remove="React/stats.html" />
-    <None Include="React/**/*.*" />
+    <None Include="React/**/*.*" Exclude="React/node_modules/**" />
   </ItemGroup>
 </Project>
