@@ -40,7 +40,11 @@ define([
             if (!reviewWidget) {
                 if (toggle) {
                     var div = document.createElement("div");
-                    var iframe = document.getElementsByName("sitePreview")[0];
+                    var visualBuilderContainer = document.getElementsByClassName("content-preview");
+                    var visualBuilderMode = visualBuilderContainer.length === 1;
+
+                    var iframes = document.getElementsByTagName("iframe");
+                    var iframe = iframes.length > 1 ? iframes[1] : iframes[0];
                     reviewWidget = new ReviewWidget({
                         iframe: iframe,
                         language: language,
@@ -49,7 +53,7 @@ define([
                         avatarUrl: avatarUrl
                     });
                     reviewWidget.placeAt(div);
-                    var editLayoutContainer = document.getElementsByClassName("epi-editorViewport")[0];
+                    var editLayoutContainer = visualBuilderMode ? visualBuilderContainer[0] : document.getElementsByClassName("epi-editorViewport")[0];
                     editLayoutContainer.appendChild(div);
                 }
             }
