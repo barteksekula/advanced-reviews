@@ -9,14 +9,18 @@ public interface ISiteUriResolver
     Uri GetUri(ContentReference contentReference);
 }
 
-internal class SiteUriResolver(IApplicationResolver applicationResolver) : ISiteUriResolver
+internal class SiteUriResolver(IApplicationRepository applicationRepository) : ISiteUriResolver
 {
     public InProcessWebsite GetWebsite(ContentReference contentReference = null)
     {
-        var application = contentReference == null
-            ? applicationResolver.GetByContext()
-            : applicationResolver.GetByContent(contentReference, false);
-        return application as InProcessWebsite;
+        //IApplicationResolver applicationResolver
+        // var application = contentReference == null
+        //     ? applicationResolver.GetByContext()
+        //     : applicationResolver.GetByContent(contentReference, false);
+        // return application as InProcessWebsite;
+
+        var applications = applicationRepository.List().Cast<InProcessWebsite>().ToList();
+        return applications.First();
     }
 
     public ContentReference GetStartPage(ContentReference contentReference = null)

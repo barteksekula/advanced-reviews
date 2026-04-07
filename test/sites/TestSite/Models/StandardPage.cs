@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using EPiServer.Applications;
 using EPiServer.ServiceLocation;
 using EPiServer.Web;
 
@@ -15,7 +16,15 @@ public class StandardPage : PageData
     public virtual ContentReference Image { get; set; }
 
     public const string PageNameFromGetChildrenCallNodeName = "page-name-from-get-children-call";
-    public string PageNameFromGetChildrenCall =>
-        ServiceLocator.Current.GetInstance<IContentRepository>()
-            .GetChildren<PageData>(ContentReference.StartPage).FirstOrDefault()?.Name;
+
+    public string PageNameFromGetChildrenCall
+    {
+        get
+        {
+            var iContentRepository = ServiceLocator.Current.GetInstance<IContentRepository>();
+            var iApplicationRepository = ServiceLocator.Current.GetInstance<IApplicationRepository>();
+            return iContentRepository.GetChildren<PageData>((iApplicationRepository.List().First() as InProcessWebsite)
+                    .EntryPoint).FirstOrDefault()?.Name;
+        }
+    }
 }

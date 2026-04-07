@@ -26,11 +26,17 @@ public class CommonFixture : IDisposable
             .ToReferenceWithoutVersion();
 
         site = new InProcessWebsite("Start", startPage);
-        var applicationHost = new ApplicationHost("http");
-        applicationHost.Url = "";
+        var applicationHost = new ApplicationHost("localhost")
+        {
+            PreferredUrlScheme = UrlScheme.Http,
+            Type = ApplicationHostType.Default
+        };
+        // applicationHost.Url = "";
         site.Hosts.Add(applicationHost);
         _applicationRepository.SaveAsync(site).GetAwaiter().GetResult();
     }
+
+    public InProcessWebsite Site => site;
 
     public void Dispose()
     {

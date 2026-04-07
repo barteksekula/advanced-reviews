@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using Advanced.CMS.ExternalReviews.ReviewLinksRepository;
+using EPiServer.Applications;
 using EPiServer.Authorization;
 using EPiServer.Cms.Shell.UI.Rest;
 using EPiServer.Core.Internal;
@@ -15,10 +16,13 @@ namespace Advanced.CMS.AdvancedReviews.IntegrationTests.Tooling;
 public static class ContentRepositoryTestExtensions
 {
     private static IContentRepository ContentRepository => ServiceLocator.Current.GetInstance<IContentRepository>();
+    private static IApplicationRepository ApplicationRepository => ServiceLocator.Current.GetInstance<IApplicationRepository>();
 
     public static StandardPage CreatePage(this IContentRepository repo, string name = null)
     {
-        var page = repo.GetDefault<StandardPage>(ContentReference.StartPage);
+        var applications = ApplicationRepository.List();
+        var website = applications.First() as InProcessWebsite;
+        var page = repo.GetDefault<StandardPage>(website.EntryPoint);
         page.PageName = name ?? Guid.NewGuid().ToString();
         repo.Save(page, AccessLevel.NoAccess);
         return page;
@@ -26,7 +30,9 @@ public static class ContentRepositoryTestExtensions
 
     public static StandardPage CreatePageInDifferentLanguage(this IContentRepository repo, string name = null)
     {
-        var page = repo.GetDefault<StandardPage>(ContentReference.StartPage);
+        var applications = ApplicationRepository.List();
+        var website = applications.First() as InProcessWebsite;
+        var page = repo.GetDefault<StandardPage>(website.EntryPoint);
         page.PageName = (name ?? Guid.NewGuid().ToString()) + "sv";
         page.Language = new CultureInfo("sv");
         repo.Save(page, AccessLevel.NoAccess);
