@@ -48,8 +48,9 @@ define([
                     var visualBuilderContainer = document.getElementsByClassName("content-preview");
                     var visualBuilderMode = visualBuilderContainer.length === 1;
 
+                    // take the last iframe, we know it has to be from the preview
                     var iframes = document.getElementsByTagName("iframe");
-                    var iframe = iframes.length > 1 ? iframes[1] : iframes[0];
+                    var iframe = iframes.length > 1 ? iframes[iframes.length - 1] : iframes[0];
                     reviewWidget = new ReviewWidget({
                         iframe: iframe,
                         language: language,
