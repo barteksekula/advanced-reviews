@@ -2,7 +2,6 @@
 using EPiServer.Core.Internal;
 using EPiServer.Framework.Blobs;
 using EPiServer.ImageLibrary;
-using EPiServer.Web;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Advanced.CMS.AdvancedReviews;
@@ -10,11 +9,10 @@ namespace Advanced.CMS.AdvancedReviews;
 internal class ImageProxyController(
     IExternalReviewLinksRepository externalReviewLinksRepository,
     IContentLoader contentLoader,
-    ThumbnailManager thumbnailManager,
-    IMimeTypeResolver mimeTypeResolver)
+    ThumbnailManager thumbnailManager)
     : Controller
 {
-    private string ThumbnailMimeType => mimeTypeResolver.GetMimeMapping(ThumbnailHelper.ThumbnailExtension);
+    private string ThumbnailMimeType => "image/png";
 
     public IActionResult Index([FromRoute] string token, [FromRoute] string contentLink, [FromQuery] int? width, [FromQuery] int? height)
     {

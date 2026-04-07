@@ -1,16 +1,14 @@
 using System.Security.Claims;
 using Advanced.CMS.AdvancedReviews;
 using Advanced.CMS.IntegrationTests;
-using EPiServer.Cms.Shell;
-using EPiServer.Cms.UI.Admin;
 using EPiServer.Cms.UI.AspNetIdentity;
 using EPiServer.Cms.UI.VisitorGroups;
 using EPiServer.Data;
+using EPiServer.DependencyInjection;
 using EPiServer.Framework.Hosting;
 using EPiServer.Framework.Web.Resources;
 using EPiServer.Scheduler;
 using EPiServer.Web.Hosting;
-using EPiServer.Web.Mvc.Html;
 using EPiServer.Web.Routing;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -66,9 +64,11 @@ public class Startup(IWebHostEnvironment webHostingEnvironment, IConfiguration c
             .AddVisitorGroupsUI()
             .AddCmsAspNetIdentity<ApplicationUser>();
 
+        services.Configure<DataAccessOptions>(options => options.UpdateDatabaseCompatibilityLevel = true);
+        services.AddCmsImageSharpImageLibrary();
         services.AddAdvancedReviews();
 
-        services.Configure<StaticFileOptions>("foo", o => o.OnPrepareResponse = c => c.Context.Response.Headers.Add("X-From-Custom-Option", "Something"));
+        services.Configure<StaticFileOptions>("foo", o => o.OnPrepareResponse = c => c.Context.Response.Headers.Append("X-From-Custom-Option", "Something"));
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

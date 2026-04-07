@@ -5,7 +5,7 @@ using EPiServer.ServiceLocation;
 
 namespace Advanced.CMS.ExternalReviews;
 
-[ScheduledPlugIn(DisplayName = "Remove Expired Tokens Job", GUID = "ee619008-3e76-4886-b3c7-aa025a0c2603")]
+[ScheduledJob(DisplayName = "Remove Expired Tokens Job", GUID = "ee619008-3e76-4886-b3c7-aa025a0c2603")]
 internal class RemoveExpiredTokensJob : ScheduledJobBase
 {
     public override string Execute()

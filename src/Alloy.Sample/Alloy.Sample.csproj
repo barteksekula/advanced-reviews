@@ -9,9 +9,10 @@
     <PackageReference Include="EPiServer.CMS.UI.AspNetIdentity" />
     <PackageReference Include="EPiServer.CMS.UI.VisitorGroups" />
     <PackageReference Include="EPiServer.Hosting" />
+    <PackageReference Include="EPiServer.ImageLibrary.ImageSharp" />
 
     <PackageReference Include="EPiServer.CMS" />
-    <PackageReference Include="EPiServer.Commerce" />
+<!--    <PackageReference Include="EPiServer.Commerce" />-->
 
     <PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
     <PackageReference Include="Wangkanai.Detection" Version="2.0.1" />

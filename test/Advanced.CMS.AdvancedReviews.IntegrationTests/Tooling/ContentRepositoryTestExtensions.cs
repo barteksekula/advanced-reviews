@@ -263,7 +263,8 @@ public static class ContentRepositoryTestExtensions
                 continue;
             }
 
-            propertyDefinitionRepository.Delete(property);
+            //TODO: CMS13
+            // propertyDefinitionRepository.Delete(property);
         }
 
         writableContentType.ResetContentType();

@@ -29,7 +29,7 @@ namespace Alloy.Sample
         {
             _log.Information("Starting to provision users and groups");
 
-            AddUsersAndRoles(context.Locate.Advanced.GetInstance<IContentSecurityRepository>());
+            AddUsersAndRoles(context.Services.GetInstance<IContentSecurityRepository>());
         }
 
         public void Uninitialize(InitializationEngine context) { }

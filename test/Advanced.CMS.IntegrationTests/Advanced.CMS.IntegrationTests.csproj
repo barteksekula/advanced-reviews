@@ -6,9 +6,10 @@
   <ItemGroup>
     <PackageReference Include="EPiServer.CMS.UI.Core" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
-    <PackageReference Include="AngleSharp" />
-    <PackageReference Include="JObject" />
-    <PackageReference Include="System.IO.FileSystem.AccessControl" />
+<!--    <PackageReference Include="AngleSharp" />-->
+<!--    <PackageReference Include="JObject" />-->
+<!--    <PackageReference Include="System.IO.FileSystem.AccessControl" />-->
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
 </Project>

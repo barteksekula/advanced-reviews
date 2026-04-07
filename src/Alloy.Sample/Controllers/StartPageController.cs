@@ -1,18 +1,18 @@
-﻿using Alloy.Sample.Models.Pages;
+﻿using Advanced.CMS.ApprovalReviews;
+using Alloy.Sample.Models.Pages;
 using Alloy.Sample.Models.ViewModels;
-using EPiServer.Web;
 using EPiServer.Web.Mvc;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Alloy.Sample.Controllers
 {
-    public class StartPageController : PageControllerBase<StartPage>
+    public class StartPageController(ISiteUriResolver siteUriResolver) : PageControllerBase<StartPage>
     {
         public IActionResult Index(StartPage currentPage)
         {
             var model = PageViewModel.Create(currentPage);
 
-            if (SiteDefinition.Current.StartPage.CompareToIgnoreWorkID(currentPage.ContentLink)) // Check if it is the StartPage or just a page of the StartPage type.
+            if (siteUriResolver.GetStartPage(currentPage.ContentLink).CompareToIgnoreWorkID(currentPage.ContentLink)) // Check if it is the StartPage or just a page of the StartPage type.
             {
                 //Connect the view models logotype property to the start page's to make it editable
                 var editHints = ViewData.GetEditHints<PageViewModel<StartPage>, StartPage>();

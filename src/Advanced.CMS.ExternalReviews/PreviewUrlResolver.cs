@@ -1,6 +1,7 @@
 ﻿using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 using Advanced.CMS.ExternalReviews.ReviewLinksRepository;
+using EPiServer.Applications;
 using EPiServer.Cms.Shell;
 using EPiServer.ServiceLocation;
 using EPiServer.Web;
@@ -17,7 +18,7 @@ internal class PreviewUrlResolver(
     ExternalReviewState externalReviewState,
     ExternalReviewUrlGenerator externalReviewUrlGenerator,
     IOptions<ExternalReviewOptions> externalReviewOptions,
-    ISiteDefinitionResolver siteDefinitionResolver)
+    IApplicationResolver siteDefinitionResolver)
     : IUrlResolver
 {
     private const string PreviewGenerated = "preview_generated";
@@ -67,7 +68,7 @@ internal class PreviewUrlResolver(
         var externalReviewLinksRepository = ServiceLocator.Current.GetInstance<IExternalReviewLinksRepository>();
         var hasPinCode = externalReviewLinksRepository.HasPinCode(externalReviewState.Token);
         var pageParentSite = siteDefinitionResolver.GetByContent(content.ContentLink, false);
-        return !hasPinCode || pageParentSite == SiteDefinition.Current;
+        return !hasPinCode || pageParentSite == siteDefinitionResolver.GetByContext();
     }
 
     /// <summary>

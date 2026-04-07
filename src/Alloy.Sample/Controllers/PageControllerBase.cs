@@ -1,12 +1,11 @@
-using System.Threading.Tasks;
 using Alloy.Sample.Business;
 using Alloy.Sample.Models.Pages;
 using Alloy.Sample.Models.ViewModels;
+using EPiServer.ServiceLocation;
 using EPiServer.Shell.Security;
 using EPiServer.Web.Mvc;
 using EPiServer.Web.Routing;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Alloy.Sample.Controllers
 {
@@ -18,7 +17,7 @@ namespace Alloy.Sample.Controllers
         where T : SitePageData
     {
 
-        protected EPiServer.ServiceLocation.Injected<UISignInManager> UISignInManager;
+        protected Injected<UISignInManager> UISignInManager;
 
         /// <summary>
         /// Signs out the current user and redirects to the Index action of the same controller.
@@ -37,8 +36,7 @@ namespace Alloy.Sample.Controllers
 
         public virtual void ModifyLayout(LayoutModel layoutModel)
         {
-            var page = PageContext.Page as SitePageData;
-            if (page != null)
+            if (PageContext.Content is SitePageData page)
             {
                 layoutModel.HideHeader = page.HideSiteHeader;
                 layoutModel.HideFooter = page.HideSiteFooter;

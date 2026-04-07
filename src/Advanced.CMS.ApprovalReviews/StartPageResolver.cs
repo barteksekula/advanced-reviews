@@ -1,4 +1,4 @@
-﻿using EPiServer.Web;
+﻿using EPiServer.Applications;
 using EPiServer.Web.Routing;
 
 namespace Advanced.CMS.ApprovalReviews;
@@ -8,20 +8,14 @@ public interface IStartPageUrlResolver
     string GetUrl(ContentReference contentReference, string languageBranch);
 }
 
-internal class StartPageUrlResolver: IStartPageUrlResolver
+internal class StartPageUrlResolver(IUrlResolver urlResolver, IApplicationResolver applicationResolver)
+    : IStartPageUrlResolver
 {
-    private readonly IUrlResolver _urlResolver;
-    private readonly ISiteDefinitionResolver _siteDefinitionResolver;
-
-    public StartPageUrlResolver(IUrlResolver urlResolver, ISiteDefinitionResolver siteDefinitionResolver)
-    {
-        _urlResolver = urlResolver;
-        _siteDefinitionResolver = siteDefinitionResolver;
-    }
-
     public string GetUrl(ContentReference contentReference, string languageBranch)
     {
-        var site = _siteDefinitionResolver.GetByContent(contentReference, true);
-        return _urlResolver.GetUrl(site?.StartPage ?? ContentReference.StartPage, languageBranch);
+        var application = applicationResolver.GetByContent(contentReference, true);
+        return application is not InProcessWebsite inProcessWebsite
+            ? null
+            : urlResolver.GetUrl(inProcessWebsite.EntryPoint, languageBranch);
     }
 }

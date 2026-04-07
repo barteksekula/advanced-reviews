@@ -1,39 +1,30 @@
-using System.Linq;
+using Advanced.CMS.ApprovalReviews;
 using Alloy.Sample.Models.Pages;
 using Alloy.Sample.Models.ViewModels;
-using EPiServer;
-using EPiServer.Core;
 using EPiServer.Data;
 using EPiServer.ServiceLocation;
 using EPiServer.Web;
 using EPiServer.Web.Routing;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
 namespace Alloy.Sample.Business
 {
     [ServiceConfiguration]
-    public class PageViewContextFactory
+    public class PageViewContextFactory(
+        IContentLoader contentLoader,
+        UrlResolver urlResolver,
+        IDatabaseMode databaseMode,
+        ISiteUriResolver siteUriResolver,
+        IOptionsMonitor<CookieAuthenticationOptions> optionMonitor)
     {
-        private readonly IContentLoader _contentLoader;
-        private readonly UrlResolver _urlResolver;
-        private readonly IDatabaseMode _databaseMode;
-        private readonly CookieAuthenticationOptions _cookieAuthenticationOptions;
-
-        public PageViewContextFactory(IContentLoader contentLoader, UrlResolver urlResolver, IDatabaseMode databaseMode, IOptionsMonitor<CookieAuthenticationOptions> optionMonitor)
-        {
-            _contentLoader = contentLoader;
-            _urlResolver = urlResolver;
-            _databaseMode = databaseMode;
-            _cookieAuthenticationOptions = optionMonitor.Get(IdentityConstants.ApplicationScheme);
-        }
+        private readonly CookieAuthenticationOptions _cookieAuthenticationOptions = optionMonitor.Get(IdentityConstants.ApplicationScheme);
 
         public virtual LayoutModel CreateLayoutModel(ContentReference currentContentLink, HttpContext httpContext)
         {
-            var startPageContentLink = SiteDefinition.Current.StartPage;
+            var startPageContentLink = siteUriResolver.GetStartPage();
 
             // Use the content link with version information when editing the startpage,
             // otherwise the published version will be used when rendering the props below.
@@ -42,20 +33,20 @@ namespace Alloy.Sample.Business
                 startPageContentLink = currentContentLink;
             }
 
-            var startPage = _contentLoader.Get<StartPage>(startPageContentLink);
+            var startPage = contentLoader.Get<StartPage>(startPageContentLink);
 
             return new LayoutModel
             {
                 Logotype = startPage.SiteLogotype,
-                LogotypeLinkUrl = new HtmlString(_urlResolver.GetUrl(SiteDefinition.Current.StartPage)),
+                LogotypeLinkUrl = new HtmlString(urlResolver.GetUrl(siteUriResolver.GetStartPage())),
                 ProductPages = startPage.ProductPageLinks,
                 CompanyInformationPages = startPage.CompanyInformationPageLinks,
                 NewsPages = startPage.NewsPageLinks,
                 CustomerZonePages = startPage.CustomerZonePageLinks,
                 LoggedIn = httpContext.User.Identity.IsAuthenticated,
                 LoginUrl = new HtmlString(GetLoginUrl(currentContentLink)),
-                SearchActionUrl = new HtmlString(EPiServer.Web.Routing.UrlResolver.Current.GetUrl(startPage.SearchPageLink)),
-                IsInReadonlyMode = _databaseMode.DatabaseMode == DatabaseMode.ReadOnly
+                SearchActionUrl = new HtmlString(UrlResolver.Current.GetUrl(startPage.SearchPageLink)),
+                IsInReadonlyMode = databaseMode.DatabaseMode == DatabaseMode.ReadOnly
             };
         }
 
@@ -63,21 +54,21 @@ namespace Alloy.Sample.Business
         {
             return string.Format(
                 "{0}?ReturnUrl={1}",
-                _cookieAuthenticationOptions?.LoginPath.Value ?? VirtualPathResolver.Instance.ToAbsolute(Global.AppRelativeLoginPath),
-                _urlResolver.GetUrl(returnToContentLink));
+                _cookieAuthenticationOptions?.LoginPath.Value ?? VirtualPathUtilityEx.ToAbsolute(Global.AppRelativeLoginPath),
+                urlResolver.GetUrl(returnToContentLink));
         }
 
         public virtual IContent GetSection(ContentReference contentLink)
         {
-            var currentContent = _contentLoader.Get<IContent>(contentLink);
-            if (currentContent.ParentLink != null && currentContent.ParentLink.CompareToIgnoreWorkID(SiteDefinition.Current.StartPage))
+            var currentContent = contentLoader.Get<IContent>(contentLink);
+            if (currentContent.ParentLink != null && currentContent.ParentLink.CompareToIgnoreWorkID(siteUriResolver.GetStartPage()))
             {
                 return currentContent;
             }
 
-            return _contentLoader.GetAncestors(contentLink)
+            return contentLoader.GetAncestors(contentLink)
                 .OfType<PageData>()
-                .SkipWhile(x => x.ParentLink == null || !x.ParentLink.CompareToIgnoreWorkID(SiteDefinition.Current.StartPage))
+                .SkipWhile(x => x.ParentLink == null || !x.ParentLink.CompareToIgnoreWorkID(siteUriResolver.GetStartPage()))
                 .FirstOrDefault();
         }
     }

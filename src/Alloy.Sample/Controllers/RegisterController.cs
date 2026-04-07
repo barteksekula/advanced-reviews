@@ -43,7 +43,7 @@ namespace Alloy.Sample.Controllers
         // POST: /Register
         [HttpPost]
         [AllowAnonymous]
-        [ValidateAntiForgeryReleaseToken]
+        [ValidateAntiForgeryToken]
         public async Task<ActionResult> Index(RegisterViewModel model)
         {
             if (ModelState.IsValid)

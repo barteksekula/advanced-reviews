@@ -35,7 +35,7 @@ namespace Alloy.Sample.Models.Blocks
             GroupName = SystemTabNames.Content,
             Order = 3)]
         [UIHint(Global.SiteUIHints.Contact)]
-        public virtual PageReference ContactPageLink { get; set; }
+        public virtual ContentReference ContactPageLink { get; set; }
 
         [Display(
             GroupName = SystemTabNames.Content,

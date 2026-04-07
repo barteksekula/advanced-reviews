@@ -1,8 +1,5 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using EPiServer.Core;
-using EPiServer.DataAbstraction;
-using EPiServer.DataAnnotations;
 using EPiServer.Filters;
 
 namespace Alloy.Sample.Models.Blocks
@@ -54,12 +51,12 @@ namespace Alloy.Sample.Models.Blocks
             GroupName = SystemTabNames.Content,
             Order = 5)]
         [Required]
-        public virtual PageReference Root { get; set; }
+        public virtual ContentReference Root { get; set; }
 
         [Display(
             GroupName = SystemTabNames.Content,
             Order = 6)]
-        public virtual PageType PageTypeFilter{get; set;}
+        public virtual int PageTypeFilter{get; set;}
 
         [Display(
             GroupName = SystemTabNames.Content,

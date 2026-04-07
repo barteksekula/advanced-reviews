@@ -1,9 +1,8 @@
 using System.Net;
 using Advanced.CMS.AdvancedReviews.IntegrationTests.Tooling;
+using Advanced.CMS.ApprovalReviews;
 using Advanced.CMS.ExternalReviews;
 using Advanced.CMS.ExternalReviews.ReviewLinksRepository;
-using EPiServer.ServiceLocation;
-using EPiServer.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using TestSite.Models;
@@ -20,8 +19,8 @@ public class When_Pin_Security_Enabled(When_Pin_Security_Enabled.TestFixture fix
     public class TestFixture(SiteFixture siteFixture) : IAsyncLifetime
     {
         private readonly IContentRepository contentRepository = siteFixture.Services.GetService<IContentRepository>();
+        public readonly ISiteUriResolver siteResolver = siteFixture.Services.GetService<ISiteUriResolver>();
         public readonly IOptions<ExternalReviewOptions> ExternalReviewOptions = siteFixture.Services.GetService<IOptions<ExternalReviewOptions>>();
-        public readonly ServiceAccessor<SiteDefinition> CurrentSiteDefinition = siteFixture.Services.GetService<ServiceAccessor<SiteDefinition>>();
         public HttpClient Client { get; } = siteFixture.Client;
 
         public StandardPage Page { get; private set; }
@@ -61,9 +60,9 @@ public class When_Pin_Security_Enabled(When_Pin_Security_Enabled.TestFixture fix
     [Fact]
     public async Task User_Sees_404_After_Submitting_Wrong_PIN()
     {
-        var siteDefinition = fixture.CurrentSiteDefinition();
+        var siteDefinition = fixture.siteResolver.GetWebsite();
 
-        var externalLoginUrl = new Uri(siteDefinition.SiteUrl,
+        var externalLoginUrl = new Uri(siteDefinition.Hosts.FirstOrDefault().Url,
             fixture.ExternalReviewOptions.Value.PinCodeSecurity.ExternalReviewLoginUrl);
         var failedLoginMessage = new HttpRequestMessage(HttpMethod.Post,
             externalLoginUrl);
@@ -78,9 +77,9 @@ public class When_Pin_Security_Enabled(When_Pin_Security_Enabled.TestFixture fix
     [Fact]
     public async Task User_Sees_Content_Review_After_Submitting_Correct_PIN()
     {
-        var siteDefinition = fixture.CurrentSiteDefinition();
+        var siteDefinition = fixture.siteResolver.GetWebsite();
 
-        var externalLoginUrl = new Uri(siteDefinition.SiteUrl,
+        var externalLoginUrl = new Uri(siteDefinition.Hosts.FirstOrDefault().Url,
             fixture.ExternalReviewOptions.Value.PinCodeSecurity.ExternalReviewLoginUrl);
 
         var loginMessage = new HttpRequestMessage(HttpMethod.Post,

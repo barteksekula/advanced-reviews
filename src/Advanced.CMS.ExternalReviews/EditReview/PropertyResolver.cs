@@ -5,10 +5,10 @@ namespace Advanced.CMS.ExternalReviews.EditReview;
 
 internal class PropertyResolver(ExtensibleMetadataProvider metadataProvider, IMetadataStoreModelCreator modelCreator)
 {
-    public IDictionary<string, string> Resolve(ContentData content)
+    public async Task<IDictionary<string, string>> ResolveAsync(ContentData content)
     {
         var metadata = metadataProvider.GetExtendedMetadataForType(typeof(ContentData), () => content);
-        var storeModel = modelCreator.Create(metadata);
+        var storeModel = await modelCreator.CreateAsync(metadata);
         var properties = new Dictionary<string, string>();
         foreach (var metadataStoreModel in storeModel.Properties)
         {

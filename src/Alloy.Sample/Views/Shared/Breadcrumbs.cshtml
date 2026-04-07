@@ -1,6 +1,8 @@
-﻿@using EPiServer.Core
-@using EPiServer.Web
+﻿@using Advanced.CMS.ApprovalReviews
 @using Alloy.Sample.Helpers
+
+@inject ISiteUriResolver SiteUriResolver
+
 @*Helper used as template for a page in the bread crumb, recursively triggering the rendering of the next page*@
 @{
     HelperResult ItemTemplate(HtmlHelpers.MenuItem breadCrumbItem)
@@ -29,9 +31,9 @@
 <div class="row hideMyTracks">
     <div class="span12">
         <ul class="alloyBreadcrumb">
-            @Html.ContentLink(SiteDefinition.Current.StartPage)
+            @Html.ContentLink(SiteUriResolver.GetStartPage())
             <span class="divider">/</span>
-            @Html.MenuList(SiteDefinition.Current.StartPage, ItemTemplate, requireVisibleInMenu: false, requirePageTemplate: false)
+            @Html.MenuList(SiteUriResolver.GetStartPage(), ItemTemplate, requireVisibleInMenu: false, requirePageTemplate: false)
         </ul>
     </div>
 </div>

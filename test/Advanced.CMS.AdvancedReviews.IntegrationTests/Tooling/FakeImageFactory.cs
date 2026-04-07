@@ -52,7 +52,7 @@ public class FakeImageFactory
             if (stream != null)
             {
                 bytes = new byte[stream.Length];
-                stream.Read(bytes, 0, bytes.Length);
+                stream.ReadExactly(bytes);
             }
 
             var media = new Media

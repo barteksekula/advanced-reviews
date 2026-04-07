@@ -1,4 +1,5 @@
-﻿using EPiServer.DataAccess;
+﻿using EPiServer.Applications;
+using EPiServer.DataAccess;
 using EPiServer.Security;
 using EPiServer.ServiceLocation;
 using EPiServer.Web;
@@ -8,15 +9,15 @@ namespace Advanced.CMS.AdvancedReviews.IntegrationTests.Tooling;
 
 public class CommonFixture : IDisposable
 {
-    private readonly ISiteDefinitionRepository siteDefinitionRepository;
-    private readonly SiteDefinition site;
+    private readonly InProcessWebsite site;
+    private readonly IApplicationRepository _applicationRepository;
     private readonly IContentRepository contentRepository;
     private readonly StartPage start;
 
     public CommonFixture()
     {
         contentRepository = ServiceLocator.Current.GetInstance<IContentRepository>();
-        siteDefinitionRepository = ServiceLocator.Current.GetInstance<ISiteDefinitionRepository>();
+        _applicationRepository = ServiceLocator.Current.GetInstance<IApplicationRepository>();
 
         var sysDef = ServiceLocator.Current.GetInstance<SystemDefinition>();
         start = contentRepository.GetDefault<StartPage>(sysDef.RootPage);
@@ -24,17 +25,16 @@ public class CommonFixture : IDisposable
         var startPage = contentRepository.Save(start, SaveAction.Publish, AccessLevel.NoAccess)
             .ToReferenceWithoutVersion();
 
-        site = new SiteDefinition
-        {
-            Name = "Start", StartPage = startPage, SiteUrl = new Uri("http://localhost/"),
-            Hosts = { new HostDefinition { Name = "*" } }
-        };
-        siteDefinitionRepository.Save(site);
+        site = new InProcessWebsite("Start", startPage);
+        var applicationHost = new ApplicationHost("http");
+        applicationHost.Url = "";
+        site.Hosts.Add(applicationHost);
+        _applicationRepository.SaveAsync(site).GetAwaiter().GetResult();
     }
 
     public void Dispose()
     {
-        siteDefinitionRepository.Delete(site.Id);
+        _applicationRepository.DeleteAsync(site.Name).GetAwaiter().GetResult();
         contentRepository.Delete(start.ContentLink, true, AccessLevel.NoAccess);
     }
 }

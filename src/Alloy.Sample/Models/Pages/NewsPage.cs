@@ -29,7 +29,7 @@ namespace Alloy.Sample.Models.Pages
             NewsList.IncludeIntroduction = true;
             NewsList.IncludePublishDate = true;
             NewsList.Recursive = true;
-            NewsList.PageTypeFilter = typeof(ArticlePage).GetPageType();
+            NewsList.PageTypeFilter = typeof(ArticlePage).GetPageType().ID;
             NewsList.SortOrder = FilterSortOrder.PublishedDescending;
         }
     }

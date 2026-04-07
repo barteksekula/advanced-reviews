@@ -1,14 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using EPiServer.Cms.Shell.UI.ObjectEditing.EditorDescriptors;
-using EPiServer.Core;
-using EPiServer.DataAbstraction;
-using EPiServer.DataAnnotations;
 using EPiServer.Framework.Serialization;
-using EPiServer.PlugIn;
 using EPiServer.ServiceLocation;
 using EPiServer.Shell.ObjectEditing;
 using EPiServer.SpecializedProperties;
@@ -209,7 +202,7 @@ namespace Alloy.Sample.Models.Pages
         public string Email { get; set; }
     }
 
-    [PropertyDefinitionTypePlugIn]
+    [PropertyDefinitionType]
     public class PersonListProperty : PropertyList<Person>
     {
         public PersonListProperty()

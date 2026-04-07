@@ -39,6 +39,6 @@ namespace Alloy.Sample.Models.Blocks
         [Display(
             GroupName = SystemTabNames.Content,
             Order = 4)]
-        public virtual PageReference Link { get; set; }
+        public virtual ContentReference Link { get; set; }
     }
 }

@@ -42,7 +42,7 @@ namespace Alloy.Sample.Helpers
                     return urlResolver.GetUrl(page.ContentLink);
 
                 case PageShortcutType.Shortcut:
-                    var shortcutProperty = page.Property["PageShortcutLink"] as PropertyPageReference;
+                    var shortcutProperty = page.Property["PageShortcutLink"] as PropertyContentReference;
                     if (shortcutProperty != null && !ContentReference.IsNullOrEmpty(shortcutProperty.ContentLink))
                     {
                         return urlHelper.PageLinkUrl(shortcutProperty.ContentLink);

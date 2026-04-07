@@ -1,16 +1,33 @@
-﻿using EPiServer.Web;
+﻿using EPiServer.Applications;
 
 namespace Advanced.CMS.ApprovalReviews;
 
 public interface ISiteUriResolver
 {
+    InProcessWebsite GetWebsite(ContentReference contentReference = null);
+    ContentReference GetStartPage(ContentReference contentReference = null);
     Uri GetUri(ContentReference contentReference);
 }
 
-internal class SiteUriResolver : ISiteUriResolver
+internal class SiteUriResolver(IApplicationResolver applicationResolver) : ISiteUriResolver
 {
-    public Uri GetUri(ContentReference contentReference)
+    public InProcessWebsite GetWebsite(ContentReference contentReference = null)
     {
-        return SiteDefinition.Current.SiteUrl;
+        var application = contentReference == null
+            ? applicationResolver.GetByContext()
+            : applicationResolver.GetByContent(contentReference, false);
+        return application as InProcessWebsite;
+    }
+
+    public ContentReference GetStartPage(ContentReference contentReference = null)
+    {
+        var inProcessWebsite = GetWebsite(contentReference);
+        return inProcessWebsite?.EntryPoint;
+    }
+
+    public Uri GetUri(ContentReference contentReference = null)
+    {
+        var inProcessWebsite = GetWebsite(contentReference);
+        return inProcessWebsite?.Hosts.FirstOrDefault()?.Url;
     }
 }

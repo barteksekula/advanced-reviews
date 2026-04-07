@@ -2,6 +2,9 @@
   <Import Project="..\..\..\build\common.props" />
   <ItemGroup>
     <PackageReference Include="EPiServer.CMS" />
+    <PackageReference Include="EPiServer.Cms.UI.AspNetIdentity" />
+    <PackageReference Include="EPiServer.Cms.UI.VisitorGroups" />
+    <PackageReference Include="EPiServer.ImageLibrary.ImageSharp" />
   </ItemGroup>
 
   <ItemGroup>

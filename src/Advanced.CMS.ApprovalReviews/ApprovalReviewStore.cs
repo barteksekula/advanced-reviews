@@ -7,20 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace Advanced.CMS.ApprovalReviews;
 
 [RestStore("approvaladvancedreview")]
-internal class ApprovalReviewStore : RestControllerBase
+internal class ApprovalReviewStore(
+    IContentLoader contentLoader,
+    IApprovalReviewsRepository approvalReviewsRepository,
+    ReviewsNotifier reviewsNotifier,
+    IContentAccessEvaluator contentAccessEvaluator)
+    : RestControllerBase
 {
-    private readonly IContentLoader _contentLoader;
-    private readonly IApprovalReviewsRepository _approvalReviewsRepository;
-    private readonly ReviewsNotifier _reviewsNotifier;
-
-    public ApprovalReviewStore(IContentLoader contentLoader, IApprovalReviewsRepository approvalReviewsRepository,
-        ReviewsNotifier reviewsNotifier)
-    {
-        _contentLoader = contentLoader;
-        _approvalReviewsRepository = approvalReviewsRepository;
-        _reviewsNotifier = reviewsNotifier;
-    }
-
     public ActionResult Get(ContentReference id)
     {
         var errorResult = ValidateContent(id);
@@ -29,12 +22,12 @@ internal class ApprovalReviewStore : RestControllerBase
             return errorResult;
         }
 
-        return Rest(_approvalReviewsRepository.Load(id));
+        return Rest(approvalReviewsRepository.Load(id));
     }
 
     public ActionResult Delete(string id, ContentReference contentLink)
     {
-        _approvalReviewsRepository.RemoveReviewLocation(id, contentLink);
+        approvalReviewsRepository.RemoveReviewLocation(id, contentLink);
         return new EmptyResult();
     }
 
@@ -55,9 +48,9 @@ internal class ApprovalReviewStore : RestControllerBase
 
         try
         {
-            var result = _approvalReviewsRepository.Update(contentLink, reviewModel.ReviewLocation);
+            var result = approvalReviewsRepository.Update(contentLink, reviewModel.ReviewLocation);
 #pragma warning disable 4014
-            _reviewsNotifier.NotifyCmsEditor(contentLink, reviewModel.ContentLink, reviewModel.ReviewLocation.Data, true);
+            reviewsNotifier.NotifyCmsEditor(contentLink, reviewModel.ContentLink, reviewModel.ReviewLocation.Data, true);
 #pragma warning restore 4014
             return Rest(result);
         }
@@ -69,12 +62,12 @@ internal class ApprovalReviewStore : RestControllerBase
 
     private ActionResult ValidateContent(ContentReference id)
     {
-        if (!_contentLoader.TryGet(id, out IContent content))
+        if (!contentLoader.TryGet(id, out IContent content))
         {
             return new NotFoundResult();
         }
 
-        if (!content.QueryDistinctAccess(AccessLevel.Edit))
+        if (!contentAccessEvaluator.HasAccess(content, AccessLevel.Edit))
         {
             return new RestStatusCodeResult(HttpStatusCode.Forbidden, "Access denied");
         }

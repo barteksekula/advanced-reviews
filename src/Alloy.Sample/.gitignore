@@ -1,13 +1,3 @@
-modules/_protected/CMS/**
-modules/_protected/EPiServer.Cms.TinyMce/**
-modules/_protected/EPiServer.Cms.UI.Admin/**
-modules/_protected/EPiServer.Cms.UI.Settings/**
-modules/_protected/EPiServer.Cms.UI.VisitorGroups/**
-modules/_protected/Commerce/**
-modules/_protected/EPiServer.Commerce.Shell/**
-modules/_protected/EPiServer.Commerce.UI.Admin/**
-modules/_protected/episerver-telemetry-ui/**
-modules/_protected/EPiServer.Commerce.UI.CustomerService/**
-modules/_protected/Shell/**
+modules
 wwwroot/js/script.min.js
 wwwroot/css/css.min.css

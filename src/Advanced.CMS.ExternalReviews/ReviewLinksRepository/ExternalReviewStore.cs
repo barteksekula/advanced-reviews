@@ -124,7 +124,7 @@ internal class ExternalReviewStore(
         };
         var result = true;
 #pragma warning disable 618
-        await emailNotificationProvider.SendAsync(providerNotificationMessages, msg => { result = true; },
+        await emailNotificationProvider.SendAsync(providerNotificationMessages.Select(Task.FromResult), msg => { result = true; },
 #pragma warning restore 618
             (_, _) => { result = false; }).ConfigureAwait(true);
         return result;

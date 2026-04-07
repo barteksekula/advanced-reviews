@@ -5,7 +5,6 @@ using EPiServer.ServiceLocation;
 using EPiServer.Web;
 using EPiServer.Web.Mvc;
 using EPiServer.Web.Mvc.Html;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Alloy.Sample.Business.Initialization
 {
@@ -26,9 +25,9 @@ namespace Alloy.Sample.Business.Initialization
             };
         }
 
-        public void Initialize(InitializationEngine context) => context.Locate.Advanced.GetInstance<ITemplateResolverEvents>().TemplateResolved += TemplateCoordinator.OnTemplateResolved;
+        public void Initialize(InitializationEngine context) => context.Services.GetInstance<ITemplateResolverEvents>().TemplateResolved += TemplateCoordinator.OnTemplateResolved;
 
-        public void Uninitialize(InitializationEngine context) => context.Locate.Advanced.GetInstance<ITemplateResolverEvents>().TemplateResolved -= TemplateCoordinator.OnTemplateResolved;
+        public void Uninitialize(InitializationEngine context) => context.Services.GetInstance<ITemplateResolverEvents>().TemplateResolved -= TemplateCoordinator.OnTemplateResolved;
 
         public void Preload(string[] parameters){}
     }

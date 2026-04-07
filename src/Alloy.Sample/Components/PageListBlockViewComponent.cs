@@ -49,9 +49,9 @@ namespace Alloy.Sample.Components
             var listRoot = currentBlock.Root;
             if (currentBlock.Recursive)
             {
-                if (currentBlock.PageTypeFilter != null)
+                if (currentBlock.PageTypeFilter != 0)
                 {
-                    pages = contentLocator.FindPagesByPageType(listRoot, true, currentBlock.PageTypeFilter.ID);
+                    pages = contentLocator.FindPagesByPageType(listRoot, true, currentBlock.PageTypeFilter);
                 }
                 else
                 {
@@ -60,10 +60,10 @@ namespace Alloy.Sample.Components
             }
             else
             {
-                if (currentBlock.PageTypeFilter != null)
+                if (currentBlock.PageTypeFilter != 0)
                 {
                     pages = contentLoader.GetChildren<PageData>(listRoot)
-                        .Where(p => p.ContentTypeID == currentBlock.PageTypeFilter.ID);
+                        .Where(p => p.ContentTypeID == currentBlock.PageTypeFilter);
                 }
                 else
                 {

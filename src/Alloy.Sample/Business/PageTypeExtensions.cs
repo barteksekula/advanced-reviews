@@ -1,6 +1,4 @@
-﻿using System;
-using EPiServer.DataAbstraction;
-using EPiServer.ServiceLocation;
+﻿using EPiServer.ServiceLocation;
 
 namespace Alloy.Sample.Business
 {
@@ -14,9 +12,9 @@ namespace Alloy.Sample.Business
         /// </summary>
         /// <param name="pageType"></param>
         /// <returns></returns>
-        public static PageType GetPageType(this Type pageType)
+        public static ContentType GetPageType(this Type pageType)
         {
-            var pageTypeRepository = ServiceLocator.Current.GetInstance<IContentTypeRepository<PageType>>();
+            var pageTypeRepository = ServiceLocator.Current.GetInstance<IContentTypeRepository>();
 
             return pageTypeRepository.Load(pageType);
         }

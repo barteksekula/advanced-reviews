@@ -1,8 +1,9 @@
-﻿@using EPiServer.Editor
-@using EPiServer.Core
-@using EPiServer.Web
+﻿@using Advanced.CMS.ApprovalReviews
 @using Alloy.Sample.Extensions
 @using Alloy.Sample.Helpers
+
+@inject ISiteUriResolver SiteUriResolver
+
 @model Alloy.Sample.Models.ViewModels.IPageViewModel<Alloy.Sample.Models.Pages.SitePageData>
 <div class="row">
     <div id="header">
@@ -24,8 +25,8 @@
                             </a>
                             <div class="nav-collapse">
                                 <ul class="nav">
-                                    <li class="@(Model.CurrentPage.ContentLink.CompareToIgnoreWorkID(SiteDefinition.Current.StartPage) ? "active" : null)">@Html.ContentLink(SiteDefinition.Current.StartPage)</li>
-                                    @Html.MenuList(SiteDefinition.Current.StartPage,
+                                    <li class="@(Model.CurrentPage.ContentLink.CompareToIgnoreWorkID(SiteUriResolver.GetStartPage()) ? "active" : null)">@Html.ContentLink(SiteUriResolver.GetStartPage())</li>
+                                    @Html.MenuList(SiteUriResolver.GetStartPage(),
                                                    @<li class="@(item.Selected ? "active" : null)">
                                                         @Html.PageLink(item.Page, null, new { @class = string.Join(" ", item.Page.GetThemeCssClassNames())})
                                                     </li>)

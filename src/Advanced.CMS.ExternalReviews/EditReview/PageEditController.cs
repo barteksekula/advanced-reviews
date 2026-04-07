@@ -2,6 +2,7 @@
 using Advanced.CMS.ApprovalReviews.Notifications;
 using Advanced.CMS.ExternalReviews.ReviewLinksRepository;
 using EPiServer.Cms.Shell;
+using EPiServer.Framework.Modules;
 using EPiServer.Framework.Modules.Internal;
 using EPiServer.Framework.Serialization;
 using EPiServer.Shell.Services.Rest;
@@ -25,6 +26,7 @@ internal class PageEditController : Controller
     private readonly ReviewsNotifier _reviewsNotifier;
     private readonly ReviewUrlGenerator _reviewUrlGenerator;
     private readonly ExternalReviewUrlGenerator _externalReviewUrlGenerator;
+    private readonly IModuleResourceResolver _moduleResourceResolver;
 
     public PageEditController(IContentLoader contentLoader,
         IExternalReviewLinksRepository externalReviewLinksRepository,
@@ -33,7 +35,7 @@ internal class PageEditController : Controller
         IStartPageUrlResolver startPageUrlResolver,
         PropertyResolver propertyResolver,
         ReviewsNotifier reviewsNotifier, ExternalReviewUrlGenerator externalReviewUrlGenerator,
-        ReviewUrlGenerator reviewUrlGenerator)
+        ReviewUrlGenerator reviewUrlGenerator, IModuleResourceResolver moduleResourceResolver)
     {
         _contentLoader = contentLoader;
         _externalReviewLinksRepository = externalReviewLinksRepository;
@@ -45,12 +47,13 @@ internal class PageEditController : Controller
         _reviewsNotifier = reviewsNotifier;
         _externalReviewUrlGenerator = externalReviewUrlGenerator;
         _reviewUrlGenerator = reviewUrlGenerator;
+        _moduleResourceResolver = moduleResourceResolver;
 
         approvalReviewsRepository.OnBeforeUpdate += ApprovalReviewsRepository_OnBeforeUpdate;
     }
 
     // [ConvertEditLinksFilter]
-    public ActionResult Index(string id)
+    public async Task<ActionResult> Index(string id)
     {
         var externalReviewLink = _externalReviewLinksRepository.GetContentByToken(id);
         if (!externalReviewLink.IsEditableLink())
@@ -74,7 +77,7 @@ internal class PageEditController : Controller
             ReviewJsScriptPath = GetPath("ClientResources/dist/editable-external-review-component.js"),
             ReviewCssPath = GetPath("ClientResources/dist/editable-external-review-component.css"),
             ReviewPins = serializer.Serialize(_approvalReviewsRepository.Load(externalReviewLink.ContentLink)),
-            Metadata = serializer.Serialize(_propertyResolver.Resolve(content as ContentData)),
+            Metadata = serializer.Serialize(await _propertyResolver.ResolveAsync(content as ContentData)),
             Options = serializer.Serialize(_externalReviewOptions)
         };
         return View("Index", pagePreviewModel);
@@ -170,9 +173,9 @@ internal class PageEditController : Controller
         return true;
     }
 
-    private static string GetPath(string url)
+    private string GetPath(string url)
     {
-        return ModuleResourceResolver.Instance.TryResolveClientPath(typeof(PageEditController).Assembly, url,
+        return _moduleResourceResolver.TryResolveClientPath(typeof(PageEditController).Assembly, url,
             out var path)
             ? path
             : "";

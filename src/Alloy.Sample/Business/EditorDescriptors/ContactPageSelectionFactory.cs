@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using EPiServer.ServiceLocation;
 using EPiServer.Shell.ObjectEditing;
 
@@ -23,7 +21,7 @@ namespace Alloy.Sample.Business.EditorDescriptors
         {
             var contactPages = _contentLocator.GetContactPages();
 
-            return new List<SelectItem>(contactPages.Select(c => new SelectItem { Value = c.PageLink, Text = c.Name }));
+            return new List<SelectItem>(contactPages.Select(c => new SelectItem { Value = c.ContentLink, Text = c.Name }));
         }
     }
 }

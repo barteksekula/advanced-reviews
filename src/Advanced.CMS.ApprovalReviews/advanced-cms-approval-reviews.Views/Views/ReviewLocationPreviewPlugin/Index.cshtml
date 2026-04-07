@@ -1,23 +1,17 @@
-﻿@model Advanced.CMS.ApprovalReviews.ViewModel
-@using EPiServer.Shell
-@using EPiServer.Shell.Navigation
-@using EPiServer.Shell.Navigation.Internal
+﻿@using EPiServer.Shell
+@model Advanced.CMS.ApprovalReviews.ViewModel
 
 @{
-    Layout = string.Empty;
+    Layout = "/CmsUIViews/Views/Shared/CommonLayout.cshtml";
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
+@section header {
     <title>Advanced approval review</title>
-</head>
-<body>
-    @Html.Raw(Html.CreatePlatformNavigationMenu())
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="admin-plugin-container" data-controller-url="@Model.ControllerUrl" @Html.Raw(Html.ApplyPlatformNavigation())></div>
+}
 
+@section mainContent
+{
+    <div id="admin-plugin-container" data-controller-url="@Model.ControllerUrl"></div>
     <script type="text/javascript" src="@Paths.ToClientResource("advanced-cms-approval-reviews", "ClientResources/dist/admin-plugin.js")"></script>
     <link rel="stylesheet" href="@Paths.ToClientResource("advanced-cms-approval-reviews", "ClientResources/dist/admin-plugin.css")"/>
-</body>
-</html>
+}

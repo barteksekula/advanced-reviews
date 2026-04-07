@@ -1,22 +1,15 @@
-using System;
-using System.IO;
 using Advanced.CMS.AdvancedReviews;
 using Advanced.CMS.ApprovalReviews;
 using Alloy.Sample.Extensions;
 using Alloy.Sample.Infrastructure;
-using EPiServer.Cms.Shell;
-using EPiServer.Cms.TinyMce;
-using EPiServer.Cms.UI.Admin;
+using EPiServer.Cms.Shell.UI.Configurations;
 using EPiServer.Cms.UI.AspNetIdentity;
 using EPiServer.Cms.UI.VisitorGroups;
+using EPiServer.Data;
+using EPiServer.DependencyInjection;
 using EPiServer.Framework.Web.Resources;
 using EPiServer.Scheduler;
-using EPiServer.Web.Mvc.Html;
 using EPiServer.Web.Routing;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace Alloy.Sample
 {
@@ -51,9 +44,13 @@ namespace Alloy.Sample
                 .AddCmsHtmlHelpers()
                 .AddCmsUI()
                 .AddAdmin()
-                .AddCommerce()
+                // .AddCommerce()
                 .AddVisitorGroupsUI()
                 .AddTinyMce();
+
+            services.AddCmsImageSharpImageLibrary();
+
+            services.Configure<DataAccessOptions>(options => options.UpdateDatabaseCompatibilityLevel = true);
 
             services.AddEmbeddedLocalization<Startup>();
 
@@ -69,6 +66,11 @@ namespace Alloy.Sample
             services.Configure<ApprovalOptions>(options =>
             {
                 options.Notifications.NotificationsEnabled = true;
+            });
+
+            services.Configure<CmsFeatureOptions>(options =>
+            {
+                options.SectionsVisibility.OnPageEditing = true;
             });
         }
 
