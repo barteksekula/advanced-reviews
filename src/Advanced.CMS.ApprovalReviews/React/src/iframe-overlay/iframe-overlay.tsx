@@ -154,7 +154,7 @@ const IframeOverlay: React.FC<IframeOverlayProps> = ({
         };
     }, [iframe, offsetHeight, scroll, addReviewLocation]);
 
-    const { height, top, width } = iframe.parentElement.style;
+    const { height, top } = iframe.parentElement.style;
 
     const styles: CSSProperties = {
         position: "absolute",
@@ -163,8 +163,8 @@ const IframeOverlay: React.FC<IframeOverlayProps> = ({
         top: top,
         height: height,
         maxHeight: height,
-        width: width,
         cursor: "crosshair",
+        width: "100%",
     };
 
     const documentStyles: CSSProperties = {
