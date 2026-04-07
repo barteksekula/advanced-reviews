@@ -33,6 +33,10 @@ define([
                     }
                 }.bind(this));
             }.bind(this));
+
+            topic.subscribe("reviews:disable", function () {
+                this.set("active", false);
+            }.bind(this));
         },
 
         contextChanged: function () {

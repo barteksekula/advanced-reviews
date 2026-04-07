@@ -36,6 +36,11 @@ define([
     }
 
     function initialize(options, language, avatarUrl) {
+        topic.subscribe("/epi/shell/action/changeview", function () {
+            reviewWidget = null;
+            topic.publish("reviews:disable", false);
+        });
+
         topic.subscribe("reviews:toggle", function (toggle) {
             if (!reviewWidget) {
                 if (toggle) {
