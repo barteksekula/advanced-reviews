@@ -3,7 +3,7 @@
         <IsPackable>true</IsPackable>
         <NuspecBasePath>$(ProjectDir)..\..\</NuspecBasePath>
         <PackageVersion Condition=" '$(PackageVersion)' == '' ">$(VersionPrefix)$(VersionSuffix)</PackageVersion>
-        <NuspecProperties>Configuration=$(Configuration);PackageVersion=$(PackageVersion);CmsUIVersion=$(CmsUIVersion);CmsUINextMajorVersion=$(CmsUINextMajorVersion);</NuspecProperties>
+        <NuspecProperties>Configuration=$(Configuration);PackageVersion=$(PackageVersion);CmsVersion=$(CmsVersion);CmsNextMajorVersion=$(CmsNextMajorVersion);</NuspecProperties>
         <PackageOutputPath>$(SolutionDir)artifacts\packages\</PackageOutputPath>
         <NoWarn>NU5100;NU5125</NoWarn>
     </PropertyGroup>

@@ -12,11 +12,11 @@ $version = $versionNode.InnerText
 
 [xml] $dependenciesFile = Get-Content ".\build\dependencies.props"
 # CMS dependency
-$cmsUINode = $dependenciesFile.SelectSingleNode("Project/PropertyGroup/CmsUIVersion")
-$cmsUIVersion = $cmsUINode.InnerText
-$cmsUIParts = $cmsUIVersion.Split(".")
-$cmsUIMajor = [int]::Parse($cmsUIParts[0]) + 1
-$cmsUINextMajorVersion = ($cmsUIMajor.ToString() + ".0.0")
+$cmsNode = $dependenciesFile.SelectSingleNode("Project/PropertyGroup/CmsVersion")
+$CmsVersion = $cmsNode.InnerText
+$cmsParts = $CmsVersion.Split(".")
+$cmsMajor = [int]::Parse($cmsParts[0]) + 1
+$cmsNextMajorVersion = ($cmsMajor.ToString() + ".0.0")
 
 #cleanup all by dtk folder which is used by tests
 Get-ChildItem -Path out\ -Exclude dtk | Remove-Item -Recurse -Force
@@ -38,4 +38,4 @@ Start-Process -NoNewWindow -Wait -FilePath $zip -ArgumentList "a", "advanced-cms
 Set-Location $workingDirectory
 
 # Packaging public packages
-dotnet pack -c $configuration /p:CheckEolTargetFramework=false /p:PackageVersion=$version /p:CmsUIVersion=$cmsUIVersion /p:CmsUINextMajorVersion=$cmsUINextMajorVersion Advanced.CMS.AdvancedReviews.sln
+dotnet pack -c $configuration /p:CheckEolTargetFramework=false /p:PackageVersion=$version /p:CmsVersion=$CmsVersion /p:CmsNextMajorVersion=$cmsNextMajorVersion Advanced.CMS.AdvancedReviews.sln

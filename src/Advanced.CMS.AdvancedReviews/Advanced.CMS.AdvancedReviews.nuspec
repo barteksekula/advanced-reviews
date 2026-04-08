@@ -9,14 +9,14 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Context aware smart reviewing. Allow external reviewers to access unpublished data. Provide token-based, expirable links to any content version. Visually express issues in reviewed content by highlighting or adding screenshots.</description>
     <releaseNotes/>
-    <copyright>Copyright 2025</copyright>
+    <copyright>Copyright 2026</copyright>
     <tags>review preview content approval external</tags>
     <license type="expression">MIT</license>
     <icon>logo.png</icon>
     <projectUrl>https://github.com/barteksekula/advanced-reviews</projectUrl>
     <dependencies>
-      <group targetFramework="net6.0">
-        <dependency id="EPiServer.CMS.UI.Core" version="[$CmsUIVersion$, $CmsUINextMajorVersion$)" />
+      <group targetFramework="net10.0">
+        <dependency id="EPiServer.CMS.UI.Core" version="[$CmsVersion$, $CmsNextMajorVersion$)" />
       </group>
     </dependencies>
     <contentFiles>
@@ -25,10 +25,10 @@
     </contentFiles>
   </metadata>
   <files>
-    <file src="src\Advanced.CMS.AdvancedReviews\bin\$configuration$\Advanced.CMS.AdvancedReviews.dll" target="lib\net6.0\" />
-    <file src="src\Advanced.CMS.ApprovalReviews\bin\$configuration$\Advanced.CMS.ApprovalReviews.dll" target="lib\net6.0\" />
-    <file src="src\Advanced.CMS.ExternalReviews\bin\$configuration$\Advanced.CMS.ExternalReviews.dll" target="lib\net6.0\" />
-    <file src="build\CopyZipFiles.targets" target="build\net6.0\Advanced.CMS.AdvancedReviews.targets" />
+    <file src="src\Advanced.CMS.AdvancedReviews\bin\$configuration$\Advanced.CMS.AdvancedReviews.dll" target="lib\net10.0\" />
+    <file src="src\Advanced.CMS.ApprovalReviews\bin\$configuration$\Advanced.CMS.ApprovalReviews.dll" target="lib\net10.0\" />
+    <file src="src\Advanced.CMS.ExternalReviews\bin\$configuration$\Advanced.CMS.ExternalReviews.dll" target="lib\net10.0\" />
+    <file src="build\CopyZipFiles.targets" target="build\net10.0\Advanced.CMS.AdvancedReviews.targets" />
 
     <file src="out\advanced-cms-approval-reviews\advanced-cms-approval-reviews.zip" target="contentFiles\any\any\modules\_protected\advanced-cms-approval-reviews\" />
     <file src="out\advanced-cms-external-reviews\advanced-cms-external-reviews.zip" target="contentFiles\any\any\modules\_protected\advanced-cms-external-reviews\" />
