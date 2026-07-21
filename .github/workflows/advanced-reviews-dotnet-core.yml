@@ -2,9 +2,9 @@ name: Build .net core
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, cms12_master ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, cms12_master ]
   workflow_dispatch:
 
 jobs:
