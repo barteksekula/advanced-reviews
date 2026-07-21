@@ -45,18 +45,19 @@ export default declare([WidgetBase, _ContentContextMixin], {
         );
     },
     contextChanged: function () {
-        if (!this.params.isEnabled || !this._currentContext || !this._currentContext.capabilities.isPage) {
-            this.store.disable();
+        if (!this.params.isEnabled) {
             return;
         }
 
-        if (this._currentContext.type !== "epi.cms.project" && this._currentContext.type !== "epi.cms.contentdata") {
-            this.store.disable();
-            return;
-        }
+        const shouldEnable = this._currentContext?.capabilities?.isPage
+            && this._currentContext?.type === "epi.cms.contentdata";
 
-        this.store.enable();
-        this.store.load();
+        if (shouldEnable) {
+            this.store.enable();
+            this.store.load();
+        } else {
+            this.store.disable();
+        }
     },
     destroy: function () {
         if (!this.params.isEnabled) {
