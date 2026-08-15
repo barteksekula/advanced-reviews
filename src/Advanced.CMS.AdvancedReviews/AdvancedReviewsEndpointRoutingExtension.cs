@@ -16,7 +16,7 @@ internal class AdvancedReviewsEndpointRoutingExtension : IEndpointRoutingExtensi
         var options = endpointRouteBuilder.ServiceProvider.GetInstance<IOptions<ExternalReviewOptions>>();
 
         endpointRouteBuilder.MapControllerRoute("ImageProxy", "/ImageProxy/{token}/{contentLink}",
-            new { controller = "ImageProxy", action = "Index" });
+            new { controller = "ImageProxy", action = "Index" }).AllowAnonymous();
 
         endpointRouteBuilder.MapControllerRoute("ExternalReviewLogin",
             $"/{options.Value.PinCodeSecurity.ExternalReviewLoginUrl}",
