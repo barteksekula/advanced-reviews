@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.13.0" />
     <PackageReference Include="xunit.assert" />
     <PackageReference Include="xunit.core" />
     <PackageReference Include="xunit.runner.console" />
