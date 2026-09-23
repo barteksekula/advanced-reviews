@@ -12,6 +12,7 @@ internal class AdvancedReviewsComponentProvider(
     ModuleTable moduleTable)
     : IComponentProvider
 {
+    private readonly Lock _initializationLock = new();
     private IEnumerable<IComponentDefinition> _componentDefinitions;
     public int SortOrder => 1000;
 
@@ -22,16 +23,24 @@ internal class AdvancedReviewsComponentProvider(
             return _componentDefinitions;
         }
 
-        var isAdvancedReviewsModuleAdded = moduleTable.TryGetModule(this.GetType().Assembly, out _);
-        var isComponentReady = isAdvancedReviewsModuleAdded && options.Value.IsEnabled;
-
-        if (!isComponentReady)
+        lock (_initializationLock)
         {
-            return Enumerable.Empty<IComponentDefinition>();
-        }
+            if (_componentDefinitions != null)
+            {
+                return _componentDefinitions;
+            }
 
-        _componentDefinitions = new [] { new ExternalReviewLinksManageComponent(options, visitorGroupRepository) };
-        return _componentDefinitions;
+            var isAdvancedReviewsModuleAdded = moduleTable.TryGetModule(this.GetType().Assembly, out _);
+            var isComponentReady = isAdvancedReviewsModuleAdded && options.Value.IsEnabled;
+
+            if (!isComponentReady)
+            {
+                return Enumerable.Empty<IComponentDefinition>();
+            }
+
+            _componentDefinitions = new [] { new ExternalReviewLinksManageComponent(options, visitorGroupRepository) };
+            return _componentDefinitions;
+        }
     }
 
     public IComponent CreateComponent(IComponentDefinition definition)

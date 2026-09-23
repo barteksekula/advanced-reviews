@@ -31,18 +31,20 @@ internal class ExternalReviewLinksManageComponent : ComponentDefinitionBase
     public override ISettingsDictionary Settings {
         get
         {
-            base.Settings["initialMailSubject"] = _options.EmailSubject;
-            base.Settings["initialEditMailMessage"] = _options.EmailEdit;
-            base.Settings["initialViewMailMessage"] = _options.EmailView;
-            base.Settings["editableLinksEnabled"] = _options.EditableLinksEnabled;
-            base.Settings["pinCodeSecurityEnabled"] = _options.PinCodeSecurity.Enabled;
-            base.Settings["pinCodeSecurityRequired"] = _options.PinCodeSecurity.Required;
-            base.Settings["availableVisitorGroups"] = _visitorGroupRepository.List();
-            base.Settings["pinCodeLength"] = _options.PinCodeSecurity.CodeLength;
-            base.Settings["isEnabled"] = _options.IsEnabled;
-            base.Settings["prolongDays"] = _options.ProlongDays;
+            var settings = base.Settings.Copy();
 
-            return base.Settings;
+            settings["initialMailSubject"] = _options.EmailSubject;
+            settings["initialEditMailMessage"] = _options.EmailEdit;
+            settings["initialViewMailMessage"] = _options.EmailView;
+            settings["editableLinksEnabled"] = _options.EditableLinksEnabled;
+            settings["pinCodeSecurityEnabled"] = _options.PinCodeSecurity.Enabled;
+            settings["pinCodeSecurityRequired"] = _options.PinCodeSecurity.Required;
+            settings["availableVisitorGroups"] = _visitorGroupRepository.List();
+            settings["pinCodeLength"] = _options.PinCodeSecurity.CodeLength;
+            settings["isEnabled"] = _options.IsEnabled;
+            settings["prolongDays"] = _options.ProlongDays;
+
+            return settings;
         }
     }
 }
