@@ -47,6 +47,8 @@ public abstract class OptionsOverrideFixture(SiteFixture siteFixture) : IAsyncLi
             ViewLinkValidTo = source.ViewLinkValidTo,
             EditLinkValidTo = source.EditLinkValidTo,
             ProlongDays = source.ProlongDays,
+            InterceptGetChildren = source.InterceptGetChildren,
+            MaxExpectedContentLoadsPerRequest = source.MaxExpectedContentLoadsPerRequest,
             Restrictions =
             {
                 MaxReviewLocationsForContent = source.Restrictions.MaxReviewLocationsForContent,
@@ -87,6 +89,8 @@ public abstract class OptionsOverrideFixture(SiteFixture siteFixture) : IAsyncLi
         to.ViewLinkValidTo = from.ViewLinkValidTo;
         to.EditLinkValidTo = from.EditLinkValidTo;
         to.ProlongDays = from.ProlongDays;
+        to.InterceptGetChildren = from.InterceptGetChildren;
+        to.MaxExpectedContentLoadsPerRequest = from.MaxExpectedContentLoadsPerRequest;
 
         to.Restrictions.MaxReviewLocationsForContent = from.Restrictions.MaxReviewLocationsForContent;
         to.Restrictions.MaxCommentsForReviewLocation = from.Restrictions.MaxCommentsForReviewLocation;
