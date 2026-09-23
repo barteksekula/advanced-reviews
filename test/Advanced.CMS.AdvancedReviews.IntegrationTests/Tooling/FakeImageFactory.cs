@@ -18,6 +18,25 @@ public class FakeImageFactory
         return _mediaCache.First(x => x.Id == mediaId);
     }
 
+    public Media GetVectorMedia()
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        var resourceName = assembly.GetManifestResourceNames()
+            .First(x => x.EndsWith(".svg", StringComparison.OrdinalIgnoreCase));
+
+        using var stream = assembly.GetManifestResourceStream(resourceName);
+        var bytes = new byte[stream!.Length];
+        stream.ReadExactly(bytes);
+
+        return new Media
+        {
+            Id = 0,
+            Name = GetFileNameFromResourceName(resourceName),
+            ContentType = "image/svg+xml",
+            Bytes = bytes
+        };
+    }
+
     private void EnsurePopulated()
     {
         if (_mediaCache.Any())

@@ -19,5 +19,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Tooling\FakeImages\1.gif" />
     <EmbeddedResource Include="Tooling\FakeImages\idylla.jpg" />
+    <EmbeddedResource Include="Tooling\FakeImages\vector.svg" />
   </ItemGroup>
 </Project>

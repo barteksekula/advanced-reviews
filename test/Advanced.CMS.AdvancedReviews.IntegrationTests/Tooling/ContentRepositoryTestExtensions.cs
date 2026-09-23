@@ -69,6 +69,21 @@ public static class ContentRepositoryTestExtensions
         return image;
     }
 
+    public static VectorImageFile CreateDraftVectorImage(this IContentRepository repo, Media fakeImage)
+    {
+        var image = ContentRepository.GetDefault<VectorImageFile>(ContentReference.GlobalBlockFolder);
+        image.Name = fakeImage.Name;
+        var blobFactory = ServiceLocator.Current.GetInstance<IBlobFactory>();
+        var blob = blobFactory.CreateBlob(image.BinaryDataContainer, ".svg");
+        blob.Write(new MemoryStream(fakeImage.Bytes));
+        image.BinaryData = blob;
+
+        var urlSegmentCreator = ServiceLocator.Current.GetInstance<IUrlSegmentCreator>();
+        image.RouteSegment = urlSegmentCreator.Create(image, null);
+        ContentRepository.Save(image, AccessLevel.NoAccess);
+        return image;
+    }
+
     public static StandardPage ReferenceUnpublishedImageInContentReference(this StandardPage page, ContentReference draftImageContentLink)
     {
         page.Image = draftImageContentLink;

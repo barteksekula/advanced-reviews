@@ -12,6 +12,8 @@ internal class ImageProxyController(
     ThumbnailManager thumbnailManager)
     : Controller
 {
+    private const string SvgMimeType = "image/svg+xml";
+
     private string ThumbnailMimeType => "image/png";
 
     public IActionResult Index([FromRoute] string token, [FromRoute] string contentLink, [FromQuery] int? width, [FromQuery] int? height)
@@ -38,12 +40,25 @@ internal class ImageProxyController(
             return new NotFoundResult();
         }
 
-        var returnThumbnail = width.HasValue && height.HasValue;
-
         var originalBlobBytes = imageData.BinaryData.ReadAllBytes();
-        var blobToReturn = returnThumbnail ? Generate(originalBlobBytes, width.Value, height.Value) : originalBlobBytes;
+        var returnThumbnail = width.HasValue && height.HasValue && !IsVectorImage(imageData);
 
-        return File(blobToReturn, imageData.MimeType);
+        if (!returnThumbnail)
+        {
+            return File(originalBlobBytes, imageData.MimeType);
+        }
+
+        var thumbnail = Generate(originalBlobBytes, width.Value, height.Value);
+
+        return thumbnail == null
+            ? File(originalBlobBytes, imageData.MimeType)
+            : File(thumbnail, ThumbnailMimeType);
+    }
+
+    private static bool IsVectorImage(ImageData imageData)
+    {
+        return string.Equals(imageData.MimeType, SvgMimeType, StringComparison.OrdinalIgnoreCase)
+               || string.Equals(Path.GetExtension(imageData.Name), ".svg", StringComparison.OrdinalIgnoreCase);
     }
 
     private byte[] Generate(byte[] blobBytes, int width, int height)
