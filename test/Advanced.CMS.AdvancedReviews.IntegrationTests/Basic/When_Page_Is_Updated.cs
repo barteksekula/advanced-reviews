@@ -1,7 +1,6 @@
 using System.Net;
 using Advanced.CMS.AdvancedReviews.IntegrationTests.Tooling;
 using Advanced.CMS.ExternalReviews.ReviewLinksRepository;
-using Azure;
 using EPiServer.ServiceLocation;
 using EPiServer.Web.Routing;
 using TestSite.Models;

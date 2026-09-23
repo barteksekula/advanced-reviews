@@ -1,41 +1,24 @@
 <Project>
     <PropertyGroup>
-        <CmsVersion>13.1.0</CmsVersion>
+        <CmsVersion>13.2.0</CmsVersion>
 <!--        <CommerceVersion>14.30.0</CommerceVersion>-->
     </PropertyGroup>
     <ItemGroup>
-        <!-- CMS CORE -->
-        <PackageReference Update="EPiServer" Version="$(CmsVersion)"/>
-        <PackageReference Update="EPiServer.Core" Version="$(CmsVersion)"/>
-        <PackageReference Update="EPiServer.DataAbstraction" Version="$(CmsVersion)"/>
-        <PackageReference Update="EPiServer.DataAnnotations" Version="$(CmsVersion)"/>
-        <PackageReference Update="EPiServer.Hosting" Version="$(CmsVersion)"/>
-        <PackageReference Update="EPiServer.Framework" Version="$(CmsVersion)"/>
-        <PackageReference Update="EPiServer.CMS.AspNetCore.HtmlHelpers" Version="$(CmsVersion)"/>
-        <PackageReference Update="EPiServer.CMS.AspNetCore.Templating" Version="$(CmsVersion)" />
-        <PackageReference Update="EPiServer.CMS.AspNetCore.Routing" Version="$(CmsVersion)" />
-        <PackageReference Update="EPiServer.ImageLibrary.ImageSharp" Version="$(CmsVersion)" />
-
-        <!-- CMS UI -->
+        <!-- CMS -->
         <PackageReference Update="EPiServer.CMS" Version="$(CmsVersion)"/>
-        <PackageReference Update="EPiServer.CMS.UI" Version="$(CmsVersion)"/>
         <PackageReference Update="EPiServer.CMS.UI.Core" Version="$(CmsVersion)"/>
-        <PackageReference Update="EPiServer.CMS.UI.Sources" Version="$(CmsVersion)"/>
         <PackageReference Update="EPiServer.CMS.UI.AspNetIdentity" Version="$(CmsVersion)"/>
         <PackageReference Update="EPiServer.CMS.UI.VisitorGroups" Version="$(CmsVersion)"/>
 
-        <PackageReference Update="xunit.assert" Version="2.4.1" />
-        <PackageReference Update="xunit.core" Version="2.4.1" />
-        <PackageReference Update="xunit.runner.console" Version="2.4.1" />
-        <PackageReference Update="xunit.runner.visualstudio" Version="2.4.3" />
-        <PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.7.1" />
-        <PackageReference Update="EPiServer.CMS.TinyMce" Version="$(CmsVersion)"/>
-
-        <PackageReference Update="Newtonsoft.Json" Version="13.0.4"/>
+        <PackageReference Update="xunit.assert" Version="2.9.3" />
+        <PackageReference Update="xunit.core" Version="2.9.3" />
+        <PackageReference Update="xunit.runner.console" Version="2.9.3" />
+        <PackageReference Update="xunit.runner.visualstudio" Version="4.0.0" />
+        <PackageReference Update="Microsoft.NET.Test.Sdk" Version="18.10.1" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Update="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.10" />
+        <PackageReference Update="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.12" />
     </ItemGroup>
 
     <!-- Commerce -->
