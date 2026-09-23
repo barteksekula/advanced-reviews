@@ -24,7 +24,6 @@ export default declare([WidgetBase, _ContentContextMixin], {
 
         this.store = new ExternalReviewStore(this._reviewService);
         this.own(this.store);
-        this.store.load();
         this.store.initialMailSubject = this.params.initialMailSubject;
         this.store.initialViewMailMessage = this.params.initialViewMailMessage;
         this.store.initialEditMailMessage = this.params.initialEditMailMessage;
@@ -43,14 +42,30 @@ export default declare([WidgetBase, _ContentContextMixin], {
                 availableVisitorGroups={this.params.availableVisitorGroups}
             />,
         );
+
+        this._syncWithCurrentContext();
     },
     contextChanged: function () {
         if (!this.params.isEnabled) {
             return;
         }
 
-        const shouldEnable = this._currentContext?.capabilities?.isPage
-            && this._currentContext?.type === "epi.cms.contentdata";
+        this._syncWithCurrentContext();
+    },
+    _syncWithCurrentContext: function () {
+        if (this._currentContext) {
+            this._applyContext(this._currentContext);
+            return;
+        }
+
+        Promise.resolve(this.getCurrentContext()).then((context) => {
+            if (!this._destroyed) {
+                this._applyContext(this._currentContext || context);
+            }
+        });
+    },
+    _applyContext: function (context) {
+        const shouldEnable = context?.capabilities?.isPage && context?.type === "epi.cms.contentdata";
 
         if (shouldEnable) {
             this.store.enable();
