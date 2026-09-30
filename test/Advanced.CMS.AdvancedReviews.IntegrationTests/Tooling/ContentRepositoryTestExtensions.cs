@@ -133,6 +133,33 @@ public static class ContentRepositoryTestExtensions
         return page;
     }
 
+    public static StandardPage AddLinkInXhtml(this StandardPage page, IContent target)
+    {
+        page.Html = CreateLinkXhtml(target);
+        ContentRepository.Save(page, AccessLevel.NoAccess);
+        return page;
+    }
+
+    public static StandardPage AddBlockWithLink(this StandardPage page, IContent target)
+    {
+        var block = ContentRepository.GetDefault<EditorialBlock>(ContentReference.GlobalBlockFolder);
+        var blockContent = block as IContent;
+        blockContent.Name = Guid.NewGuid().ToString();
+        block.Html = CreateLinkXhtml(target);
+        ContentRepository.Publish(blockContent, AccessLevel.NoAccess);
+        var contentArea = new ContentArea();
+        contentArea.Items.Add(new ContentAreaItem
+        {
+            ContentLink = blockContent.ContentLink,
+        });
+        page.ContentArea = contentArea;
+        ContentRepository.Save(page, AccessLevel.NoAccess);
+        return page;
+    }
+
+    private static XhtmlString CreateLinkXhtml(IContent target) =>
+        new($"<a id=\"{StaticTexts.LinkToOtherPageId}\" href=\"/link/{target.ContentGuid:N}.aspx\">{target.Name}</a>");
+
     public static StandardPage AddNestedBlock(this StandardPage page, bool useForThisPage = false)
     {
         //TODO: utilize `useForThisPage` to save also outside of the global asset folder
