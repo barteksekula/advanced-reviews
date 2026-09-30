@@ -6,12 +6,13 @@ using EPiServer.Cms.Shell;
 using EPiServer.ServiceLocation;
 using EPiServer.Web;
 using EPiServer.Web.Routing;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
 
 namespace Advanced.CMS.ExternalReviews;
 
 internal class PreviewUrlResolver(
-    IUrlResolver defaultUrlResolver,
+    UrlResolver defaultUrlResolver,
     IContentLoader contentLoader,
     IPermanentLinkMapper permanentLinkMapper,
     IContentProviderManager providerManager,
@@ -19,9 +20,11 @@ internal class PreviewUrlResolver(
     ExternalReviewUrlGenerator externalReviewUrlGenerator,
     IOptions<ExternalReviewOptions> externalReviewOptions,
     IApplicationResolver siteDefinitionResolver)
-    : IUrlResolver
+    : UrlResolver
 {
     private const string PreviewGenerated = "preview_generated";
+
+    private IUrlResolver DefaultUrlResolverContract => defaultUrlResolver;
 
     public static bool IsGeneratedForProjectPreview(NameValueCollection queryString)
     {
@@ -31,7 +34,7 @@ internal class PreviewUrlResolver(
     public string GetVirtualPath(ContentReference contentLink, string language,
         UrlResolverArguments virtualPathArguments)
     {
-        var virtualPathData = defaultUrlResolver.GetUrl(contentLink, language, virtualPathArguments);
+        var virtualPathData = DefaultUrlResolverContract.GetUrl(contentLink, language, virtualPathArguments);
         if (!externalReviewState.IsInExternalReviewContext || virtualPathData == null)
         {
             return virtualPathData;
@@ -100,9 +103,9 @@ internal class PreviewUrlResolver(
         return virtualPath;
     }
 
-    public string GetUrl(ContentReference contentLink, string language, UrlResolverArguments urlResolverArguments)
+    protected override string GetUrlCore(ContentReference contentLink, string language, UrlResolverArguments urlResolverArguments)
     {
-        var url = defaultUrlResolver.GetUrl(contentLink, language, urlResolverArguments);
+        var url = DefaultUrlResolverContract.GetUrl(contentLink, language, urlResolverArguments);
         if (!externalReviewState.IsInExternalReviewContext || url == null)
         {
             return url;
@@ -111,9 +114,18 @@ internal class PreviewUrlResolver(
         return GetInternalUrl(contentLink, url);
     }
 
-    public string GetUrl(UrlBuilder urlBuilderWithInternalUrl, UrlResolverArguments arguments)
+    protected override string GetUrlCore(UrlBuilder urlBuilderWithInternalUrl, UrlResolverArguments arguments)
     {
-        var url = defaultUrlResolver.GetUrl(urlBuilderWithInternalUrl, arguments);
+        return GetInternalUrl(urlBuilderWithInternalUrl, DefaultUrlResolverContract.GetUrl(urlBuilderWithInternalUrl, arguments));
+    }
+
+    public override string GetUrl(UrlBuilder urlBuilderWithInternalUrl, VirtualPathArguments arguments)
+    {
+        return GetInternalUrl(urlBuilderWithInternalUrl, defaultUrlResolver.GetUrl(urlBuilderWithInternalUrl, arguments));
+    }
+
+    private string GetInternalUrl(UrlBuilder urlBuilderWithInternalUrl, string url)
+    {
         if (!externalReviewState.IsInExternalReviewContext || url == null)
         {
             return url;
@@ -145,12 +157,23 @@ internal class PreviewUrlResolver(
         return url;
     }
 
-    public bool TryToPermanent(string url, out string permanentUrl)
+    public override bool TryToPermanent(string url, out string permanentUrl)
     {
         return defaultUrlResolver.TryToPermanent(url, out permanentUrl);
     }
 
-    public ContentRouteData Route(UrlBuilder urlBuilder, RouteArguments routeArguments)
+    public override VirtualPathData GetVirtualPathForNonContent(object partialRoutedObject, string language,
+        VirtualPathArguments virtualPathArguments)
+    {
+        return defaultUrlResolver.GetVirtualPathForNonContent(partialRoutedObject, language, virtualPathArguments);
+    }
+
+    public override IContent Route(UrlBuilder urlBuilder, ContextMode contextMode)
+    {
+        return defaultUrlResolver.Route(urlBuilder, contextMode);
+    }
+
+    public override ContentRouteData Route(UrlBuilder urlBuilder, RouteArguments routeArguments)
     {
         var contentRouteData = defaultUrlResolver.Route(urlBuilder, routeArguments);
 

@@ -7,4 +7,5 @@ public static class StaticTexts
     public const string UpdatedString = "_UPDATED_OUTSIDE_OF_PROJECT_MODE";
     public const string ProjectUpdatedString = "_UPDATED_IN_PROJECT_MODE";
     public const string FakeImageCopyright = "Lorem ipsum unpublishum";
+    public const string LinkToOtherPageId = "link-to-other-page";
 }
