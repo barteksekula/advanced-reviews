@@ -21,7 +21,10 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ExternalReviewState>();
         services.AddTransient<DraftChildrenLoader>();
 
-        var builder = services.AddControllers();
+        var builder = services.AddControllers(options =>
+        {
+            options.Filters.Add<PinCodeSecurityAuthorizationFilter>(int.MinValue);
+        });
         builder.ConfigureApplicationPartManager(manager =>
         {
             manager.FeatureProviders.Add(new InternalApiControllerFeatureProvider());

@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using Advanced.CMS.ExternalReviews.PinCodeSecurity;
 using Advanced.CMS.ExternalReviews.ReviewLinksRepository;
 using EPiServer.Core.Routing;
 using EPiServer.Core.Routing.Pipeline;
@@ -15,7 +14,6 @@ internal class PagePreviewPartialRouter(
     IExternalReviewLinksRepository externalReviewLinksRepository,
     IOptions<ExternalReviewOptions> externalReviewOptions,
     ProjectContentResolver projectContentResolver,
-    IExternalLinkPinCodeSecurityHandler externalLinkPinCodeSecurityHandler,
     IContentLanguageAccessor contentLanguageAccessor,
     ExternalReviewState externalReviewState,
     IContentVersionRepository contentVersionRepository)
@@ -60,13 +58,6 @@ internal class PagePreviewPartialRouter(
         externalReviewState.ProjectId = externalReviewLink.ProjectId;
         externalReviewState.PreferredLanguage = version.LanguageBranch;
         externalReviewState.ImpersonatedVisitorGroupsById = externalReviewLink.VisitorGroups;
-
-        // PIN code security check, if user is not authenticated, then redirect to login page
-        if (!externalLinkPinCodeSecurityHandler.UserHasAccessToLink(externalReviewLink))
-        {
-            externalLinkPinCodeSecurityHandler.RedirectToLoginPage(externalReviewLink);
-            return null;
-        }
 
         try
         {

@@ -57,6 +57,8 @@ public class SiteFixtureBase : IDisposable
     public IServiceProvider Services => _serviceFixture.Services;
     public HttpClient Client { get; set; }
 
+    public HttpClient CreateClient() => _serviceFixture.CreateClient();
+
     public void Dispose()
     {
         foreach (var hostedService in Services.GetAllInstances<IHostedService>().ToList())
