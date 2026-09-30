@@ -84,6 +84,40 @@ public static class ContentRepositoryTestExtensions
         return image;
     }
 
+    public static ImageFile PublishImage(this ImageFile image)
+    {
+        ContentRepository.Publish(image, AccessLevel.NoAccess);
+        return image;
+    }
+
+    public static ImageFile ReplaceImageInProject(this ImageFile image, Media replacement, Project project)
+    {
+        var newVersion = (ImageFile)ContentRepository.Get<ImageFile>(image.ContentLink.ToReferenceWithoutVersion()).CreateWritableClone();
+        var blob = ServiceLocator.Current.GetInstance<IBlobFactory>().CreateBlob(newVersion.BinaryDataContainer, ".jpg");
+        blob.Write(new MemoryStream(replacement.Bytes));
+        newVersion.BinaryData = blob;
+        ContentRepository.Save(newVersion, SaveAction.Save | SaveAction.ForceNewVersion, AccessLevel.NoAccess);
+
+        ServiceLocator.Current.GetInstance<ProjectRepository>().SaveItems([
+            new ProjectItem
+            {
+                ProjectID = project.ID,
+                ContentLink = newVersion.ContentLink,
+                Language = CultureInfo.InvariantCulture,
+                Category = "default"
+            }
+        ]);
+
+        return newVersion;
+    }
+
+    public static StandardPage ReferenceImageInXhtml(this StandardPage page, IContent image)
+    {
+        page.Html = new XhtmlString($"<img id=\"{StaticTexts.XhtmlImageId}\" src=\"/link/{image.ContentGuid:N}.aspx\" />");
+        ContentRepository.Save(page, AccessLevel.NoAccess);
+        return page;
+    }
+
     public static StandardPage ReferenceUnpublishedImageInContentReference(this StandardPage page, ContentReference draftImageContentLink)
     {
         page.Image = draftImageContentLink;

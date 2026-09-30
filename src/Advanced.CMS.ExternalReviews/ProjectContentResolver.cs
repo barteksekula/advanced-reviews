@@ -1,4 +1,5 @@
 using System.Collections.Specialized;
+using System.Globalization;
 using Advanced.CMS.ExternalReviews.ReviewLinksRepository;
 using EPiServer.Cms.Shell;
 using EPiServer.ServiceLocation;
@@ -11,7 +12,7 @@ internal class ProjectContentResolver(ProjectRepository projectRepository)
     {
         var item = projectRepository
             .GetItems([contentLink.ToReferenceWithoutVersion()])
-            .FirstOrDefault(x => x.ProjectID == projectId && x.Language.Name == language);
+            .FirstOrDefault(x => x.ProjectID == projectId && (x.Language.Name == language || Equals(x.Language, CultureInfo.InvariantCulture)));
         return item?.ContentLink;
     }
 
