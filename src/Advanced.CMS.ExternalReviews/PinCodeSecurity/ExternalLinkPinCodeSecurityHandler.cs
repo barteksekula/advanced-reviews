@@ -1,4 +1,5 @@
-﻿using Advanced.CMS.ExternalReviews.ReviewLinksRepository;
+﻿using System.Security.Principal;
+using Advanced.CMS.ExternalReviews.ReviewLinksRepository;
 using EPiServer.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -62,9 +63,25 @@ internal class DefaultExternalLinkPinCodeSecurityHandler : IExternalLinkPinCodeS
             return true;
         }
 
+        if (IsInRoleWithoutPin(_principalAccessor.Principal))
+        {
+            return true;
+        }
+
         var identityHash = _httpContextAccessor.HttpContext.Request.Cookies[ExternalReviewTokens];
 
         return externalReviewLink.PinCode == identityHash;
+    }
+
+    private bool IsInRoleWithoutPin(IPrincipal principal)
+    {
+        if (principal?.Identity?.IsAuthenticated != true)
+        {
+            return false;
+        }
+
+        var rolesWithoutPin = _externalReviewOptions.PinCodeSecurity.RolesWithoutPin ?? Enumerable.Empty<string>();
+        return rolesWithoutPin.Any(principal.IsInRole);
     }
 
     public void RedirectToLoginPage(ExternalReviewLink externalReviewLink)

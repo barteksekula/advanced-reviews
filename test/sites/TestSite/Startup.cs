@@ -79,11 +79,11 @@ public class Startup(IWebHostEnvironment webHostingEnvironment, IConfiguration c
             app.UseDeveloperExceptionPage();
         }
 
-        app.UseMiddleware<FakeUserMiddleware>();
         app.UseStaticFiles();
         app.UseRouting();
 
         app.UseAuthentication();
+        app.UseMiddleware<FakeUserMiddleware>();
         app.UseAuthorization();
 
         app.UseEndpoints(endpoints =>

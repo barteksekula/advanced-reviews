@@ -22,6 +22,7 @@ public class When_Pin_Security_Enabled(When_Pin_Security_Enabled.TestFixture fix
         public readonly ISiteUriResolver siteResolver = siteFixture.Services.GetService<ISiteUriResolver>();
         public readonly IOptions<ExternalReviewOptions> ExternalReviewOptions = siteFixture.Services.GetService<IOptions<ExternalReviewOptions>>();
         public HttpClient Client { get; } = siteFixture.Client;
+        public HttpClient CreateClient() => siteFixture.CreateClient();
 
         public StandardPage Page { get; private set; }
         public ExternalReviewLink GeneratedReviewLink { get; set; }
@@ -93,5 +94,39 @@ public class When_Pin_Security_Enabled(When_Pin_Security_Enabled.TestFixture fix
 
         Assert.Equal(HttpStatusCode.OK, loginResponse.StatusCode);
         Assert.Contains(fixture.ReviewedPageContent, loginText);
+    }
+
+    [Theory]
+    [InlineData("WebEditors")]
+    [InlineData("WebAdmins")]
+    public async Task User_In_Role_Without_Pin_Sees_Content_Review_Without_Submitting_PIN(string role)
+    {
+        using var client = fixture.CreateClient();
+        var response = await client.GetAsync(LinkUrlForUser("reviewer", role));
+        var text = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.DoesNotContain(LoginScreenMarker, text);
+        Assert.Contains(fixture.ReviewedPageContent, text);
+    }
+
+    [Fact]
+    public async Task User_Not_In_Role_Without_Pin_Sees_Login_Screen()
+    {
+        using var client = fixture.CreateClient();
+        var response = await client.GetAsync(LinkUrlForUser("reviewer", "Readers"));
+        var text = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains(LoginScreenMarker, text);
+    }
+
+    private const string LoginScreenMarker = "Enter security code";
+
+    private string LinkUrlForUser(string username, string role)
+    {
+        var linkUrl = fixture.GeneratedReviewLink.LinkUrl;
+        var separator = linkUrl.Contains('?') ? "&" : "?";
+        return $"{linkUrl}{separator}username={username}&roles={role}";
     }
 }
