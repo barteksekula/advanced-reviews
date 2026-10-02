@@ -10,20 +10,26 @@ public static class ContentExtensions
     public static ContentReference LoadUnpublishedVersion(this ContentReference baseReference)
     {
         var externalReviewState = ServiceLocator.Current.GetInstance<ExternalReviewState>();
+        return baseReference.LoadUnpublishedVersion(externalReviewState.PreferredLanguage);
+    }
+
+    internal static ContentReference LoadUnpublishedVersion(this ContentReference baseReference, string language)
+    {
+        var externalReviewState = ServiceLocator.Current.GetInstance<ExternalReviewState>();
         var projectContentResolver = ServiceLocator.Current.GetInstance<ProjectContentResolver>();
         var contentVersionRepository = ServiceLocator.Current.GetInstance<IContentVersionRepository>();
 
         if (externalReviewState.ProjectId.HasValue)
         {
             // load version from project
-            return projectContentResolver.GetProjectReference(baseReference, externalReviewState.ProjectId.Value, externalReviewState.PreferredLanguage);
+            return projectContentResolver.GetProjectReference(baseReference, externalReviewState.ProjectId.Value, language);
         }
 
         // load common draft instead of published version
         ContentVersion loadCommonDraft;
         try
         {
-            loadCommonDraft = contentVersionRepository.LoadCommonDraft(baseReference, externalReviewState.PreferredLanguage);
+            loadCommonDraft = contentVersionRepository.LoadCommonDraft(baseReference, language);
         }
         catch (ContentNotFoundException)
         {

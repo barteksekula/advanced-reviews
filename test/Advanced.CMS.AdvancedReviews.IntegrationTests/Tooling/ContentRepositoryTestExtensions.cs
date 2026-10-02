@@ -299,12 +299,48 @@ public static class ContentRepositoryTestExtensions
         return page;
     }
 
-    public static StandardPage Translate(this StandardPage page, string language = "sv")
+    public static StandardPage Translate(this StandardPage page, string language = "sv", Project project = null)
     {
-        var translatedPage = ContentRepository.CreateLanguageBranch<StandardPage>(page.ContentLink, new CultureInfo(language));
+        var translatedPage = ContentRepository.CreateLanguageBranch<StandardPage>(page.ContentLink.ToReferenceWithoutVersion(), new CultureInfo(language));
         translatedPage.PageName = page.PageName + "_" + language;
         ContentRepository.Save(translatedPage, AccessLevel.NoAccess);
+        if (project != null)
+        {
+            AddToProject(translatedPage, project);
+        }
         return translatedPage;
+    }
+
+    public static StandardPage SetHtml(this StandardPage page, string text)
+    {
+        page.Html = new XhtmlString($"<p>{text}</p>");
+        ContentRepository.Save(page, AccessLevel.NoAccess);
+        return page;
+    }
+
+    public static StandardPage UpdateHtmlInNewVersion(this StandardPage page, string text, Project project = null)
+    {
+        var newVersion = (StandardPage)ContentRepository.Get<StandardPage>(page.ContentLink.ToReferenceWithoutVersion(), page.Language).CreateWritableClone();
+        newVersion.Html = new XhtmlString($"<p>{text}</p>");
+        ContentRepository.Save(newVersion, SaveAction.Save | SaveAction.ForceNewVersion, AccessLevel.NoAccess);
+        if (project != null)
+        {
+            AddToProject(newVersion, project);
+        }
+        return newVersion;
+    }
+
+    private static void AddToProject(StandardPage page, Project project)
+    {
+        ServiceLocator.Current.GetInstance<ProjectRepository>().SaveItems([
+            new ProjectItem
+            {
+                ProjectID = project.ID,
+                ContentLink = page.ContentLink,
+                Language = page.Language,
+                Category = "default"
+            }
+        ]);
     }
 
     public static ContentReference CreateTargetFolder(this IContentRepository repo)
