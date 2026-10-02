@@ -45,6 +45,8 @@
         <emailaddresslabel>Email address</emailaddresslabel>
         <messagehint>Text [#link#] will be replaced with link to content.</messagehint>
         <sendbutton>Send</sendbutton>
+        <sendsucceeded>Email sent</sendsucceeded>
+        <sendfailed>Failed to send email. Contact your system administrator.</sendfailed>
       </sharedialog>
       <shared>
         <ok>Ok</ok>

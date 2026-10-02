@@ -28,6 +28,8 @@
         <emailaddresslabel>Sähköpostiosoite</emailaddresslabel>
         <messagehint>Teksti [#link#] tullaan korvaamaan linkkinä sisältöön.</messagehint>
         <sendbutton>Lähetä</sendbutton>
+        <sendsucceeded>Sähköposti lähetetty</sendsucceeded>
+        <sendfailed>Sähköpostin lähetys epäonnistui. Ota yhteyttä järjestelmänvalvojaan.</sendfailed>
       </sharedialog>
     </externalreviews>
   </language>

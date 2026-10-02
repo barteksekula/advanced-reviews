@@ -123,7 +123,9 @@ export default class FakeReviewLinksStore extends ExternalReviewStore {
         this.links.splice(itemIndex, 1);
     }
 
-    share() {}
+    share(): Promise<void> {
+        return Promise.resolve();
+    }
 
     edit(item: ReviewLink, validTo: Date, pinCode: string, displayName: string, visitorGroups: string[]): void {
         if (validTo) {

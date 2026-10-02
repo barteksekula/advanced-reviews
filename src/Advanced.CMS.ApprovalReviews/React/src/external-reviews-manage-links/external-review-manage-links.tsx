@@ -8,6 +8,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import Snackbar from "@mui/material/Snackbar";
 import { format } from "date-fns";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
@@ -50,6 +51,7 @@ const ExternalReviewWidgetContent = observer(
         const [currentLinkToDelete, setLinkToDelete] = useState<ReviewLink>(null);
         const [currentLinkToShare, setLinkToShare] = useState<ReviewLink>(null);
         const [currentLinkToEdit, setLinkToEdit] = useState<ReviewLink>(null);
+        const [shareResultMessage, setShareResultMessage] = useState<string>(null);
         const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
         const isPinRequired = pinCodeSecurityEnabled && pinCodeSecurityRequired;
@@ -75,7 +77,10 @@ const ExternalReviewWidgetContent = observer(
             if (shareLink === null) {
                 return;
             }
-            store.share(currentLinkToShare, shareLink.email, shareLink.subject, shareLink.message);
+            store.share(currentLinkToShare, shareLink.email, shareLink.subject, shareLink.message).then(
+                () => setShareResultMessage(resources.sharedialog.sendsucceeded),
+                () => setShareResultMessage(resources.sharedialog.sendfailed),
+            );
         };
 
         const onEditClose = async (validTo: Date, pinCode: string, displayName: string, visitorGroups: string[]) => {
@@ -266,6 +271,12 @@ const ExternalReviewWidgetContent = observer(
                         resources={resources}
                     />
                 )}
+                <Snackbar
+                    open={!!shareResultMessage}
+                    autoHideDuration={6000}
+                    onClose={() => setShareResultMessage(null)}
+                    message={shareResultMessage}
+                />
                 {!!currentLinkToEdit && (
                     <LinkEditDialog
                         reviewLink={currentLinkToEdit}

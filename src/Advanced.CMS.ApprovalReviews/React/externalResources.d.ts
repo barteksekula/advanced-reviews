@@ -80,6 +80,10 @@ interface ExternalReviewResources_Sharedialog {
     messagehint: string;
     /** Send */
     sendbutton: string;
+    /** Email sent */
+    sendsucceeded: string;
+    /** Failed to send email. Contact your system administrator. */
+    sendfailed: string;
 }
 
 interface ExternalReviewResources_Shared {
