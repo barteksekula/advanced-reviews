@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Advanced.CMS.ApprovalReviews;
+using EPiServer.Applications;
 using EPiServer.Cms.Shell.UI.Rest.Projects;
 using EPiServer.Notification;
 using EPiServer.Shell.Services.Rest;
@@ -107,7 +108,7 @@ internal class ExternalReviewStore(
     private async Task<bool> SendMail(ExternalReviewLink externalReviewLink, string email, string subject,
         string message)
     {
-        var linkUrl = new Uri(siteUriResolver.GetUri(externalReviewLink.ContentLink), externalReviewLink.LinkUrl);
+        var linkUrl = new Uri(GetShareLinkHost(externalReviewLink.ContentLink), externalReviewLink.LinkUrl);
 
         message = message.Replace("[#link#]", linkUrl.ToString());
 
@@ -128,6 +129,20 @@ internal class ExternalReviewStore(
 #pragma warning restore 618
             (_, _) => { result = false; }).ConfigureAwait(true);
         return result;
+    }
+
+    private Uri GetShareLinkHost(ContentReference contentLink)
+    {
+        if (externalReviewOptions.Value.ShareLinkHost != null)
+        {
+            return externalReviewOptions.Value.ShareLinkHost;
+        }
+
+        var hosts = siteUriResolver.GetWebsite(contentLink)?.Hosts?.ToList() ?? [];
+        var host = hosts.FirstOrDefault(x => x.Type == ApplicationHostType.Edit)
+                   ?? hosts.FirstOrDefault(x => x.Type == ApplicationHostType.Primary)
+                   ?? hosts.FirstOrDefault();
+        return host?.Url;
     }
 
     [HttpDelete]
