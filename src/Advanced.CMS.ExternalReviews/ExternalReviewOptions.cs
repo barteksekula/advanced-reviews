@@ -72,6 +72,12 @@ public class ExternalReviewOptions
     public int ProlongDays { get; set; } = 5;
 
     /// <summary>
+    /// Host used for links sent in share emails. When not set, the site Edit host is used,
+    /// then the Primary host, then the first configured host
+    /// </summary>
+    public Uri ShareLinkHost { get; set; }
+
+    /// <summary>
     /// Restriction options
     /// </summary>
     public ExternalReviewRestrictionOptions Restrictions { get; } = new ExternalReviewRestrictionOptions();
