@@ -28,6 +28,8 @@
         <emailaddresslabel>E-Mail Adresse</emailaddresslabel>
         <messagehint>Text [#link#] wird durch einen Link zum Inhalt ersetzt.</messagehint>
         <sendbutton>Senden</sendbutton>
+        <sendsucceeded>E-Mail gesendet</sendsucceeded>
+        <sendfailed>E-Mail konnte nicht gesendet werden. Wenden Sie sich an Ihren Systemadministrator.</sendfailed>
       </sharedialog>
     </externalreviews>
   </language>

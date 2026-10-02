@@ -37,6 +37,8 @@
         <emailaddresslabel>E-postadresse</emailaddresslabel>
         <messagehint>Teksten [#link#] vil erstattes med ei lenke til innholdet</messagehint>
         <sendbutton>Send</sendbutton>
+        <sendsucceeded>E-post sendt</sendsucceeded>
+        <sendfailed>Kunne ikke sende e-post. Kontakt systemadministratoren.</sendfailed>
       </sharedialog>
       <shared>
         <ok>Ok</ok>

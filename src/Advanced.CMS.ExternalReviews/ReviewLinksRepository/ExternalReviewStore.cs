@@ -2,8 +2,10 @@
 using Advanced.CMS.ApprovalReviews;
 using EPiServer.Applications;
 using EPiServer.Cms.Shell.UI.Rest.Projects;
+using EPiServer.Logging;
 using EPiServer.Notification;
 using EPiServer.Shell.Services.Rest;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -23,6 +25,8 @@ internal class ExternalReviewStore(
     ISiteUriResolver siteUriResolver)
     : RestControllerBase
 {
+    private static readonly ILogger _log = LogManager.GetLogger(typeof(ExternalReviewStore));
+
     private void HidePinCode(ExternalReviewLink externalReviewLink)
     {
         if (!string.IsNullOrWhiteSpace(externalReviewLink.PinCode))
@@ -86,6 +90,7 @@ internal class ExternalReviewStore(
 
         if (string.IsNullOrWhiteSpace(notificationOptions.NotificationEmailAddress))
         {
+            _log.Warning("Advanced Reviews: Cannot share external review link, NotificationOptions.NotificationEmailAddress is not configured");
             return new BadRequestObjectResult("Sender email address is not configured. Contact with system administrator");
         }
 
@@ -100,7 +105,13 @@ internal class ExternalReviewStore(
             return new NotFoundObjectResult("Content not found");
         }
 
-        await SendMail(externalReviewLink, dto.Email, dto.Subject, dto.Message);
+        if (!await SendMail(externalReviewLink, dto.Email, dto.Subject, dto.Message))
+        {
+            return new ObjectResult("Failed to send email. Check SMTP configuration and the application log for details")
+            {
+                StatusCode = StatusCodes.Status500InternalServerError
+            };
+        }
 
         return Rest(true);
     }
@@ -114,7 +125,7 @@ internal class ExternalReviewStore(
 
         var providerNotificationMessages = new List<ProviderNotificationMessage>
         {
-            new ProviderNotificationMessage
+            new()
             {
                 Content = message,
                 RecipientAddresses = new[] {email},
@@ -124,10 +135,12 @@ internal class ExternalReviewStore(
             }
         };
         var result = true;
-#pragma warning disable 618
-        await emailNotificationProvider.SendAsync(providerNotificationMessages.Select(Task.FromResult), msg => { result = true; },
-#pragma warning restore 618
-            (_, _) => { result = false; }).ConfigureAwait(true);
+        await emailNotificationProvider.SendAsync(providerNotificationMessages.Select(Task.FromResult), _ => { },
+            (_, exception) =>
+            {
+                result = false;
+                _log.Error($"Advanced Reviews: Failed to send external review link {externalReviewLink.Token} to {email}", exception);
+            }).ConfigureAwait(true);
         return result;
     }
 

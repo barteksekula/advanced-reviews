@@ -33,6 +33,8 @@
         <emailaddresslabel>E-postadress</emailaddresslabel>
         <messagehint>Texten [#link#] kommer att ersättas med en länk till innehĺllet.</messagehint>
         <sendbutton>Skicka</sendbutton>
+        <sendsucceeded>E-post skickat</sendsucceeded>
+        <sendfailed>Det gick inte att skicka e-post. Kontakta systemadministratören.</sendfailed>
       </sharedialog>
     </externalreviews>
   </language>

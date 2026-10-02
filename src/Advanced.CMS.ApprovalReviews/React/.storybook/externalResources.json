@@ -41,7 +41,9 @@
         "emailsubjectlabel": "Email subject",
         "emailaddresslabel": "Email address",
         "messagehint": "Text [#link#] will be replaced with link to content.",
-        "sendbutton": "Send"
+        "sendbutton": "Send",
+        "sendsucceeded": "Email sent",
+        "sendfailed": "Failed to send email. Contact your system administrator."
     },
     "shared": {
         "ok": "Ok",
