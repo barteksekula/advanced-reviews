@@ -65,6 +65,12 @@ internal class ExternalReviewState(IHttpContextAccessor httpContextAccessor)
         set => httpContextAccessor.HttpContext.Items["ProjectId"] = value;
     }
 
+    public bool IsLoadingMasterLanguageVersion
+    {
+        get => httpContextAccessor.HttpContext?.Items["IsLoadingMasterLanguageVersion"] is true;
+        set => httpContextAccessor.HttpContext.Items["IsLoadingMasterLanguageVersion"] = value;
+    }
+
     public int LoadingContentCallCount
     {
         get => httpContextAccessor.HttpContext?.Items["LoadingContentCallCount"] as int? ?? 0;
