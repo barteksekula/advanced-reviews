@@ -71,6 +71,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSite", "test\sites\Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Advanced.CMS.IntegrationTests", "test\Advanced.CMS.IntegrationTests\Advanced.CMS.IntegrationTests.csproj", "{62911FFC-E20D-42AC-A04D-AF29E240A8ED}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Advanced.CMS.AdvancedReviews.E2ETests", "test\Advanced.CMS.AdvancedReviews.E2ETests\Advanced.CMS.AdvancedReviews.E2ETests.csproj", "{46F14F8C-41EA-4F29-ADC3-6409342DE59E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -105,6 +107,10 @@ Global
 		{62911FFC-E20D-42AC-A04D-AF29E240A8ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62911FFC-E20D-42AC-A04D-AF29E240A8ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62911FFC-E20D-42AC-A04D-AF29E240A8ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46F14F8C-41EA-4F29-ADC3-6409342DE59E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46F14F8C-41EA-4F29-ADC3-6409342DE59E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46F14F8C-41EA-4F29-ADC3-6409342DE59E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46F14F8C-41EA-4F29-ADC3-6409342DE59E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -117,6 +123,7 @@ Global
 		{F154F66E-7CE6-4D7C-A4C8-78C9967F40E2} = {41836882-566B-456A-A832-2B36E354C728}
 		{565C6A43-DD85-4D36-98D2-08324C353D17} = {41836882-566B-456A-A832-2B36E354C728}
 		{62911FFC-E20D-42AC-A04D-AF29E240A8ED} = {41836882-566B-456A-A832-2B36E354C728}
+		{46F14F8C-41EA-4F29-ADC3-6409342DE59E} = {41836882-566B-456A-A832-2B36E354C728}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {31F10C96-F924-4A0A-9B12-36A09C66A0B3}

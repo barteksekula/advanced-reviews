@@ -28,9 +28,17 @@ jobs:
     - name: Build
       run: build.cmd Release
       shell: cmd
+    - name: Install Playwright browsers
+      run: pwsh test/Advanced.CMS.AdvancedReviews.E2ETests/bin/Release/playwright.ps1 install chromium
     - name: Test
       run: test.cmd Release
       shell: cmd
+    - name: Archive Playwright traces
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-traces
+        path: test/Advanced.CMS.AdvancedReviews.E2ETests/bin/Release/traces/
     - name: Pack
       run: pack.cmd Release
       shell: cmd
