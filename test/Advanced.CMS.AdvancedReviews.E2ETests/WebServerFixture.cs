@@ -3,13 +3,14 @@ using System.Net.Sockets;
 using Advanced.CMS.ExternalReviews;
 using Advanced.CMS.IntegrationTests;
 using EPiServer.Applications;
+using EPiServer.Authorization;
 using EPiServer.Data;
 using EPiServer.DataAccess;
 using EPiServer.Security;
 using EPiServer.ServiceLocation;
-using EPiServer.Shell.Security;
 using EPiServer.Web;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -26,8 +27,10 @@ public class WebServerFixture : IAsyncLifetime
 
     public const string AdminUserName = "cmsadmin";
     public const string AdminPassword = "sparr0wHawk!";
+    public const string LoginPath = "/Util/Login";
 
     private readonly CmsDatabaseFixture _databaseFixture;
+    private readonly string _connectionString;
     private readonly IHost _host;
     private IPlaywright _playwright;
 
@@ -41,16 +44,16 @@ public class WebServerFixture : IAsyncLifetime
         _databaseFixture = new CmsDatabaseFixture(
             SolutionPathUtility.GetSolutionPath(@"test\Advanced.CMS.IntegrationTests\Assets\db_template.mdf", SolutionName),
             Path.Combine(siteRoot, "App_Data", "e2e.mdf"));
-        var connectionString =
+        _connectionString =
             $"Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog={_databaseFixture.DatabaseName};Integrated Security=True;Connect Timeout=30;MultipleActiveResultSets=True";
-        new DatabaseHelper(connectionString).ExecuteSqlFile(
+        new DatabaseHelper(_connectionString).ExecuteSqlFile(
             SolutionPathUtility.GetSolutionPath(@"test\Advanced.CMS.IntegrationTests\IdentitySchema.sql", SolutionName));
 
         _host = Host.CreateDefaultBuilder()
             .ConfigureCmsDefaults()
             .ConfigureAppConfiguration(config => config.AddInMemoryCollection(new Dictionary<string, string>
             {
-                ["ConnectionStrings:EPiServerDB"] = connectionString
+                ["ConnectionStrings:EPiServerDB"] = _connectionString
             }))
             .ConfigureWebHostDefaults(webBuilder =>
             {
@@ -66,9 +69,11 @@ public class WebServerFixture : IAsyncLifetime
                 services.AddSingleton(existingServiceDefinition.ImplementationType);
                 services.AddSingleton<IDatabaseMode>(sp =>
                     new SwitchableDatabaseMode(sp.GetService(existingServiceDefinition.ImplementationType) as IDatabaseMode));
+                services.ConfigureApplicationCookie(options => options.LoginPath = LoginPath);
                 services.Configure<ExternalReviewOptions>(options =>
                 {
                     options.EditableLinksEnabled = true;
+                    options.AllowAnonymousEditableLinks = true;
                     options.PinCodeSecurity.Enabled = true;
                 });
             })
@@ -85,7 +90,7 @@ public class WebServerFixture : IAsyncLifetime
         Assertions.SetDefaultExpectTimeout(15_000);
         await _host.StartAsync();
         await CreateWebsiteAsync();
-        await CreateAdminUserAsync();
+        await WaitForDatabaseProvisioningAsync();
 
         _playwright = await Playwright.CreateAsync();
         Browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
@@ -135,21 +140,34 @@ public class WebServerFixture : IAsyncLifetime
         await Services.GetInstance<IApplicationRepository>().SaveAsync(website);
     }
 
-    private async Task CreateAdminUserAsync()
+    private async Task WaitForDatabaseProvisioningAsync()
     {
-        string[] roles = ["WebAdmins", "WebEditors", "CmsAdmins", "CmsEditors"];
-        var roleProvider = Services.GetInstance<UIRoleProvider>();
-        foreach (var role in roles)
+        var timeout = DateTime.UtcNow.AddSeconds(30);
+        while (!await IsLastUserProvisionedAsync())
         {
-            if (!await roleProvider.RoleExistsAsync(role))
+            if (DateTime.UtcNow > timeout)
             {
-                await roleProvider.CreateRoleAsync(role);
+                throw new TimeoutException("Users were not provisioned");
             }
-        }
 
-        await Services.GetInstance<UIUserProvider>()
-            .CreateUserAsync(AdminUserName, AdminPassword, "cmsadmin@example.com", null, null, true);
-        await roleProvider.AddUserToRolesAsync(AdminUserName, roles);
+            await Task.Delay(100);
+        }
+    }
+
+    private async Task<bool> IsLastUserProvisionedAsync()
+    {
+        await using var connection = new SqlConnection(_connectionString);
+        await connection.OpenAsync();
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            SELECT COUNT(*) FROM AspNetUserRoles userRoles
+            JOIN AspNetUsers users ON users.Id = userRoles.UserId
+            JOIN AspNetRoles roles ON roles.Id = userRoles.RoleId
+            WHERE users.UserName = @userName AND roles.Name = @roleName
+            """;
+        command.Parameters.AddWithValue("@userName", "reid");
+        command.Parameters.AddWithValue("@roleName", Roles.WebEditors);
+        return (int)await command.ExecuteScalarAsync() > 0;
     }
 
     private static int GetRandomUnusedPort()

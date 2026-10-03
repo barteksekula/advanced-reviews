@@ -20,6 +20,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IPartialRouter, PagePreviewPartialRouter>();
         services.AddSingleton<ExternalReviewState>();
         services.AddTransient<DraftChildrenLoader>();
+        services.AddTransient<EditableReviewService>();
 
         var builder = services.AddControllers(options =>
         {

@@ -42,6 +42,7 @@ public abstract class OptionsOverrideFixture(SiteFixture siteFixture) : IAsyncLi
             EmailEdit = source.EmailEdit,
             EmailView = source.EmailView,
             EditableLinksEnabled = source.EditableLinksEnabled,
+            AllowAnonymousEditableLinks = source.AllowAnonymousEditableLinks,
             IsAdminModePinReviewerPluginEnabled = source.IsAdminModePinReviewerPluginEnabled,
             AllowScreenshotAttachments = source.AllowScreenshotAttachments,
             ViewLinkValidTo = source.ViewLinkValidTo,
@@ -84,6 +85,7 @@ public abstract class OptionsOverrideFixture(SiteFixture siteFixture) : IAsyncLi
         to.EmailEdit = from.EmailEdit;
         to.EmailView = from.EmailView;
         to.EditableLinksEnabled = from.EditableLinksEnabled;
+        to.AllowAnonymousEditableLinks = from.AllowAnonymousEditableLinks;
         to.IsAdminModePinReviewerPluginEnabled = from.IsAdminModePinReviewerPluginEnabled;
         to.AllowScreenshotAttachments = from.AllowScreenshotAttachments;
         to.ViewLinkValidTo = from.ViewLinkValidTo;

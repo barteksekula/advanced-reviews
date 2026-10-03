@@ -49,6 +49,7 @@ class ExternalReviewService implements AdvancedReviewService {
                     return {
                         id: x.id,
                         data: reviewLocation,
+                        isRemovable: x.isRemovable,
                     };
                 })
                 .filter((x) => !!x.data);

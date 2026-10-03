@@ -12,7 +12,7 @@ internal class PinCodeSecurityAuthorizationFilter(
 {
     public void OnAuthorization(AuthorizationFilterContext context)
     {
-        if (!externalReviewState.IsInExternalReviewContext || externalReviewState.IsEditLink)
+        if (!externalReviewState.IsInExternalReviewContext)
         {
             return;
         }

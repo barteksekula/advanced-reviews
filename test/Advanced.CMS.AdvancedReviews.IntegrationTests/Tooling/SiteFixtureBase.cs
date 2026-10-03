@@ -2,9 +2,9 @@
 using Advanced.CMS.IntegrationTests;
 using EPiServer.Cms.Shell.UI.Rest.Projects;
 using EPiServer.ServiceLocation;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Http;
 using TestSite;
 
 namespace Advanced.CMS.AdvancedReviews.IntegrationTests.Tooling;
@@ -58,6 +58,9 @@ public class SiteFixtureBase : IDisposable
     public HttpClient Client { get; set; }
 
     public HttpClient CreateClient() => _serviceFixture.CreateClient();
+
+    public HttpClient CreateClientWithoutRedirects() =>
+        _serviceFixture.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
 
     public void Dispose()
     {

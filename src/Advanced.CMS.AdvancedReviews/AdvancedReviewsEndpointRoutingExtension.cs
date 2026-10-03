@@ -26,5 +26,27 @@ internal class AdvancedReviewsEndpointRoutingExtension : IEndpointRoutingExtensi
             $"/{options.Value.PinCodeSecurity.ExternalReviewLoginUrl}",
             new { controller = "ExternalReviewLogin", action = "Submit" },
             new { httpMethod = new HttpMethodRouteConstraint(HttpMethods.Post) });
+
+        MapAnonymousEditableLinkRoutes(endpointRouteBuilder);
+    }
+
+    private static void MapAnonymousEditableLinkRoutes(IEndpointRouteBuilder endpointRouteBuilder)
+    {
+        const string prefix = ExternalReviewUrlGenerator.AnonymousRoutePrefix;
+        var get = new { httpMethod = new HttpMethodRouteConstraint(HttpMethods.Get) };
+        var post = new { httpMethod = new HttpMethodRouteConstraint(HttpMethods.Post) };
+
+        MapExternalReviewEditRoute(endpointRouteBuilder, $"/{prefix}/edit/AddPin", "AddPin", post);
+        MapExternalReviewEditRoute(endpointRouteBuilder, $"/{prefix}/edit/RemovePin", "RemovePin", post);
+        MapExternalReviewEditRoute(endpointRouteBuilder, $"/{prefix}/edit/{{id}}", "Index", get);
+        MapExternalReviewEditRoute(endpointRouteBuilder, $"/{prefix}/resources/{{id}}", "Resource", get);
+        MapExternalReviewEditRoute(endpointRouteBuilder, $"/{prefix}/avatar/{{id}}", "Avatar", get);
+    }
+
+    private static void MapExternalReviewEditRoute(IEndpointRouteBuilder endpointRouteBuilder, string pattern,
+        string action, object constraints)
+    {
+        endpointRouteBuilder.MapControllerRoute($"ExternalReviewEdit{action}", pattern,
+            new { controller = "ExternalReviewEdit", action }, constraints).AllowAnonymous();
     }
 }

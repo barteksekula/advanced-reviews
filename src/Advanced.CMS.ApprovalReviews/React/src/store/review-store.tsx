@@ -132,6 +132,10 @@ export class PinLocation implements PinPositioningDetails {
      * FirstComment is a main comment added when saving review location for the first time
      */
     firstComment: Comment = null;
+    /**
+     * Set by the server when it decides who can remove the pin, otherwise the first comment author can remove it
+     */
+    isRemovable?: boolean;
 
     get formattedFirstComment(): string {
         if (!this.firstComment.date) {
@@ -392,6 +396,7 @@ class ReviewComponentStore implements IReviewComponentStore {
                     isDone: x.data.isDone,
                     firstComment: this.parseComment(x.data.firstComment),
                     comments: (x.data.comments || []).map((x: any) => this.parseComment(x)),
+                    isRemovable: x.isRemovable,
                 });
             });
         });
