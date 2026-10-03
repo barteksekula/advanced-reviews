@@ -4,6 +4,9 @@
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Advanced.CMS.ExternalReviews" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="EmbededLanguages\**\*" />
   </ItemGroup>
   <ItemGroup>

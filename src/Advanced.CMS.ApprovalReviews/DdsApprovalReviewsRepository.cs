@@ -110,6 +110,7 @@ internal class DdsApprovalReviewsRepository(
                 reviewLocation = new ReviewLocation
                 {
                     Id = Guid.NewGuid().ToString(),
+                    Token = reviewLocation.Token
                 };
                 reviewLocations.Add(reviewLocation);
             }

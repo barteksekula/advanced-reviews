@@ -243,7 +243,8 @@ const SlidingPanel: React.FC<SlidingPanelProps> = ({ iframe, reviewStore, resour
                                             secondaryAction={
                                                 <>
                                                     {location.comments.length === 0 &&
-                                                        location.firstComment.author === currentUser && (
+                                                        (location.isRemovable ??
+                                                            location.firstComment.author === currentUser) && (
                                                             <IconButton
                                                                 className="delete"
                                                                 title={res.removepindialog.title}

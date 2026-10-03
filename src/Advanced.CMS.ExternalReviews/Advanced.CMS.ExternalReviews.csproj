@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Advanced.CMS.AdvancedReviews.IntegrationTests" />
+    <InternalsVisibleTo Include="Advanced.CMS.AdvancedReviews" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Advanced.CMS.ApprovalReviews\Advanced.CMS.ApprovalReviews.csproj" />

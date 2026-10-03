@@ -199,6 +199,7 @@ There are few settings related with external review. They are all set using Opti
  | EmailEdit | [email template] |email body template used for readonly content links |
  | EmailView | [email template]| email body template used for editable links |
  | EditableLinksEnabled | false |When true then Editor can create editable links that allow external reviewers to add comments |
+ | AllowAnonymousEditableLinks | false | When true then editable links can be opened without logging in to the CMS. See [Editable links without login](#editable-links-without-login) |
  | ViewLinkValidTo | 5 days |For how long view link is valid |
  | EditLinkValidTo | 5 days | For how long editable link is valid |
  | ProlongDays | 5 days | Number of days added to link valid date |
@@ -226,6 +227,23 @@ There are few settings related with external review. They are all set using Opti
  | RolesWithoutPin | WebEditors & WebAdmins | Roles that can access links without PIN |
  | AuthenticationCookieLifeTime | 5 minutes | For how long authentication cookie should be valid |
  | CodeLength | 4 | PIN code length |
+
+#### Editable links without login
+
+By default an editable link opens a page in the CMS UI path, so the reviewer has to log in, for example with a shared account.
+When `AllowAnonymousEditableLinks` is enabled, editable links point to `/advanced-reviews/edit/{token}` on the public site instead, and no login is needed.
+
+Access is then based on the link alone, so a few rules apply:
+
+* the token in the link grants access until the link expires, treat it like a password
+* when PIN code security is enabled and the link has a PIN, the reviewer has to enter it before the page or the comment endpoints can be used
+* reviewers can only remove pins created through their own link
+* reviewers can reply to existing pins, but cannot change or remove comments that are already saved
+* comment author names are entered by the reviewer and are not verified
+
+Setting a PIN on editable links is recommended when this option is enabled.
+
+If the public site uses a redirect manager or path filtering, also allow the `/advanced-reviews/` path.
 
 #### SEO Toolbox (Mogul SEO Manager) settings.
 If you are using SEO toolbox as redirect manager, 
@@ -354,6 +372,17 @@ build.cmd
 ```
 
 And then you can either run from VS, VS code or Rider. Or you can also run from the command line via `dotnet run`
+
+### E2E tests
+
+The E2E tests in `test\Advanced.CMS.AdvancedReviews.E2ETests` use Playwright. Install the browser once after building:
+
+```console
+pwsh test\Advanced.CMS.AdvancedReviews.E2ETests\bin\Debug\playwright.ps1 install chromium
+```
+
+In Debug builds the browser window is visible. Set `E2E_HEADLESS=1` to run without it. Release builds always run headless.
+Each test stores a Playwright trace in `bin\<configuration>\traces`, which can be opened with `pwsh playwright.ps1 show-trace <file>`.
 
 ## Creating a new package
 

@@ -47,6 +47,12 @@ public class ExternalReviewOptions
     public bool EditableLinksEnabled { get; set; } = false;
 
     /// <summary>
+    /// When true then editable links can be opened by external reviewers without logging in to the CMS.
+    /// Access is granted by the link token and, when set, the link PIN code
+    /// </summary>
+    public bool AllowAnonymousEditableLinks { get; set; } = false;
+
+    /// <summary>
     /// Enable Admin Mode pin reviewer plugin which allows admins to view and delete saved comments
     /// </summary>
     public bool IsAdminModePinReviewerPluginEnabled { get; set; } = true;

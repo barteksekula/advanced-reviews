@@ -1,4 +1,8 @@
-﻿@model Advanced.CMS.ExternalReviews.EditReview.ContentPreviewModel
+@model Advanced.CMS.ExternalReviews.EditReview.ContentPreviewModel
+
+@{
+    Layout = "";
+}
 
 <!DOCTYPE html>
 <html>
@@ -12,8 +16,6 @@
                 height: 100%;
                 padding: 0;
                 margin: 0;
-                /*font-size: 0;
-                line-height: 0;*/
             }
 
             iframe {
@@ -33,7 +35,7 @@
                 line-height: 14px;
             }
         </style>
-    </head><body style="width: 100%; height: 100%; font-size: 0"><div id="reviews-editor" data-token="@Model.Token" data-avatar-url="@Model.AvatarUrl" data-add-url="@Model.AddPinUrl" data-remove-url="@Model.RemovePinUrl" data-user="@Context.User.Identity.Name" data-metadata="@Model.Metadata" data-pins="@Model.ReviewPins" data-options="@Model.Options"></div>
+    </head><body style="width: 100%; height: 100%; font-size: 0"><div id="reviews-editor" data-token="@Model.Token" data-avatar-url="@Model.AvatarUrl" data-add-url="@Model.AddPinUrl" data-remove-url="@Model.RemovePinUrl" data-user="@Context.User.Identity?.Name" data-metadata="@Model.Metadata" data-pins="@Model.ReviewPins" data-options="@Model.Options"></div>
         <iframe id="editableIframe" src="@Model.EditableContentUrlSegment" width="100%" height="100%"></iframe>
 
         <script type="text/javascript">
@@ -55,4 +57,3 @@
         </script>
 
     </body></html>
-
