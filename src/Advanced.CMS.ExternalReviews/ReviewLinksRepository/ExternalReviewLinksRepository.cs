@@ -113,7 +113,7 @@ internal class ExternalReviewLinksRepository(
         }
 
         item.DisplayName = displayName;
-        item.VisitorGroups = visitorGroups ?? new[] {"cc5fc022-4186-431e-b38a-e257d8cafd51"};
+        item.VisitorGroups = visitorGroups ?? [];
 
         store.Save(item);
         cache.Remove(token);
