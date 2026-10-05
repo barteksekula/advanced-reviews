@@ -3,12 +3,27 @@
 }
 
 .epi-review-icon {
-    background: url(content-review.png) 0 0 no-repeat;
-    height: 24px;
-    width: 24px;
+    width: 20px;
+    height: 16px;
+    line-height: 16px;
 }
 
+.Sleek .dijitToolbar .epi-review-button .dijitIcon.epi-review-icon {
+    color: rgb(8, 7, 54);
+}
 
-.dijitChecked.epi-mediumButton .epi-review-icon {
-    background: url(content-review.png) -24px 0 no-repeat;
+.Sleek .dijitToolbar .epi-review-button.dijitChecked .dijitIcon.epi-review-icon {
+    color: rgb(0, 55, 255);
+}
+
+.epi-review-icon::before {
+    content: "\f591";
+    display: inline-block;
+    width: 20px;
+    height: 16px;
+    font-family: "Font Awesome 6 Pro";
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 16px;
+    text-align: center;
 }

@@ -19,7 +19,7 @@ define([
         name: "ContentReferences",
         label: res.label,
         tooltip: res.tooltip,
-        iconClass: 'epi-icon--medium epi-review-icon',
+        iconClass: 'epi-review-icon',
         canExecute: false,
 
         constructor: function () {
