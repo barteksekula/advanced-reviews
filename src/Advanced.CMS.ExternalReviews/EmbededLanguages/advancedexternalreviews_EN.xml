@@ -21,6 +21,8 @@
         <sharetitle>share</sharetitle>
         <viewlink>View</viewlink>
         <editlink>Edit</editlink>
+        <viewlinkname>View link</viewlinkname>
+        <editablelinkname>Editable link</editablelinkname>
         <editdialog>
           <title>Edit link</title>
           <newitemtitle>Add link</newitemtitle>

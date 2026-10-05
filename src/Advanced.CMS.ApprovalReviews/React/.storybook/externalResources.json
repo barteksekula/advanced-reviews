@@ -18,6 +18,8 @@
         "sharetitle": "share",
         "viewlink": "View",
         "editlink": "Edit",
+        "viewlinkname": "View link",
+        "editablelinkname": "Editable link",
         "editdialog": {
             "title": "Edit link",
             "newitemtitle": "Add link",

@@ -37,6 +37,7 @@ internal class ExternalReviewLinksManageComponent : ComponentDefinitionBase
             settings["initialEditMailMessage"] = _options.EmailEdit;
             settings["initialViewMailMessage"] = _options.EmailView;
             settings["editableLinksEnabled"] = _options.EditableLinksEnabled;
+            settings["allowAnonymousEditableLinks"] = _options.AllowAnonymousEditableLinks;
             settings["pinCodeSecurityEnabled"] = _options.PinCodeSecurity.Enabled;
             settings["pinCodeSecurityRequired"] = _options.PinCodeSecurity.Required;
             settings["availableVisitorGroups"] = _visitorGroupRepository.List();

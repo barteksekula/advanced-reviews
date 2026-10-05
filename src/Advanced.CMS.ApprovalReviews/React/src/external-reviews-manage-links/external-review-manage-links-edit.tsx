@@ -50,17 +50,17 @@ const LinkEditDialog = observer(
         const [pinCode, setPinCode] = useState<string>(reviewLink.pinCode || "");
         const [shouldUpdatePinCode, setShouldUpdatePinCode] = useState<boolean>(!reviewLink.pinCode);
         // canSave logic:
-        // - Editable links don't need PIN, so always allow save
-        // - Non-editable links without existing PIN and with PIN required: must enter valid PIN first
+        // - Links that don't use PIN security can always be saved
+        // - Links without existing PIN and with PIN required: must enter valid PIN first
         // - All other cases: allow save
         const [canSave, setCanSave] = useState(() => {
-            if (reviewLink.isEditable) {
-                return true; // Editable links don't use PIN security
+            if (!pinCodeSecurityEnabled) {
+                return true;
             }
             if (!reviewLink.pinCode && pinCodeSecurityRequired) {
-                return false; // New non-editable link with PIN required - must enter valid PIN
+                return false;
             }
-            return true; // Existing link or PIN not required
+            return true;
         });
 
         if (prolongDays <= 0) {
@@ -124,7 +124,7 @@ const LinkEditDialog = observer(
                             )}
                         </div>
                     )}
-                    {pinCodeSecurityEnabled && !reviewLink.isEditable && (
+                    {pinCodeSecurityEnabled && (
                         <div className="field-group">
                             {!!reviewLink.pinCode && (
                                 <FormControlLabel

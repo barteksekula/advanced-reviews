@@ -20,6 +20,8 @@
         <sharetitle>dela</sharetitle>
         <viewlink>Visa</viewlink>
         <editlink>Redigera</editlink>
+        <viewlinkname>Visningslänk</viewlinkname>
+        <editablelinkname>Redigerbar länk</editablelinkname>
         <editdialog>
           <validto>Giltig till</validto>
           <prolongbydays>Förläng [#days#] dagar</prolongbydays>

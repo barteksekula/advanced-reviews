@@ -9,6 +9,7 @@ import ListItemText from "@mui/material/ListItemText";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Snackbar from "@mui/material/Snackbar";
+import classNames from "classnames";
 import { format } from "date-fns";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
@@ -28,6 +29,7 @@ export interface ExternalReviewWidgetContentProps {
     resources: ExternalReviewResources;
     availableVisitorGroups: VisitorGroup[];
     editableLinksEnabled: boolean;
+    allowAnonymousEditableLinks?: boolean;
     pinCodeSecurityEnabled: boolean;
     pinCodeSecurityRequired?: boolean;
     pinCodeLength: number;
@@ -43,6 +45,7 @@ const ExternalReviewWidgetContent = observer(
         resources,
         availableVisitorGroups,
         editableLinksEnabled,
+        allowAnonymousEditableLinks,
         pinCodeSecurityEnabled,
         pinCodeSecurityRequired,
         pinCodeLength,
@@ -54,7 +57,9 @@ const ExternalReviewWidgetContent = observer(
         const [shareResultMessage, setShareResultMessage] = useState<string>(null);
         const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-        const isPinRequired = pinCodeSecurityEnabled && pinCodeSecurityRequired;
+        const usesPinCode = (isEditable: boolean) =>
+            pinCodeSecurityEnabled && (!isEditable || !!allowAnonymousEditableLinks);
+        const isPinRequired = (isEditable: boolean) => usesPinCode(isEditable) && pinCodeSecurityRequired;
 
         const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
             setAnchorEl(event.currentTarget);
@@ -93,7 +98,7 @@ const ExternalReviewWidgetContent = observer(
                 return;
             }
 
-            if (isPinRequired && !pinCode) {
+            if (isPinRequired(currentLinkToEdit.isEditable) && !pinCode) {
                 return;
             }
 
@@ -103,7 +108,7 @@ const ExternalReviewWidgetContent = observer(
 
         const addNewLink = (isEditable) => {
             handleMenuClose();
-            if (isEditable || !isPinRequired) {
+            if (!isPinRequired(isEditable)) {
                 store.addLink(isEditable);
                 return;
             }
@@ -121,7 +126,7 @@ const ExternalReviewWidgetContent = observer(
         }
 
         return (
-            <>
+            <div className="external-review-links">
                 {store.links.length === 0 && (
                     <div className="empty-list">
                         <span>{resources.list.emptylist}</span>
@@ -129,90 +134,93 @@ const ExternalReviewWidgetContent = observer(
                 )}
 
                 {store.links.length > 0 && (
-                    <List className="external-reviews-list">
+                    <List className="external-reviews-list" disablePadding>
                         {store.links.map((item: ReviewLink) => {
-                            const link = item.isActive ? (
-                                <a href={item.linkUrl} target="_blank" rel="noopener noreferrer">
-                                    {item.displayName || item.token}
-                                </a>
-                            ) : (
-                                <span className="item-inactive">{item.token}</span>
-                            );
-
-                            const icon = <Icon>{item.isEditable ? "rate_review" : "pageview"}</Icon>;
+                            const typeName = item.isEditable
+                                ? resources.list.editablelinkname
+                                : resources.list.viewlinkname;
+                            const name = item.displayName || typeName;
 
                             return (
                                 <ListItem
                                     key={item.token}
-                                    className="list-item"
-                                    secondaryAction={
-                                        <>
-                                            <IconButton
-                                                className="item-action"
-                                                title={resources.list.editlink}
-                                                onClick={() => setLinkToEdit(item)}
-                                                edge="end"
-                                                sx={{ mr: 1 }}
-                                            >
-                                                <Icon>edit</Icon>
-                                            </IconButton>
-                                            <IconButton
-                                                className="item-action"
-                                                disabled={!item.isActive}
-                                                title={resources.list.sharetitle}
-                                                onClick={() => setLinkToShare(item)}
-                                                edge="end"
-                                                sx={{ mr: 1 }}
-                                            >
-                                                <Icon>share</Icon>
-                                            </IconButton>
-                                            <IconButton
-                                                className="item-action"
-                                                title={resources.list.deletetitle}
-                                                onClick={() => setLinkToDelete(item)}
-                                                edge="end"
-                                            >
-                                                <Icon>delete_outline</Icon>
-                                            </IconButton>
-                                        </>
-                                    }
+                                    className={classNames("list-item", { inactive: !item.isActive })}
+                                    disablePadding
                                 >
-                                    {editableLinksEnabled && <ListItemIcon>{icon}</ListItemIcon>}
-                                    <ListItemText
-                                        primary={link}
-                                        secondary={
-                                            resources.list.itemvalidto +
-                                            ": " +
-                                            format(item.validTo, "MMM do yyyy HH:mm")
-                                        }
-                                    />
-                                    <div className="info-icons">
-                                        {item.pinCode && pinCodeSecurityEnabled && (
-                                            <Icon
-                                                className="link-secured"
-                                                title={resources.list.editdialog.linksecured}
-                                            >
-                                                lock
-                                            </Icon>
-                                        )}
-                                        {item.visitorGroups && item.visitorGroups.length > 0 && (
-                                            <Icon className="link-secured" title="Visitor groups applied">
-                                                groups
-                                            </Icon>
-                                        )}
-                                        {item.projectId > 0 && (
-                                            <span
-                                                className="dijitReset dijitInline dijitIcon epi-iconProject"
-                                                title={resources.list.projectname + ": " + item.projectName}
-                                            ></span>
-                                        )}
+                                    {editableLinksEnabled && (
+                                        <Icon className="link-type" title={typeName}>
+                                            {item.isEditable ? "rate_review" : "pageview"}
+                                        </Icon>
+                                    )}
+                                    <div className="link-details">
+                                        <div className="link-name">
+                                            {item.isActive ? (
+                                                <a
+                                                    href={item.linkUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    title={name}
+                                                >
+                                                    {name}
+                                                </a>
+                                            ) : (
+                                                <span title={name}>{name}</span>
+                                            )}
+                                            {!item.displayName && (
+                                                <span className="link-token" title={item.token}>
+                                                    {item.token.substring(0, 8)}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="link-meta">
+                                            <span>
+                                                {resources.list.itemvalidto}:{" "}
+                                                {format(item.validTo, "MMM d, yyyy HH:mm")}
+                                            </span>
+                                            {item.pinCode && pinCodeSecurityEnabled && (
+                                                <Icon title={resources.list.editdialog.linksecured}>lock</Icon>
+                                            )}
+                                            {item.visitorGroups && item.visitorGroups.length > 0 && (
+                                                <Icon title={resources.list.editdialog.visitorgroups}>groups</Icon>
+                                            )}
+                                            {item.projectId > 0 && (
+                                                <span
+                                                    className="dijitReset dijitInline dijitIcon epi-iconProject"
+                                                    title={resources.list.projectname + ": " + item.projectName}
+                                                ></span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="link-actions">
+                                        <IconButton
+                                            size="small"
+                                            title={resources.list.editlink}
+                                            onClick={() => setLinkToEdit(item)}
+                                        >
+                                            <Icon fontSize="small">edit</Icon>
+                                        </IconButton>
+                                        <IconButton
+                                            size="small"
+                                            disabled={!item.isActive}
+                                            title={resources.list.sharetitle}
+                                            onClick={() => setLinkToShare(item)}
+                                        >
+                                            <Icon fontSize="small">share</Icon>
+                                        </IconButton>
+                                        <IconButton
+                                            size="small"
+                                            title={resources.list.deletetitle}
+                                            onClick={() => setLinkToDelete(item)}
+                                        >
+                                            <Icon fontSize="small">delete_outline</Icon>
+                                        </IconButton>
                                     </div>
                                 </ListItem>
                             );
                         })}
                     </List>
                 )}
-                <div>
+                <div className="add-link">
                     {editableLinksEnabled ? (
                         <>
                             <IconButton title="Add link" onClick={handleMenuOpen}>
@@ -284,13 +292,13 @@ const ExternalReviewWidgetContent = observer(
                         resources={resources}
                         availableVisitorGroups={availableVisitorGroups}
                         open={!!currentLinkToEdit}
-                        pinCodeSecurityEnabled={pinCodeSecurityEnabled}
+                        pinCodeSecurityEnabled={usesPinCode(currentLinkToEdit.isEditable)}
                         pinCodeSecurityRequired={pinCodeSecurityRequired}
                         pinCodeLength={pinCodeLength}
                         prolongDays={prolongDays}
                     />
                 )}
-            </>
+            </div>
         );
     },
 );

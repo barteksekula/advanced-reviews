@@ -62,6 +62,10 @@ interface ExternalReviewResources_List {
     viewlink: string;
     /** Edit */
     editlink: string;
+    /** View link */
+    viewlinkname: string;
+    /** Editable link */
+    editablelinkname: string;
     editdialog: ExternalReviewResources_List_Editdialog;
 }
 

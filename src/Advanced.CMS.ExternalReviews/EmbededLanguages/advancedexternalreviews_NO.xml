@@ -20,6 +20,8 @@
         <sharetitle>del</sharetitle>
         <viewlink>Vis</viewlink>
         <editlink>Rediger</editlink>
+        <viewlinkname>Visningslenke</viewlinkname>
+        <editablelinkname>Redigerbar lenke</editablelinkname>
         <editdialog>
           <title>Rediger lenke</title>
           <pincode>PIN-kode</pincode>

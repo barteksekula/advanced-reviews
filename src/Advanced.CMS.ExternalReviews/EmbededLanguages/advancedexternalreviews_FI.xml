@@ -19,6 +19,8 @@
         <sharetitle>Jaa</sharetitle>
         <viewlink>Katso</viewlink>
         <editlink>Muokkaa</editlink>
+        <viewlinkname>Katselulinkki</viewlinkname>
+        <editablelinkname>Muokattava linkki</editablelinkname>
       </list>
       <sharedialog>
         <cancelbutton>Peru</cancelbutton>

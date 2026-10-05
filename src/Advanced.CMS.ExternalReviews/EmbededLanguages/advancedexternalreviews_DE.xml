@@ -19,6 +19,8 @@
         <sharetitle>teilen</sharetitle>
         <viewlink>Ansicht</viewlink>
         <editlink>Bearbeiten</editlink>
+        <viewlinkname>Ansichtslink</viewlinkname>
+        <editablelinkname>Bearbeitbarer Link</editablelinkname>
       </list>
       <sharedialog>
         <cancelbutton>Abbrechen</cancelbutton>

@@ -34,6 +34,7 @@ export default declare([WidgetBase, _ContentContextMixin], {
             <ManageLinks
                 store={this.store}
                 editableLinksEnabled={this.params.editableLinksEnabled}
+                allowAnonymousEditableLinks={this.params.allowAnonymousEditableLinks}
                 pinCodeSecurityEnabled={this.params.pinCodeSecurityEnabled}
                 prolongDays={this.params.prolongDays}
                 pinCodeSecurityRequired={this.params.pinCodeSecurityRequired}

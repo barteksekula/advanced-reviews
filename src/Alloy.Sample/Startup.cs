@@ -57,6 +57,7 @@ namespace Alloy.Sample
             services.AddAdvancedReviews(e =>
             {
                 e.EditableLinksEnabled = true;
+                e.AllowAnonymousEditableLinks = true;
                 e.PinCodeSecurity.Enabled = true;
                 e.PinCodeSecurity.Required = true;
                 e.PinCodeSecurity.CodeLength = 5;
