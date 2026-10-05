@@ -52,6 +52,16 @@
                 text-overflow: ellipsis;
                 white-space: nowrap;
             }
+
+            a::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+            }
+        }
+
+        &:hover .link-name a {
+            text-decoration: underline;
         }
 
         .link-token {
@@ -71,10 +81,17 @@
             .material-icons {
                 font-size: 14px;
             }
+
+            .material-icons,
+            .epi-iconProject {
+                position: relative;
+                z-index: 1;
+            }
         }
 
         .link-actions {
             position: absolute;
+            z-index: 2;
             right: 4px;
             top: 50%;
             transform: translateY(-50%);

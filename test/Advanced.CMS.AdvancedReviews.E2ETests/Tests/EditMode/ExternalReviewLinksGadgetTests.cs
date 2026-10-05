@@ -1,4 +1,5 @@
 using Advanced.CMS.AdvancedReviews.E2ETests.PageObjectModels;
+using Advanced.CMS.ExternalReviews.ReviewLinksRepository;
 using EPiServer.Applications;
 using EPiServer.DataAccess;
 using EPiServer.Security;
@@ -26,6 +27,29 @@ public class ExternalReviewLinksGadgetTests(WebServerFixture fixture)
 
         await Expect(editModePage.AddReviewLinkButton).ToBeVisibleAsync();
         await Expect(editModePage.AddReviewLinkButton).ToBeEnabledAsync();
+    }
+
+    [Fact]
+    public async Task Clicking_Anywhere_On_Link_Row_Opens_Review_Link()
+    {
+        var page = CreatePublishedPage();
+        var link = fixture.Services.GetInstance<IExternalReviewLinksRepository>()
+            .AddLink(page.ContentLink, false, TimeSpan.FromDays(1), null);
+
+        await using var trackableContext = await TrackableContext.Get(fixture, nameof(Clicking_Anywhere_On_Link_Row_Opens_Review_Link));
+        var browserPage = await trackableContext.Context.NewPageAsync();
+
+        var editModePage = await new LoginPage(browserPage).LoginAsAdminAsync();
+        await editModePage.OpenContentAsync(page.ContentLink, page.Name);
+        await editModePage.OpenNavigationPaneAsync();
+        var row = editModePage.ReviewLinks.First;
+
+        var secondLineOfRow = new Microsoft.Playwright.LocatorClickOptions { Position = new() { X = 60, Y = 28 } };
+        var reviewPage = await browserPage.RunAndWaitForPopupAsync(() => row.ClickAsync(secondLineOfRow));
+        Assert.EndsWith(link.LinkUrl, reviewPage.Url);
+
+        await editModePage.OpenLinkEditDialogAsync(row);
+        Assert.Single(trackableContext.Context.Pages, x => x.Url.EndsWith(link.LinkUrl));
     }
 
     private StandardPage CreatePublishedPage()
