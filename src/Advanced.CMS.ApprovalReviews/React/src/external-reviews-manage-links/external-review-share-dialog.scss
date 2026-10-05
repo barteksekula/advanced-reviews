@@ -1,6 +1,10 @@
 .share-dialog-content {
     width: 550px;
 
+    textarea {
+        min-height: 0;
+    }
+
     .text-field-container {
         margin-bottom: 10px;
     }

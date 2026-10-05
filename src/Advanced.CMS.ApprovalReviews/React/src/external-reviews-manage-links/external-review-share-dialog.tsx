@@ -71,7 +71,8 @@ const ShareDialog = ({ open, onClose, initialSubject, initialMessage, resources 
                     fullWidth
                     required
                     multiline
-                    rows={15}
+                    minRows={4}
+                    maxRows={12}
                     value={message}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMessage(e.target.value)}
                     margin="normal"
