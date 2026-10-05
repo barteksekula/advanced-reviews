@@ -144,9 +144,17 @@ const LinkEditDialog = observer(
                                 value={pinCode}
                                 onChange={updatePinCode}
                                 required={pinCodeSecurityRequired}
-                                type="password"
-                                autoComplete="new-password"
-                                inputProps={{ maxLength: pinCodeLength }}
+                                className="pin-code-input"
+                                type="text"
+                                autoComplete="off"
+                                inputProps={{
+                                    maxLength: pinCodeLength,
+                                    inputMode: "numeric",
+                                    "data-lpignore": "true",
+                                    "data-1p-ignore": "true",
+                                    "data-bwignore": "true",
+                                    "data-form-type": "other",
+                                }}
                                 margin="normal"
                             />
                             <FormHelperText>

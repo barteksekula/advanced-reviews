@@ -42,10 +42,11 @@
             width: 400px;
         }
 
-        input[type="password"] {
+        input.security-code {
             font-size: 16px;
             padding: 12px;
             width: 80%;
+            -webkit-text-security: disc;
         }
 
         input[type="submit"] {
@@ -63,7 +64,8 @@
     <div>
         @using (Html.BeginForm("Submit", "ExternalReviewLogin", FormMethod.Post, new { tabindex="0" }))
         {
-            <input type="password" placeholder="Enter security code" name="code" tabindex="0" autofocus />
+            <input type="text" class="security-code" placeholder="Enter security code" name="code" tabindex="0" autofocus
+                   autocomplete="off" inputmode="numeric" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" />
             <input type="hidden" name="token" value="@Context.Request.Query["id"]"/>
             <input type="submit" value="Go" />
         }

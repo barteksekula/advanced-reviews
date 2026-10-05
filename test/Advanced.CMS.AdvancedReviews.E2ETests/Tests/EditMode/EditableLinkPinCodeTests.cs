@@ -26,6 +26,9 @@ public class EditableLinkPinCodeTests(WebServerFixture fixture)
 
         await editModePage.AddEditableReviewLinkAsync();
         await editModePage.OpenLinkEditDialogAsync(editModePage.ReviewLinks.First);
+        await Expect(editModePage.PinCodeInput).ToHaveAttributeAsync("type", "text");
+        await Expect(editModePage.PinCodeInput).ToHaveAttributeAsync("autocomplete", "off");
+        await Expect(editModePage.PinCodeInput).ToHaveCSSAsync("-webkit-text-security", "disc");
         await editModePage.PinCodeInput.FillAsync("1234");
         await editModePage.SaveLinkDialogAsync();
 

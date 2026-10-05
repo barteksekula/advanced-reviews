@@ -129,6 +129,10 @@
 }
 
 .external-link-edit-dialog {
+    .pin-code-input input {
+        -webkit-text-security: disc;
+    }
+
     .visitor-groups-list {
         max-height: 200px;
         overflow-y: auto;

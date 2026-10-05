@@ -83,6 +83,9 @@ public class AnonymousEditableLinkTests(WebServerFixture fixture)
 
         var loginPage = new PinCodeLoginPage(browserPage);
         await Expect(loginPage.CodeInput).ToBeVisibleAsync();
+        await Expect(loginPage.CodeInput).ToHaveAttributeAsync("type", "text");
+        await Expect(loginPage.CodeInput).ToHaveAttributeAsync("autocomplete", "off");
+        await Expect(loginPage.CodeInput).ToHaveCSSAsync("-webkit-text-security", "disc");
 
         var reviewPage = await (await loginPage.SubmitAsync("1234")).ConfirmNameAsync("External Reviewer");
         await reviewPage.ExpectReviewedContentAsync(page.Name);
