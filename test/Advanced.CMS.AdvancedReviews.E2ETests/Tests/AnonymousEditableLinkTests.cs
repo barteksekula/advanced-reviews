@@ -27,7 +27,7 @@ public class AnonymousEditableLinkTests(WebServerFixture fixture)
         var browserPage = await trackableContext.Context.NewPageAsync();
         await browserPage.GotoAsync(link.LinkUrl);
 
-        var reviewPage = await new EditableReviewPage(browserPage).ConfirmNameAsync("External Reviewer");
+        var reviewPage = await new EditableReviewPage(browserPage).EnterNameAsync("External Reviewer");
         await reviewPage.ExpectReviewedContentAsync(page.Name);
         await reviewPage.AddCommentAsync("Please fix the heading");
         await Expect(reviewPage.Pins).ToHaveCountAsync(1);
@@ -38,7 +38,7 @@ public class AnonymousEditableLinkTests(WebServerFixture fixture)
         Assert.Contains("External Reviewer", savedPin.Data);
 
         await browserPage.ReloadAsync();
-        await new EditableReviewPage(browserPage).ConfirmNameAsync("External Reviewer");
+        await new EditableReviewPage(browserPage).ContinueWithRememberedNameAsync("External Reviewer");
         await Expect(reviewPage.Pins).ToHaveCountAsync(1);
     }
 
@@ -60,10 +60,10 @@ public class AnonymousEditableLinkTests(WebServerFixture fixture)
         var browserPage = await trackableContext.Context.NewPageAsync();
         await browserPage.GotoAsync(link.LinkUrl);
 
-        var reviewPage = await new EditableReviewPage(browserPage).ConfirmNameAsync(reviewerName);
+        var reviewPage = await new EditableReviewPage(browserPage).EnterNameAsync(reviewerName);
         await reviewPage.AddCommentAsync("Pin created through the link");
         await browserPage.ReloadAsync();
-        await new EditableReviewPage(browserPage).ConfirmNameAsync(reviewerName);
+        await new EditableReviewPage(browserPage).ContinueWithRememberedNameAsync(reviewerName);
         await reviewPage.OpenPinListAsync();
 
         await Expect(reviewPage.PinListItem("Pin without token").Locator(".delete")).ToHaveCountAsync(0);
@@ -87,7 +87,7 @@ public class AnonymousEditableLinkTests(WebServerFixture fixture)
         await Expect(loginPage.CodeInput).ToHaveAttributeAsync("autocomplete", "off");
         await Expect(loginPage.CodeInput).ToHaveCSSAsync("-webkit-text-security", "disc");
 
-        var reviewPage = await (await loginPage.SubmitAsync("1234")).ConfirmNameAsync("External Reviewer");
+        var reviewPage = await (await loginPage.SubmitAsync("1234")).EnterNameAsync("External Reviewer");
         await reviewPage.ExpectReviewedContentAsync(page.Name);
     }
 

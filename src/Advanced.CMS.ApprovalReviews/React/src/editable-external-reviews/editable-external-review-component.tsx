@@ -102,11 +102,33 @@ stores.reviewStore.reviewLocations = [];
 stores.reviewStore.options = {};
 stores.reviewStore.reviewUrl = "";
 
+const reviewerNameStorageKey = "advanced-reviews:reviewer-name";
+
+function readReviewerName(): string {
+    try {
+        return localStorage.getItem(reviewerNameStorageKey) || "";
+    } catch {
+        return "";
+    }
+}
+
+function storeReviewerName(name: string): void {
+    try {
+        localStorage.setItem(reviewerNameStorageKey, name);
+    } catch {
+        return;
+    }
+}
+
 function EditableExternalReviewComponent({ iframe }: EditableExternalReviewProps) {
     const [showUserNameDialog, setShowUserNameDialog] = useState<boolean>(true);
     stores.reviewStore.options = JSON.parse(options);
 
     const setUserName = (newUserName: string) => {
+        if (!newUserName) {
+            return;
+        }
+        storeReviewerName(newUserName);
         stores.reviewStore.currentUser = newUserName;
         try {
             const properties = {};
@@ -126,7 +148,7 @@ function EditableExternalReviewComponent({ iframe }: EditableExternalReviewProps
     return (
         <>
             {showUserNameDialog ? (
-                <ConfirmNameDialog open={true} initialUserName={userName} onClose={setUserName} />
+                <ConfirmNameDialog open={true} initialUserName={userName || readReviewerName()} onClose={setUserName} />
             ) : (
                 <Provider {...stores}>
                     <IframeWithPins iframe={iframe} external />

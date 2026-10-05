@@ -41,7 +41,7 @@ public class EditableLinkPinCodeTests(WebServerFixture fixture)
         var reviewerPage = await reviewerContext.Context.NewPageAsync();
         await reviewerPage.GotoAsync(link.LinkUrl);
         var reviewPage = await new PinCodeLoginPage(reviewerPage).SubmitAsync("1234");
-        await reviewPage.ConfirmNameAsync("External Reviewer");
+        await reviewPage.EnterNameAsync("External Reviewer");
         await reviewPage.ExpectReviewedContentAsync(page.Name);
     }
 

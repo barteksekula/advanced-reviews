@@ -13,37 +13,44 @@ interface ConfirmDialogProps {
 }
 
 const ConfirmDialog = ({ open, onClose, initialUserName }: ConfirmDialogProps) => {
-    const [userName, setUserName] = useState<string>(initialUserName);
+    const [userName, setUserName] = useState<string>(initialUserName || "");
+    const trimmedUserName = userName.trim();
 
     const onDialogClose = () => {
         onClose(null);
     };
 
-    const onSave = () => {
-        onClose(userName);
+    const onSave = (event?: React.FormEvent) => {
+        event?.preventDefault();
+        if (!trimmedUserName) {
+            return;
+        }
+        onClose(trimmedUserName);
     };
 
     return (
         <Dialog open={open} onClose={onDialogClose}>
-            <DialogTitle>Confirm your name</DialogTitle>
-            <DialogContent>
-                <p>Please enter your name. It will be used as an author of the comments.</p>
-                <TextField
-                    label="Display name"
-                    autoFocus
-                    required
-                    fullWidth
-                    value={userName}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserName(e.target.value)}
-                    error={!userName}
-                    margin="normal"
-                />
-            </DialogContent>
-            <DialogActions>
-                <Button variant="contained" onClick={onSave} disabled={!userName}>
-                    Save
-                </Button>
-            </DialogActions>
+            <form onSubmit={onSave}>
+                <DialogTitle>Enter your name</DialogTitle>
+                <DialogContent>
+                    <p>Your name will be shown as the author of the comments you add.</p>
+                    <TextField
+                        label="Name"
+                        autoFocus
+                        required
+                        fullWidth
+                        value={userName}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserName(e.target.value)}
+                        error={!trimmedUserName}
+                        margin="normal"
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button type="submit" variant="contained" disabled={!trimmedUserName}>
+                        Continue
+                    </Button>
+                </DialogActions>
+            </form>
         </Dialog>
     );
 };

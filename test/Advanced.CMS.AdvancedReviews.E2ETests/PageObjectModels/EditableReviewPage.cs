@@ -5,12 +5,12 @@ namespace Advanced.CMS.AdvancedReviews.E2ETests.PageObjectModels;
 
 public class EditableReviewPage(IPage page)
 {
-    private ILocator DisplayNameInput => page.GetByLabel("Display name");
     private ILocator ReviewedContent => page.FrameLocator("#editableIframe").Locator("body");
     private ILocator OverlayDocument => page.Locator("#review-overlay > div");
     private ILocator CommentInput => page.GetByRole(AriaRole.Dialog).GetByLabel("Add comment...");
     private ILocator SaveButton => page.GetByRole(AriaRole.Dialog).GetByRole(AriaRole.Button, new() { Name = "Save" });
 
+    public ILocator NameInput => page.GetByRole(AriaRole.Dialog).GetByLabel("Name");
     public ILocator Pins => page.Locator(".review-location");
 
     public ILocator PinListItem(string firstComment) => page.Locator(".locations li").Filter(new() { HasText = firstComment });
@@ -21,11 +21,19 @@ public class EditableReviewPage(IPage page)
         await Expect(page.Locator(".locations")).ToBeVisibleAsync();
     }
 
-    public async Task<EditableReviewPage> ConfirmNameAsync(string name)
+    public async Task<EditableReviewPage> EnterNameAsync(string name)
     {
-        await DisplayNameInput.FillAsync(name);
-        await SaveButton.ClickAsync();
-        await Expect(DisplayNameInput).ToBeHiddenAsync();
+        await NameInput.FillAsync(name);
+        await page.GetByRole(AriaRole.Dialog).GetByRole(AriaRole.Button, new() { Name = "Continue" }).ClickAsync();
+        await Expect(NameInput).ToBeHiddenAsync();
+        return this;
+    }
+
+    public async Task<EditableReviewPage> ContinueWithRememberedNameAsync(string expectedName)
+    {
+        await Expect(NameInput).ToHaveValueAsync(expectedName);
+        await NameInput.PressAsync("Enter");
+        await Expect(NameInput).ToBeHiddenAsync();
         return this;
     }
 
