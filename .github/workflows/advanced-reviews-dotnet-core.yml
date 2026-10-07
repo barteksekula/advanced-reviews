@@ -16,13 +16,13 @@ jobs:
       report-archived: ${{ steps.archive-report.outcome == 'success' }}
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v7
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: 10.0.102
     - name: Set up Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v7
       with:
         node-version: "22.18.0"
     - name: Install client dependencies
@@ -47,7 +47,7 @@ jobs:
     - name: Archive test report
       id: archive-report
       if: ${{ !cancelled() && steps.test.outcome != 'skipped' }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: test-report
         path: artifacts/test-report/
@@ -55,7 +55,7 @@ jobs:
       run: pack.cmd Release
       shell: cmd
     - name: Archive production artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: nuget
         path: |
@@ -64,7 +64,7 @@ jobs:
   publish-report:
     needs: build
     if: ${{ !cancelled() && needs.build.outputs.report-archived == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       pages: write
       id-token: write
@@ -76,14 +76,14 @@ jobs:
       cancel-in-progress: false
     steps:
     - name: Download test report
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         name: test-report
         path: test-report
     - name: Upload test report to GitHub Pages
-      uses: actions/upload-pages-artifact@v3
+      uses: actions/upload-pages-artifact@v5
       with:
         path: test-report
     - name: Deploy test report
       id: deployment
-      uses: actions/deploy-pages@v4
+      uses: actions/deploy-pages@v5
