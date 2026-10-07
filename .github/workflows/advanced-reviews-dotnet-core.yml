@@ -12,6 +12,9 @@ jobs:
 
     runs-on: windows-2022
 
+    outputs:
+      report-archived: ${{ steps.archive-report.outcome == 'success' }}
+
     steps:
     - uses: actions/checkout@v2
     - name: Setup .NET Core
@@ -31,14 +34,23 @@ jobs:
     - name: Install Playwright browsers
       run: pwsh test/Advanced.CMS.AdvancedReviews.E2ETests/bin/Release/playwright.ps1 install chromium
     - name: Test
+      id: test
       run: test.cmd Release
       shell: cmd
-    - name: Archive Playwright traces
-      if: failure()
+      env:
+        E2E_RECORD: 1
+    - name: Generate test report
+      if: ${{ !cancelled() && steps.test.outcome != 'skipped' }}
+      run: dotnet run build/TestReport.cs -- artifacts/test-results test/Advanced.CMS.AdvancedReviews.E2ETests/bin/Release/videos test/Advanced.CMS.AdvancedReviews.E2ETests/bin/Release/traces artifacts/test-report
+      env:
+        REPORT_PUBLIC_URL: https://barteksekula.github.io/advanced-reviews
+    - name: Archive test report
+      id: archive-report
+      if: ${{ !cancelled() && steps.test.outcome != 'skipped' }}
       uses: actions/upload-artifact@v4
       with:
-        name: playwright-traces
-        path: test/Advanced.CMS.AdvancedReviews.E2ETests/bin/Release/traces/
+        name: test-report
+        path: artifacts/test-report/
     - name: Pack
       run: pack.cmd Release
       shell: cmd
@@ -48,3 +60,30 @@ jobs:
         name: nuget
         path: |
           artifacts/packages/*.nupkg
+
+  publish-report:
+    needs: build
+    if: ${{ !cancelled() && needs.build.outputs.report-archived == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    steps:
+    - name: Download test report
+      uses: actions/download-artifact@v4
+      with:
+        name: test-report
+        path: test-report
+    - name: Upload test report to GitHub Pages
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: test-report
+    - name: Deploy test report
+      id: deployment
+      uses: actions/deploy-pages@v4

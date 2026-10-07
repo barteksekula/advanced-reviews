@@ -1,15 +1,18 @@
 ![Advanced CMS](assets/logo.png "Advanced CMS")
 # Advanced Reviews
 
->> This is about .NET 5+ version. If you are interested about .NET FRAMEWORK 4 please visit https://github.com/advanced-cms/advanced-reviews/blob/net4_master/README.md
+> This is the CMS 13 (.NET 10) version. If you need the CMS 12 (.NET 6) version, please use the [cms12_master](https://github.com/barteksekula/advanced-reviews/tree/cms12_master) branch.
 
-[![Build .net core](https://github.com/advanced-cms/advanced-reviews/actions/workflows/advanced-reviews-dotnet-core.yml/badge.svg)](https://github.com/advanced-cms/advanced-reviews/actions/workflows/advanced-reviews-dotnet-core.yml)
+[![Build .net core](https://github.com/barteksekula/advanced-reviews/actions/workflows/advanced-reviews-dotnet-core.yml/badge.svg?branch=master&event=push)](https://github.com/barteksekula/advanced-reviews/actions/workflows/advanced-reviews-dotnet-core.yml?query=branch%3Amaster)
+[![Tests](https://img.shields.io/endpoint?url=https%3A%2F%2Fbarteksekula.github.io%2Fadvanced-reviews%2Fsummary.json)](https://barteksekula.github.io/advanced-reviews/)
+
+The [latest test report](https://barteksekula.github.io/advanced-reviews/) from `master` lists every integration and end-to-end test, with a video and a Playwright trace for each end-to-end test.
 
 ## Requirements
 
-* .NET Core 6
-* CMS 12+
-* If you want to build locally you will need node20 (tested on nodejs 20.9.0)
+* .NET 10
+* CMS 13
+* If you want to build locally you will need Node.js 22 (tested on Node.js 22.18.0)
 
 ## Introduction
 
@@ -383,6 +386,13 @@ pwsh test\Advanced.CMS.AdvancedReviews.E2ETests\bin\Debug\playwright.ps1 install
 
 In Debug builds the browser window is visible. Set `E2E_HEADLESS=1` to run without it. Release builds always run headless.
 Each test stores a Playwright trace in `bin\<configuration>\traces`, which can be opened with `pwsh playwright.ps1 show-trace <file>`.
+Set `E2E_RECORD=1` to also record a video of each test into `bin\<configuration>\videos`.
+
+`test.cmd` writes the test results to `artifacts\test-results`. The HTML report published from CI can be generated locally with
+
+```console
+dotnet run build/TestReport.cs -- artifacts/test-results test/Advanced.CMS.AdvancedReviews.E2ETests/bin/Debug/videos test/Advanced.CMS.AdvancedReviews.E2ETests/bin/Debug/traces artifacts/test-report
+```
 
 ## Creating a new package
 
@@ -401,3 +411,7 @@ or
 ```console
 pack.cmd Release
 ```
+
+## .NET Framework
+
+> If you are interested in the .NET Framework 4 version, please visit https://github.com/advanced-cms/advanced-reviews/blob/net4_master/README.md
