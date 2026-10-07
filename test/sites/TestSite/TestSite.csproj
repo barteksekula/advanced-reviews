@@ -7,6 +7,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="..\..\..\src\Shared\UIMappedFileProvidersExtensions.cs" Link="UIMappedFileProvidersExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\..\src\Advanced.CMS.AdvancedReviews\Advanced.CMS.AdvancedReviews.csproj" />
     <ProjectReference Include="..\..\Advanced.CMS.IntegrationTests\Advanced.CMS.IntegrationTests.csproj" />
   </ItemGroup>

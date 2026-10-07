@@ -12,7 +12,9 @@
     <PackageReference Include="Serilog" Version="4.4.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
-    <PackageReference Include="7-Zip.CommandLine" Version="25.1.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Shared\UIMappedFileProvidersExtensions.cs" Link="UIMappedFileProvidersExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\LanguageFiles\**\*" />

@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{A1272902
 		build.cmd = build.cmd
 		LICENSE = LICENSE
 		pack.cmd = pack.cmd
-		pack.ps1 = build\pack.ps1
+		build\ShellModules.targets = build\ShellModules.targets
 		README.md = README.md
 		setup.cmd = setup.cmd
 		build\common.props = build\common.props
@@ -25,6 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{A1272902
 		.github\workflows\advanced-reviews-dotnet-core.yml = .github\workflows\advanced-reviews-dotnet-core.yml
 		.github\workflows\advanced-reviews-dotnet-framework.yml = .github\workflows\advanced-reviews-dotnet-framework.yml
 		test.cmd = test.cmd
+		build\CopyZipFiles.targets = build\CopyZipFiles.targets
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{A1272902-1CD0-4507-9714-CB3AE96E78FD}"

@@ -3,8 +3,14 @@
         <IsPackable>true</IsPackable>
         <NuspecBasePath>$(ProjectDir)..\..\</NuspecBasePath>
         <PackageVersion Condition=" '$(PackageVersion)' == '' ">$(VersionPrefix)$(VersionSuffix)</PackageVersion>
-        <NuspecProperties>Configuration=$(Configuration);PackageVersion=$(PackageVersion);CmsVersion=$(CmsVersion);CmsNextMajorVersion=$(CmsNextMajorVersion);</NuspecProperties>
         <PackageOutputPath>$(SolutionDir)artifacts\packages\</PackageOutputPath>
         <NoWarn>NU5100;NU5125</NoWarn>
     </PropertyGroup>
+
+    <Target Name="SetNuspecProperties" BeforeTargets="GenerateNuspec">
+        <PropertyGroup>
+            <CmsNextMajorVersion>$([MSBuild]::Add($(CmsVersion.Split('.')[0]), 1)).0.0</CmsNextMajorVersion>
+            <NuspecProperties>Configuration=$(Configuration);PackageVersion=$(PackageVersion);CmsVersion=$(CmsVersion);CmsNextMajorVersion=$(CmsNextMajorVersion);</NuspecProperties>
+        </PropertyGroup>
+    </Target>
 </Project>

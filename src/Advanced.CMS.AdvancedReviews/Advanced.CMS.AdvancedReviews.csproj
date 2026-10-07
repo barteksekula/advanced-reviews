@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
   <Import Project="..\..\build\common.props" />
   <Import Project="..\..\build\nuspec.props" />
+  <Import Project="..\..\build\ShellModules.targets" />
   <PropertyGroup>
     <NuspecFile>Advanced.CMS.AdvancedReviews.nuspec</NuspecFile>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>

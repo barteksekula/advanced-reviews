@@ -1,0 +1,29 @@
+<Project>
+  <PropertyGroup>
+    <ShellModulesOutputPath>$(MSBuildThisFileDirectory)..\out\</ShellModulesOutputPath>
+    <ShellModulesSourcePath>$(MSBuildThisFileDirectory)..\src\</ShellModulesSourcePath>
+  </PropertyGroup>
+
+  <Target Name="ZipShellModules" BeforeTargets="GenerateNuspec">
+    <MSBuild Projects="$(MSBuildThisFileFullPath)" Targets="ZipShellModule"
+             Properties="ModuleName=advanced-cms-approval-reviews;ModuleSourcePath=$(ShellModulesSourcePath)Advanced.CMS.ApprovalReviews\;ModuleVersion=$(VersionPrefix)" />
+    <MSBuild Projects="$(MSBuildThisFileFullPath)" Targets="ZipShellModule"
+             Properties="ModuleName=advanced-cms-external-reviews;ModuleSourcePath=$(ShellModulesSourcePath)Advanced.CMS.ExternalReviews\;ModuleVersion=$(VersionPrefix)" />
+  </Target>
+
+  <Target Name="ZipShellModule">
+    <PropertyGroup>
+      <ModuleOutputPath>$(ShellModulesOutputPath)$(ModuleName)\</ModuleOutputPath>
+      <ModuleStagingPath>$(ModuleOutputPath)staging\</ModuleStagingPath>
+      <ModuleConfig>$([System.IO.File]::ReadAllText('$(ModuleSourcePath)module.config').TrimEnd().Replace('=""', '="$(ModuleVersion)"'))</ModuleConfig>
+    </PropertyGroup>
+    <ItemGroup>
+      <ModuleClientResources Include="$(ModuleSourcePath)ClientResources\**\*" />
+    </ItemGroup>
+
+    <RemoveDir Directories="$(ModuleOutputPath)" />
+    <Copy SourceFiles="@(ModuleClientResources)" DestinationFolder="$(ModuleStagingPath)$(ModuleVersion)\ClientResources\%(RecursiveDir)" />
+    <WriteLinesToFile File="$(ModuleStagingPath)module.config" Lines="$(ModuleConfig)" Overwrite="true" />
+    <ZipDirectory SourceDirectory="$(ModuleStagingPath)" DestinationFile="$(ModuleOutputPath)$(ModuleName).zip" />
+  </Target>
+</Project>

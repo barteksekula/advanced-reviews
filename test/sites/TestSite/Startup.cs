@@ -1,14 +1,12 @@
-using System.Security.Claims;
 using Advanced.CMS.AdvancedReviews;
+using Advanced.CMS.Development;
 using Advanced.CMS.IntegrationTests;
 using EPiServer.Cms.UI.AspNetIdentity;
 using EPiServer.Cms.UI.VisitorGroups;
 using EPiServer.Data;
 using EPiServer.DependencyInjection;
-using EPiServer.Framework.Hosting;
 using EPiServer.Framework.Web.Resources;
 using EPiServer.Scheduler;
-using EPiServer.Web.Hosting;
 using EPiServer.Web.Routing;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -41,10 +39,7 @@ public class Startup(IWebHostEnvironment webHostingEnvironment, IConfiguration c
             options.PingTime = new TimeSpan(10, 10, 10);
         });
 
-        //NETCORE: Consider add appsettings support for this
-        // services.AddUIMappedFileProviders(_webHostingEnvironment.ContentRootPath, @"..\..\..\");
-
-        var builder = services.AddMvc();
+        services.AddMvc();
 
         if (webHostingEnvironment.IsDevelopment())
         {
@@ -92,53 +87,5 @@ public class Startup(IWebHostEnvironment webHostingEnvironment, IConfiguration c
             endpoints.MapDefaultControllerRoute();
             endpoints.MapContent();
         });
-    }
-    public class AssignUser : IStartupFilter
-    {
-        public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> nextAction)
-        {
-            return app =>
-            {
-                app.Use(async (context, next) =>
-                {
-                    await AssignUserToContext(context.Request.HttpContext);
-                    await next();
-                });
-                nextAction(app);
-            };
-        }
-
-        private async Task AssignUserToContext(HttpContext context)
-        {
-            var userName = context.Request.Query["user"];
-            if (string.IsNullOrEmpty(userName)) return;
-
-            var pwd = context.Request.Query["pwd"];
-            var aum = context.RequestServices.GetService<ApplicationUserProvider<ApplicationUser>>();
-            var u = await aum.GetUserAsync(userName);
-            var sm = context.RequestServices.GetService<ApplicationSignInManager<ApplicationUser>>();
-            var pwdRes = await sm.CheckPasswordSignInAsync(u as ApplicationUser, pwd, false);
-            if (pwdRes.Succeeded)
-            {
-                var res = await sm.GenerateUserIdentityAsync(u as ApplicationUser);
-                var cp = new ClaimsPrincipal(res);
-                context.User = cp;
-            }
-        }
-    }
-}
-
-internal static class InternalServiceCollectionExtensions
-{
-    /// <internal-api/>
-    public static IServiceCollection AddUIMappedFileProviders(this IServiceCollection services, string applicationRootPath, string uiSolutionRelativePath)
-    {
-        var uiSolutionFolder = Path.Combine(applicationRootPath, uiSolutionRelativePath);
-        services.Configure<CompositeFileProviderOptions>(c =>
-        {
-            c.BasePathFileProviders.Add(new MappingPhysicalFileProvider("/Optimizely/advanced-cms-external-reviews", string.Empty, Path.Combine(uiSolutionFolder, @"src\Advanced.CMS.ExternalReviews")));
-            c.BasePathFileProviders.Add(new MappingPhysicalFileProvider("/Optimizely/advanced-cms-approval-reviews", string.Empty, Path.Combine(uiSolutionFolder, @"src\Advanced.CMS.ApprovalReviews")));
-        });
-        return services;
     }
 }

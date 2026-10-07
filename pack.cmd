@@ -5,6 +5,6 @@ SET CONFIGURATION=Debug
 
 IF "%1"=="Release" (SET CONFIGURATION=Release)
 
-powershell ./build/pack.ps1 -configuration %CONFIGURATION%
+dotnet pack -c %CONFIGURATION% /p:CheckEolTargetFramework=false Advanced.CMS.AdvancedReviews.sln
 
 EXIT /B %errorlevel%
