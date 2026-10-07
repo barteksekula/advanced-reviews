@@ -109,7 +109,7 @@ internal class ExternalReviewLinksRepository(
 
         if (pinCode != null)
         {
-            item.PinCode = PinCodeHashGenerator.Hash(pinCode, token);
+            item.PinCode = pinCode == string.Empty ? null : PinCodeHashGenerator.Hash(pinCode, token);
         }
 
         item.DisplayName = displayName;

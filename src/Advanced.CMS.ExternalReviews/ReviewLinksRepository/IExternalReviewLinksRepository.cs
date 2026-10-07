@@ -13,7 +13,7 @@ public interface IExternalReviewLinksRepository
     /// </summary>
     /// <param name="token"></param>
     /// <param name="validTo"></param>
-    /// <param name="pinCode">New PIN code. If null then PIN is not updated</param>
+    /// <param name="pinCode">New PIN code. If null then PIN is not updated, if empty then PIN is removed</param>
     /// <param name="displayName">Link display name, when empty then fallback to token</param>
     /// <param name="visitorGroups">Impersonate with the following visitor groups ids</param>
     ExternalReviewLink UpdateLink(string token, DateTime? validTo, string pinCode, string displayName, string[] visitorGroups);
