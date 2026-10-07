@@ -8,12 +8,18 @@ namespace Advanced.CMS.IntegrationTests;
 
 public class UIServiceFixture<TStartup>(
     string connectionString,
-    Action<IServiceCollection> customRegistrations = null)
+    Action<IServiceCollection> customRegistrations = null,
+    string contentRoot = null)
     : WebApplicationFactory<TStartup>
     where TStartup : class
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        if (contentRoot != null)
+        {
+            builder.UseContentRoot(contentRoot);
+        }
+
         builder.ConfigureAppConfiguration((context, configBuilder) =>
         {
             configBuilder.AddInMemoryCollection(

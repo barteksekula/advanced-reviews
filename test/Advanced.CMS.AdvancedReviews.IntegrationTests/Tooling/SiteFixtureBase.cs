@@ -11,13 +11,13 @@ namespace Advanced.CMS.AdvancedReviews.IntegrationTests.Tooling;
 
 public class SiteFixtureBase : IDisposable
 {
-    private readonly UIServiceFixture<Startup> _serviceFixture;
+    private readonly UIServiceFixture<Program> _serviceFixture;
     private CmsDatabaseFixture _databaseFixture;
 
     public SiteFixtureBase(Action<ExternalReviewOptions> optionsCallback = null)
     {
         string connectionString = EnsureDatabase();
-        _serviceFixture = new UIServiceFixture<Startup>(connectionString, collection =>
+        _serviceFixture = new UIServiceFixture<Program>(connectionString, collection =>
         {
             collection.Configure<ProjectUIOptions>(options =>
             {

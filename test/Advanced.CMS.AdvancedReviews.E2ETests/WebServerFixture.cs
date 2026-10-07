@@ -4,20 +4,16 @@ using Advanced.CMS.ExternalReviews;
 using Advanced.CMS.IntegrationTests;
 using EPiServer.Applications;
 using EPiServer.Authorization;
-using EPiServer.Data;
 using EPiServer.DataAccess;
 using EPiServer.Security;
 using EPiServer.ServiceLocation;
 using EPiServer.Web;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Playwright;
-using TestSite;
 using TestSite.Models;
 using Xunit;
+using Program = TestSite.Program;
 
 namespace Advanced.CMS.AdvancedReviews.E2ETests;
 
@@ -31,7 +27,7 @@ public class WebServerFixture : IAsyncLifetime
 
     private readonly CmsDatabaseFixture _databaseFixture;
     private readonly string _connectionString;
-    private readonly IHost _host;
+    private readonly UIServiceFixture<Program> _factory;
     private IPlaywright _playwright;
 
     public WebServerFixture()
@@ -49,46 +45,28 @@ public class WebServerFixture : IAsyncLifetime
         new DatabaseHelper(_connectionString).ExecuteSqlFile(
             SolutionPathUtility.GetSolutionPath(@"test\Advanced.CMS.IntegrationTests\IdentitySchema.sql", SolutionName));
 
-        _host = Host.CreateDefaultBuilder()
-            .ConfigureCmsDefaults()
-            .ConfigureAppConfiguration(config => config.AddInMemoryCollection(new Dictionary<string, string>
+        _factory = new UIServiceFixture<Program>(_connectionString, services =>
+        {
+            services.ConfigureApplicationCookie(options => options.LoginPath = LoginPath);
+            services.Configure<ExternalReviewOptions>(options =>
             {
-                ["ConnectionStrings:EPiServerDB"] = _connectionString
-            }))
-            .ConfigureWebHostDefaults(webBuilder =>
-            {
-                webBuilder.UseEnvironment(Environments.Development);
-                webBuilder.UseContentRoot(siteRoot);
-                webBuilder.UseStartup<Startup>();
-                webBuilder.UseUrls(BaseUrl);
-            })
-            .ConfigureServices(services =>
-            {
-                var existingServiceDefinition = services.Single(x => x.ServiceType == typeof(IDatabaseMode));
-                services.Remove(existingServiceDefinition);
-                services.AddSingleton(existingServiceDefinition.ImplementationType);
-                services.AddSingleton<IDatabaseMode>(sp =>
-                    new SwitchableDatabaseMode(sp.GetService(existingServiceDefinition.ImplementationType) as IDatabaseMode));
-                services.ConfigureApplicationCookie(options => options.LoginPath = LoginPath);
-                services.Configure<ExternalReviewOptions>(options =>
-                {
-                    options.EditableLinksEnabled = true;
-                    options.AllowAnonymousEditableLinks = true;
-                    options.PinCodeSecurity.Enabled = true;
-                });
-            })
-            .Build();
+                options.EditableLinksEnabled = true;
+                options.AllowAnonymousEditableLinks = true;
+                options.PinCodeSecurity.Enabled = true;
+            });
+        }, siteRoot);
+        _factory.UseKestrel(port);
     }
 
     public string Authority { get; }
     public string BaseUrl { get; }
     public IBrowser Browser { get; private set; }
-    public IServiceProvider Services => _host.Services;
+    public IServiceProvider Services => _factory.Services;
 
     public async Task InitializeAsync()
     {
         Assertions.SetDefaultExpectTimeout(15_000);
-        await _host.StartAsync();
+        _factory.StartServer();
         await CreateWebsiteAsync();
         await WaitForDatabaseProvisioningAsync();
 
@@ -119,8 +97,7 @@ public class WebServerFixture : IAsyncLifetime
         }
 
         _playwright?.Dispose();
-        await _host.StopAsync();
-        _host.Dispose();
+        await _factory.DisposeAsync();
         _databaseFixture.Dispose();
     }
 

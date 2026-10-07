@@ -71,6 +71,83 @@ public class AnonymousEditableLinkTests(WebServerFixture fixture)
     }
 
     [Fact]
+    public async Task Reviewer_Can_Reply_To_Pin_And_Resolve_It()
+    {
+        const string reviewerName = "External Reviewer";
+        var page = CreateDraftPage();
+        var link = LinksRepository.AddLink(page.ContentLink, true, TimeSpan.FromDays(1), null);
+        AddPin(link, reviewerName, "Heading is too long");
+
+        await using var trackableContext = await TrackableContext.Get(fixture, nameof(Reviewer_Can_Reply_To_Pin_And_Resolve_It));
+        var browserPage = await trackableContext.Context.NewPageAsync();
+        await browserPage.GotoAsync(link.LinkUrl);
+
+        var reviewPage = await new EditableReviewPage(browserPage).EnterNameAsync(reviewerName);
+        await reviewPage.OpenPinListAsync();
+        await reviewPage.OpenPinDetailsAsync("Heading is too long");
+        await reviewPage.ReplyAsync("Shortened it a bit");
+        await Expect(reviewPage.PinDetails).ToContainTextAsync("Shortened it a bit");
+        await reviewPage.ResolveAsync();
+
+        var savedPin = Assert.Single(fixture.Services.GetInstance<IApprovalReviewsRepository>().Load(link.ContentLink));
+        Assert.Contains("Shortened it a bit", savedPin.Data);
+        Assert.Contains("\"isDone\":true", savedPin.Data);
+    }
+
+    [Fact]
+    public async Task Reviewer_Can_Remove_Own_Pin()
+    {
+        const string reviewerName = "External Reviewer";
+        var page = CreateDraftPage();
+        var link = LinksRepository.AddLink(page.ContentLink, true, TimeSpan.FromDays(1), null);
+        AddPin(link, reviewerName, "Pin to remove");
+
+        await using var trackableContext = await TrackableContext.Get(fixture, nameof(Reviewer_Can_Remove_Own_Pin));
+        var browserPage = await trackableContext.Context.NewPageAsync();
+        await browserPage.GotoAsync(link.LinkUrl);
+
+        var reviewPage = await new EditableReviewPage(browserPage).EnterNameAsync(reviewerName);
+        await reviewPage.OpenPinListAsync();
+        await reviewPage.RemovePinAsync("Pin to remove");
+
+        await Expect(reviewPage.PinListItem("Pin to remove")).ToHaveCountAsync(0);
+        Assert.Empty(fixture.Services.GetInstance<IApprovalReviewsRepository>().Load(link.ContentLink));
+    }
+
+    [Fact]
+    public async Task Expired_Editable_Link_Is_Not_Found()
+    {
+        var link = LinksRepository.AddLink(CreateDraftPage().ContentLink, true, TimeSpan.FromDays(1), null);
+        LinksRepository.UpdateLink(link.Token, DateTime.Now.AddMinutes(-1), null, null, null);
+
+        await using var trackableContext = await TrackableContext.Get(fixture, nameof(Expired_Editable_Link_Is_Not_Found));
+        var browserPage = await trackableContext.Context.NewPageAsync();
+        var response = await browserPage.GotoAsync(link.LinkUrl);
+
+        Assert.Equal(404, response.Status);
+        await Expect(new EditableReviewPage(browserPage).NameInput).ToHaveCountAsync(0);
+    }
+
+    [Fact]
+    public async Task Wrong_Pin_Code_Does_Not_Grant_Access()
+    {
+        var link = LinksRepository.AddLink(CreateDraftPage().ContentLink, true, TimeSpan.FromDays(1), null);
+        LinksRepository.UpdateLink(link.Token, null, "1234", null, null);
+
+        await using var trackableContext = await TrackableContext.Get(fixture, nameof(Wrong_Pin_Code_Does_Not_Grant_Access));
+        var browserPage = await trackableContext.Context.NewPageAsync();
+        await browserPage.GotoAsync(link.LinkUrl);
+
+        var response = await browserPage.RunAndWaitForResponseAsync(
+            () => new PinCodeLoginPage(browserPage).SubmitAsync("4321"),
+            response => response.Request.Method == "POST");
+        Assert.Equal(404, response.Status);
+
+        await browserPage.GotoAsync(link.LinkUrl);
+        await Expect(new PinCodeLoginPage(browserPage).CodeInput).ToBeVisibleAsync();
+    }
+
+    [Fact]
     public async Task Pin_Protected_Link_Asks_For_Pin_Code_First()
     {
         var page = CreateDraftPage();
@@ -112,6 +189,16 @@ public class AnonymousEditableLinkTests(WebServerFixture fixture)
             options.AllowAnonymousEditableLinks = true;
         }
     }
+
+    private void AddPin(ExternalReviewLink link, string author, string comment) =>
+        fixture.Services.GetInstance<IApprovalReviewsRepository>().Update(link.ContentLink, new ReviewLocation
+        {
+            Token = link.Token,
+            Data = $$"""
+                {"documentRelativePosition":{"x":10,"y":10},"documentSize":{"x":1000,"y":500},"isDone":false,"priority":"Normal",
+                "firstComment":{"author":"{{author}}","text":"{{comment}}","date":"2026-10-02T10:00:00.000Z"},"comments":[]}
+                """
+        });
 
     private StandardPage CreateDraftPage()
     {
