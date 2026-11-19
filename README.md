@@ -211,6 +211,7 @@ There are few settings related with external review. They are all set using Opti
  | MaxExpectedContentLoadsPerRequest | 500 | Maximum number of content loads expected per request in external review context. A warning is logged when this threshold is exceeded, which may indicate recursive content loading |
  | PinCodeSecurity | [PinCodeSecurityOptions](#PinCodeSecurityOptions) | Settings specific to links security |
  | Restrictions | [ExternalReviewRestrictionOptions](#ExternalReviewRestrictionOptions) | Restrictions around external reviewers |
+ | HeadlessPreview | [HeadlessPreviewOptions](#HeadlessPreviewOptions) | Settings for review links to content rendered by a headless website |
 
 #### ExternalReviewRestrictionOptions
 
@@ -230,6 +231,30 @@ There are few settings related with external review. They are all set using Opti
  | RolesWithoutPin | WebEditors & WebAdmins | Roles that can access links without PIN |
  | AuthenticationCookieLifeTime | 5 minutes | For how long authentication cookie should be valid |
  | CodeLength | 4 | PIN code length |
+
+#### HeadlessPreviewOptions
+
+ | Option        | Default           | Description  |
+ | ---- | ---- | ---- |
+ | Enabled | true | When true, review links to content of a headless website show its preview URL |
+ | ReviewerRoles | empty | Roles added to the preview token issued for external reviewers, in addition to Everyone and Anonymous |
+
+#### Review links for headless websites
+
+When content belongs to a headless website (an application of type `Website` with preview URL formats), view links point to `/advanced-reviews/preview/{token}` on the CMS host.
+
+Each time the link is opened, the CMS checks the link expiry and PIN code, issues a new preview token for an anonymous reviewer with the Everyone and Anonymous roles plus `ReviewerRoles`, and redirects to the website preview URL with the `preview_token` query parameter, the same way Edit Mode preview works.
+A front-end that already supports CMS preview through Optimizely Graph needs no changes. It reads `key`, `ver`, `loc` and `preview_token` and sends the token to Graph as a bearer token.
+
+Editable links open the review page on the CMS host as usual, with the website preview URL in edit context (`ctx=edit`) and a new preview token in the frame.
+Pins in editable links and in Edit Mode use the messages that `communicationinjector.js` sends to the CMS, so they work for any front-end that already supports on-page editing. It loads the script in edit context and marks properties with `data-epi-edit`. Pins are placed on properties, not on individual elements, and a screenshot covers the top of the page.
+
+A few things to keep in mind:
+
+* the preview token gives access to all unpublished content these roles can read until it expires, not only the reviewed content, so keep `ReviewerRoles` minimal
+* the preview token has a short lifetime, when it expires the reviewer opens the review link again to get a new one
+* the website sees the reviewer in edit context, so anything it renders only for editors is shown to the reviewer as well
+* project previews of related content and visitor group impersonation are not supported for headless websites
 
 #### Editable links without login
 

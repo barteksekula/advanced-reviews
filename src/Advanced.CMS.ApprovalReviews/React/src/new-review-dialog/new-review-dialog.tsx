@@ -15,12 +15,13 @@ import { inject, observer } from "mobx-react";
 import React, { useState } from "react";
 
 import LocationComment from "../location-comment/location-comment";
+import { PreviewFrame } from "../preview-frame/preview-frame";
 import ScreenshotDialog from "../screenshot-dialog/screenshot-dialog";
 import priorityIconMappings from "../store/priority-icon-mappings";
 import { IReviewComponentStore, NewPinDto, PinLocation, Priority } from "../store/review-store";
 
 interface NewReviewDialogProps {
-    iframe?: HTMLIFrameElement;
+    frame?: PreviewFrame;
     reviewStore?: IReviewComponentStore;
     resources?: ReviewResources;
     currentEditLocation: PinLocation;
@@ -29,7 +30,7 @@ interface NewReviewDialogProps {
 }
 
 const NewReviewDialog: React.FC<NewReviewDialogProps> = ({
-    iframe,
+    frame,
     reviewStore,
     resources,
     currentEditLocation,
@@ -165,7 +166,7 @@ const NewReviewDialog: React.FC<NewReviewDialogProps> = ({
                 <ScreenshotDialog
                     maxWidth={500}
                     maxHeight={300}
-                    iframe={iframe}
+                    frame={frame}
                     propertyName={currentEditLocation.propertyName}
                     documentRelativePosition={currentEditLocation.documentRelativePosition}
                     documentSize={currentEditLocation.documentSize}

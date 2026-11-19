@@ -1,4 +1,5 @@
 ﻿using Advanced.CMS.ExternalReviews.EditReview;
+using Advanced.CMS.ExternalReviews.HeadlessPreview;
 using Advanced.CMS.ExternalReviews.PinCodeSecurity;
 using Advanced.CMS.ExternalReviews.ReviewLinksRepository;
 using EPiServer.Core.Routing;
@@ -21,6 +22,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ExternalReviewState>();
         services.AddTransient<DraftChildrenLoader>();
         services.AddTransient<EditableReviewService>();
+        services.AddTransient<HeadlessPreviewService>();
 
         var builder = services.AddControllers(options =>
         {

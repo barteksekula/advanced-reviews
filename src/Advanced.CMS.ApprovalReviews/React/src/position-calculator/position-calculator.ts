@@ -1,5 +1,5 @@
+import type { ElementBox, PreviewFrame } from "../preview-frame/preview-frame";
 import { Dimensions, PinPositioningDetails } from "../store/review-store";
-import offset from "./offset";
 
 interface PositionCalculator {
     calculate: (location: PinPositioningDetails) => Dimensions;
@@ -7,29 +7,23 @@ interface PositionCalculator {
 
 export default function createPositionCalculator(
     documentSize: Dimensions,
-    external: boolean,
-    document?: Document,
+    frame?: Pick<PreviewFrame, "getNodeBox" | "getPropertyBox">,
 ): PositionCalculator {
-    const positionDomNode = (
-        node: HTMLElement,
+    const positionInBox = (
+        box: ElementBox,
         documentRelativeOffset: Dimensions,
         nodePosition: Dimensions,
         nodeSize: Dimensions,
     ): Dimensions => {
-        const nodeOffset = offset(node, external);
-
         const originalOffsetFromLeft = documentRelativeOffset.x - nodePosition.x;
         const originalOffsetFromTop = documentRelativeOffset.y - nodePosition.y;
 
-        const currentOffsetFromLeft = nodeOffset.left;
-        const currentOffsetFromTop = nodeOffset.top;
-
-        const xPropertyFactor = node.offsetWidth / nodeSize.x;
-        const yPropertyFactor = node.offsetHeight / nodeSize.y;
+        const xPropertyFactor = box.size.x / nodeSize.x;
+        const yPropertyFactor = box.size.y / nodeSize.y;
 
         return {
-            x: currentOffsetFromLeft + originalOffsetFromLeft * xPropertyFactor,
-            y: currentOffsetFromTop + originalOffsetFromTop * yPropertyFactor,
+            x: box.position.x + originalOffsetFromLeft * xPropertyFactor,
+            y: box.position.y + originalOffsetFromTop * yPropertyFactor,
         };
     };
 
@@ -44,31 +38,32 @@ export default function createPositionCalculator(
     };
 
     const calculate = (location: PinPositioningDetails): Dimensions => {
-        if (document) {
-            if (location.clickedDomNodeSelector && location.clickedDomNodePosition && location.clickedDomNodeSize) {
-                const node: HTMLElement = document.querySelector(location.clickedDomNodeSelector);
-                if (!node) {
-                    return resize(location);
-                }
+        if (!frame) {
+            return resize(location);
+        }
 
-                return positionDomNode(
-                    node,
-                    location.documentRelativePosition,
-                    location.clickedDomNodePosition,
-                    location.clickedDomNodeSize,
-                );
-            } else if (location.propertyName && location.propertyPosition && location.propertySize) {
-                const node: HTMLElement = document.querySelector(`[data-epi-property-name='${location.propertyName}']`);
-                if (!node) {
-                    return resize(location);
-                }
-                return positionDomNode(
-                    node,
-                    location.documentRelativePosition,
-                    location.propertyPosition,
-                    location.propertySize,
-                );
-            }
+        if (location.clickedDomNodeSelector && location.clickedDomNodePosition && location.clickedDomNodeSize) {
+            const box = frame.getNodeBox(location.clickedDomNodeSelector);
+            return box
+                ? positionInBox(
+                      box,
+                      location.documentRelativePosition,
+                      location.clickedDomNodePosition,
+                      location.clickedDomNodeSize,
+                  )
+                : resize(location);
+        }
+
+        if (location.propertyName && location.propertyPosition && location.propertySize) {
+            const box = frame.getPropertyBox(location.propertyName);
+            return box
+                ? positionInBox(
+                      box,
+                      location.documentRelativePosition,
+                      location.propertyPosition,
+                      location.propertySize,
+                  )
+                : resize(location);
         }
 
         return resize(location);

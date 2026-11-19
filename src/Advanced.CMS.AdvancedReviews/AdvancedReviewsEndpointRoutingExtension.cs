@@ -28,6 +28,11 @@ internal class AdvancedReviewsEndpointRoutingExtension : IEndpointRoutingExtensi
             new { httpMethod = new HttpMethodRouteConstraint(HttpMethods.Post) });
 
         MapAnonymousEditableLinkRoutes(endpointRouteBuilder);
+
+        endpointRouteBuilder.MapControllerRoute("ExternalReviewPreview",
+            $"/{ExternalReviewUrlGenerator.AnonymousRoutePrefix}/preview/{{id}}",
+            new { controller = "ExternalReviewPreview", action = "Index" },
+            new { httpMethod = new HttpMethodRouteConstraint(HttpMethods.Get) }).AllowAnonymous();
     }
 
     private static void MapAnonymousEditableLinkRoutes(IEndpointRouteBuilder endpointRouteBuilder)

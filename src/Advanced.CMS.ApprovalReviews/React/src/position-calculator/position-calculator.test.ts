@@ -22,7 +22,7 @@ describe("when property position data is not available", () => {
     describe("and the document size is the same as the saved one", () => {
         beforeEach(() => {
             pin = getPin();
-            positionCalculator = createPositionCalculator(originalDocumentLocation, false);
+            positionCalculator = createPositionCalculator(originalDocumentLocation);
         });
 
         test("it should return original position", () => {
@@ -35,7 +35,7 @@ describe("when property position data is not available", () => {
         beforeEach(() => {
             pin = getPin();
             const newDocumentSize: Dimensions = { x: 1200, y: 600 };
-            positionCalculator = createPositionCalculator(newDocumentSize, false);
+            positionCalculator = createPositionCalculator(newDocumentSize);
         });
 
         test("it should return rescaled position relative to the new document size", () => {
@@ -46,23 +46,28 @@ describe("when property position data is not available", () => {
     });
 });
 
-//TODO: add more tests with faked HTML document
+describe("when property position data is available", () => {
+    const pin = getPin({
+        propertyName: "MainBody",
+        propertyPosition: { x: 50, y: 150 },
+        propertySize: { x: 200, y: 100 },
+    });
 
-// describe("when property position data is available", () => {
-//     let pin: PinPositioningDetails;
-//     let positionCalculator: ReturnType<typeof createPositionCalculator>;
-//
-//     beforeEach(() => {
-//         pin = getPin({
-//             propertyName: "myproperty",
-//             propertyPosition: { x: 1, y: 1 },
-//             propertySize: { x: 1, y: 1 }
-//         });
-//         positionCalculator = createPositionCalculator(originalDocumentLocation, false);
-//     });
-//
-//     test("it should return position relative to the document", () => {
-//         const dimensions = positionCalculator.calculate(pin);
-//         expect(dimensions).toBe(originalPinLocation);
-//     });
-// });
+    test("it should keep the pin at the same relative place in the property when the property moves", () => {
+        const positionCalculator = createPositionCalculator(originalDocumentLocation, {
+            getNodeBox: () => null,
+            getPropertyBox: () => ({ position: { x: 60, y: 300 }, size: { x: 400, y: 100 } }),
+        });
+
+        expect(positionCalculator.calculate(pin)).toStrictEqual({ x: 160, y: 350 });
+    });
+
+    test("it should rescale the position when the property is not found", () => {
+        const positionCalculator = createPositionCalculator(
+            { x: 1600, y: 800 },
+            { getNodeBox: () => null, getPropertyBox: () => null },
+        );
+
+        expect(positionCalculator.calculate(pin)).toStrictEqual({ x: 200, y: 200 });
+    });
+});

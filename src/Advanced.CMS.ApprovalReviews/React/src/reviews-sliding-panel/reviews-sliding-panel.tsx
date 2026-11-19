@@ -17,10 +17,11 @@ import Comment from "../comment/comment";
 import Confirmation from "../confirmation/confirmation";
 import ReviewDetails from "../details/review-details";
 import PinNavigator from "../pin-navigator/pin-navigator";
+import { PreviewFrame } from "../preview-frame/preview-frame";
 import { IReviewComponentStore, PinLocation, Priority } from "../store/review-store";
 
 interface SlidingPanelProps {
-    iframe?: HTMLIFrameElement;
+    frame?: PreviewFrame;
     reviewStore?: IReviewComponentStore;
     resources?: ReviewResources;
 }
@@ -113,7 +114,7 @@ const Filters = inject("resources")(
     }),
 );
 
-const SlidingPanel: React.FC<SlidingPanelProps> = ({ iframe, reviewStore, resources }) => {
+const SlidingPanel: React.FC<SlidingPanelProps> = ({ frame, reviewStore, resources }) => {
     const [panelVisible, setPanelVisible] = useState(false);
     const [currentPinToRemove, setCurrentPinToRemove] = useState<PinLocation>(null);
 
@@ -286,7 +287,7 @@ const SlidingPanel: React.FC<SlidingPanelProps> = ({ iframe, reviewStore, resour
                         {editedPinLocation && (
                             <ReviewDetails
                                 onCancel={() => (reviewStore.editedPinLocation = null)}
-                                iframe={iframe}
+                                frame={frame}
                                 currentEditLocation={reviewStore.editedPinLocation}
                             />
                         )}

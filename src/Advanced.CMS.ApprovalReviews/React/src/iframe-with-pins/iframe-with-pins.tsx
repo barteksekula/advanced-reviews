@@ -1,13 +1,14 @@
 import Button from "@mui/material/Button";
 import Snackbar from "@mui/material/Snackbar";
 import { inject, observer } from "mobx-react";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 
 import IframeOverlay from "../iframe-overlay/iframe-overlay";
 import NewReviewDialog from "../new-review-dialog/new-review-dialog";
 import PinCollection from "../pin-collection/pin-collection";
 import createPositionCalculator from "../position-calculator/position-calculator";
+import createPreviewFrame, { PreviewFrame } from "../preview-frame/preview-frame";
 import ReviewsSlidingPanel from "../reviews-sliding-panel/reviews-sliding-panel";
 import { Dimensions, IReviewComponentStore, NewPinDto, PinLocation } from "../store/review-store";
 
@@ -17,41 +18,48 @@ interface IframeWithPinsProps {
     external?: boolean;
 }
 
-const IframeWithPins: React.FC<IframeWithPinsProps> = ({ iframe, reviewStore, external }) => {
-    const getIframeDimensions = useCallback(() => {
-        const iframeDocumentBody = iframe.contentDocument.body;
-        return { x: iframeDocumentBody.offsetWidth, y: iframeDocumentBody.offsetHeight };
-    }, [iframe]);
+const sameSize = (a: Dimensions, b: Dimensions) => a.x === b.x && a.y === b.y;
 
+const IframeWithPins: React.FC<IframeWithPinsProps> = ({ iframe, reviewStore, external }) => {
+    const [frame, setFrame] = useState<PreviewFrame>(null);
     const [newLocation, setNewLocation] = useState<PinLocation>(null);
-    const [documentSize, setDocumentSize] = useState<Dimensions>(getIframeDimensions());
+    const [documentSize, setDocumentSize] = useState<Dimensions>({ x: 0, y: 0 });
+    const [layoutVersion, setLayoutVersion] = useState(0);
     const [showReviewIntro, setShowReviewIntro] = useState<boolean>(
         reviewStore.reviewLocations.length === 0 && localStorage.getItem("reviewIntro") !== "false",
     );
 
-    const updateDimensions = useCallback(() => {
-        setDocumentSize(getIframeDimensions());
-    }, [getIframeDimensions]);
-
-    const loadIframe = useCallback(() => {
-        iframe.contentWindow.addEventListener("resize", updateDimensions);
-        iframe.contentWindow.addEventListener("beforeunload", unloadIframe);
-        updateDimensions();
-    }, [iframe, updateDimensions]);
-
-    const unloadIframe = useCallback(() => {
-        iframe.contentWindow.removeEventListener("resize", updateDimensions);
-        iframe.contentWindow.removeEventListener("beforeunload", unloadIframe);
-    }, [iframe, updateDimensions]);
-
     useEffect(() => {
-        iframe.addEventListener("load", loadIframe);
-        loadIframe();
+        const previewFrame = createPreviewFrame(iframe, external);
+        const update = () => {
+            const displayNames = previewFrame.getDisplayNames();
+            const mapping = reviewStore.propertyNameMapping ?? {};
+            if (Object.keys(displayNames).some((name) => !mapping[name])) {
+                reviewStore.updateDisplayNamesDictionary({ ...displayNames, ...mapping });
+            }
+
+            const size = previewFrame.getDocumentSize();
+            setDocumentSize((current) => (sameSize(current, size) ? current : size));
+            setLayoutVersion((version) => version + 1);
+        };
+
+        previewFrame.subscribe(update);
+        update();
+        setFrame(previewFrame);
 
         return () => {
-            iframe.removeEventListener("load", loadIframe);
+            previewFrame.dispose();
         };
-    }, [iframe, loadIframe]);
+    }, [iframe, external, reviewStore]);
+
+    const positionCalculator = useMemo(
+        () => createPositionCalculator(documentSize, frame ?? undefined),
+        [documentSize, frame, layoutVersion],
+    );
+
+    if (!frame) {
+        return null;
+    }
 
     const onCloseDialog = (action: string, state: NewPinDto): void => {
         if (action !== "save") {
@@ -81,28 +89,22 @@ const IframeWithPins: React.FC<IframeWithPinsProps> = ({ iframe, reviewStore, ex
         localStorage.setItem("reviewIntro", "false");
     };
 
-
-    const positionCalculator = useMemo(
-        () => createPositionCalculator(documentSize, external, iframe.contentDocument),
-        [documentSize, external, iframe],
-    );
-
     return (
         <>
             {reviewStore.filter.reviewMode && (
                 <IframeOverlay
-                    iframe={iframe}
+                    frame={frame}
                     reviewLocationCreated={(location) => setNewLocation(location)}
                     external={external}
                 >
                     <PinCollection newLocation={newLocation} positionCalculator={positionCalculator} />
                 </IframeOverlay>
             )}
-            <ReviewsSlidingPanel iframe={iframe} />
+            <ReviewsSlidingPanel frame={frame} />
             {newLocation && (
                 <NewReviewDialog
                     currentEditLocation={newLocation}
-                    iframe={iframe}
+                    frame={frame}
                     onCloseDialog={(action, state) => onCloseDialog(action, state)}
                 />
             )}

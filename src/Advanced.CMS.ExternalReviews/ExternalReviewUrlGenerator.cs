@@ -22,6 +22,8 @@ internal class ExternalReviewUrlGenerator(ExternalReviewState externalReviewStat
         ? $"/{AnonymousRoutePrefix}/edit/{nameof(PageEditController.RemovePin)}"
         : Paths.ToResource("advanced-cms-external-reviews", $"PageEdit/{nameof(PageEditController.RemovePin)}");
 
+    public string HeadlessPreviewUrl => $"/{AnonymousRoutePrefix}/preview";
+
     public string AnonymousAvatarUrl => $"/{AnonymousRoutePrefix}/avatar";
 
     public string GetAnonymousResourceUrl(string fileName) => $"/{AnonymousRoutePrefix}/resources/{fileName}";

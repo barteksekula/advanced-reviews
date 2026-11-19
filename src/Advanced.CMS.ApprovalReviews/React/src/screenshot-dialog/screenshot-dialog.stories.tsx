@@ -1,10 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { Provider } from "mobx-react";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { action } from "storybook/actions";
 
 import FakeAdvancedReviewService from "../../.storybook/fake-advanced-review-service";
 import resources from "../../.storybook/resources.json";
+import createPreviewFrame from "../preview-frame/preview-frame";
 import { createStores } from "../store/review-store";
 import ScreenshotDialog from "./screenshot-dialog";
 
@@ -17,6 +18,7 @@ export interface ComponentProps {
 const Component = ({ propertyName }: ComponentProps) => {
     const [anchorElement, setAnchorElement] = useState(null);
     const [iframeLoaded, setIframeLoaded] = useState(false);
+    const frame = useMemo(() => anchorElement && createPreviewFrame(anchorElement), [anchorElement]);
 
     const onIframeLoaded = () => {
         setIframeLoaded(true);
@@ -49,7 +51,7 @@ const Component = ({ propertyName }: ComponentProps) => {
                     propertyName={propertyName}
                     maxWidth={500}
                     maxHeight={300}
-                    iframe={anchorElement}
+                    frame={frame}
                     onImageSelected={action("image selected")}
                     toggle={() => {}}
                 />

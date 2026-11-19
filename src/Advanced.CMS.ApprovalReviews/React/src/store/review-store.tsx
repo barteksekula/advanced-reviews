@@ -441,8 +441,7 @@ class ReviewComponentStore implements IReviewComponentStore {
             return propertyName;
         }
 
-        const displayName = this.propertyNameMapping[propertyName];
-        return displayName;
+        return this.propertyNameMapping[propertyName] || propertyName;
     }
 
     toggleResolve(): Promise<PinLocation> {

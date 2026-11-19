@@ -94,6 +94,11 @@ public class ExternalReviewOptions
     public PinCodeSecurityOptions PinCodeSecurity { get; } = new PinCodeSecurityOptions();
 
     /// <summary>
+    /// Options for readonly links to content rendered by a remote (headless) website
+    /// </summary>
+    public HeadlessPreviewOptions HeadlessPreview { get; } = new HeadlessPreviewOptions();
+
+    /// <summary>
     /// Intercept all calls to ContentLoader.GetChildren.
     /// This settings may greatly affect the performance, and is very intrusive into the regular episerver page lifecycle
     /// </summary>
@@ -155,4 +160,18 @@ public class PinCodeSecurityOptions
     /// PIN code length
     /// </summary>
     public int CodeLength { get; set; } = 4;
+}
+
+public class HeadlessPreviewOptions
+{
+    /// <summary>
+    /// When true, readonly links to content of a remote website redirect to its preview URL with a new preview token
+    /// </summary>
+    public bool Enabled { get; set; } = true;
+
+    /// <summary>
+    /// Roles added to the preview token issued for external reviewers, in addition to Everyone and Anonymous.
+    /// The token gives access to all unpublished content these roles can read, so use roles with as little access as possible
+    /// </summary>
+    public IEnumerable<string> ReviewerRoles { get; set; } = [];
 }

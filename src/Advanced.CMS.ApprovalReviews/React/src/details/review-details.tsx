@@ -8,11 +8,12 @@ import ScrollArea from "react-scrollbar";
 
 import Comment from "../comment/comment";
 import LocationComment from "../location-comment/location-comment";
+import { PreviewFrame } from "../preview-frame/preview-frame";
 import ScreenshotDialog from "../screenshot-dialog/screenshot-dialog";
 import { IReviewComponentStore, NewPinDto, PinLocation } from "../store/review-store";
 
 interface ReviewDetailsProps {
-    iframe?: HTMLIFrameElement;
+    frame?: PreviewFrame;
     reviewStore?: IReviewComponentStore;
     resources?: ReviewResources;
     currentEditLocation: PinLocation;
@@ -20,7 +21,7 @@ interface ReviewDetailsProps {
 }
 
 const ReviewDetails: React.FC<ReviewDetailsProps> = ({
-    iframe,
+    frame,
     reviewStore,
     resources,
     currentEditLocation,
@@ -98,7 +99,7 @@ const ReviewDetails: React.FC<ReviewDetailsProps> = ({
                         <ScreenshotDialog
                             maxWidth={500}
                             maxHeight={300}
-                            iframe={iframe}
+                            frame={frame}
                             propertyName={currentEditLocation.propertyName}
                             documentRelativePosition={currentEditLocation.documentRelativePosition}
                             documentSize={currentEditLocation.documentSize}

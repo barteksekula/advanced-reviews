@@ -1,7 +1,9 @@
 ﻿using Advanced.CMS.ApprovalReviews;
 using Advanced.CMS.ApprovalReviews.Notifications;
+using Advanced.CMS.ExternalReviews.HeadlessPreview;
 using Advanced.CMS.ExternalReviews.PinCodeSecurity;
 using Advanced.CMS.ExternalReviews.ReviewLinksRepository;
+using EPiServer.Applications;
 using EPiServer.Cms.Shell;
 using EPiServer.Framework.Hosting;
 using EPiServer.Framework.Modules;
@@ -27,7 +29,8 @@ internal class EditableReviewService(
     ReviewUrlGenerator reviewUrlGenerator,
     IModuleResourceResolver moduleResourceResolver,
     IExternalLinkPinCodeSecurityHandler externalLinkPinCodeSecurityHandler,
-    ICompositeFileProvider compositeFileProvider)
+    ICompositeFileProvider compositeFileProvider,
+    HeadlessPreviewService headlessPreviewService)
 {
     private const string ScriptFileName = "editable-external-review-component.js";
     private const string StyleFileName = "editable-external-review-component.css";
@@ -57,18 +60,21 @@ internal class EditableReviewService(
     public void RedirectToLoginPage(ExternalReviewLink externalReviewLink) =>
         externalLinkPinCodeSecurityHandler.RedirectToLoginPage(externalReviewLink);
 
-    public async Task<ContentPreviewModel> CreatePreviewModelAsync(ExternalReviewLink externalReviewLink, bool isAnonymous)
+    public async Task<ContentPreviewModel> CreatePreviewModelAsync(ExternalReviewLink externalReviewLink, bool isAnonymous,
+        CancellationToken cancellationToken = default)
     {
         var content = contentLoader.Get<IContent>(externalReviewLink.ContentLink);
-        var startPageUrl = startPageUrlResolver.GetUrl(externalReviewLink.ContentLink, content.LanguageBranch());
         var serializer = serializerFactory.GetSerializer(KnownContentTypes.Json);
+        var remotePreviewUrl = headlessPreviewService.IsHeadless(externalReviewLink.ContentLink)
+            ? await headlessPreviewService.GetPreviewUrlAsync(externalReviewLink, ApplicationPreviewContextMode.Edit, cancellationToken)
+            : null;
 
         return new ContentPreviewModel
         {
             Token = externalReviewLink.Token,
             Name = content.Name,
-            EditableContentUrlSegment =
-                UrlPath.Combine(startPageUrl, Options.ContentIframeEditUrlSegment, externalReviewLink.Token),
+            EditableContentUrlSegment = remotePreviewUrl ?? GetEditableContentUrl(externalReviewLink, content),
+            IsRemote = remotePreviewUrl != null,
             AddPinUrl = $"{UrlPath.EnsureStartsWithSlash(externalReviewUrlGenerator.AddPinUrl)}",
             RemovePinUrl = $"{UrlPath.EnsureStartsWithSlash(externalReviewUrlGenerator.RemovePinUrl)}",
             AvatarUrl = isAnonymous
@@ -88,6 +94,12 @@ internal class EditableReviewService(
                 Options.AllowScreenshotAttachments
             })
         };
+    }
+
+    private string GetEditableContentUrl(ExternalReviewLink externalReviewLink, IContent content)
+    {
+        var startPageUrl = startPageUrlResolver.GetUrl(externalReviewLink.ContentLink, content.LanguageBranch());
+        return UrlPath.Combine(startPageUrl, Options.ContentIframeEditUrlSegment, externalReviewLink.Token);
     }
 
     public ActionResult GetResource(string fileName)

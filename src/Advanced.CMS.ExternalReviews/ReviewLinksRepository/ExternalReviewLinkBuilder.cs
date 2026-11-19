@@ -1,4 +1,5 @@
 ﻿using Advanced.CMS.ApprovalReviews;
+using Advanced.CMS.ExternalReviews.HeadlessPreview;
 using EPiServer.Cms.Shell;
 using Microsoft.Extensions.Options;
 
@@ -9,6 +10,7 @@ internal class ExternalReviewLinkBuilder(
     IStartPageUrlResolver startPageUrlResolver,
     ProjectRepository projectRepository,
     ExternalReviewUrlGenerator externalReviewUrlGenerator,
+    HeadlessPreviewService headlessPreviewService,
     IContentLoader contentLoader)
 {
     public ExternalReviewLink FromExternalReview(ExternalReviewLinkDds externalReviewLinkDds)
@@ -33,6 +35,10 @@ internal class ExternalReviewLinkBuilder(
         if (externalReviewLinkDds.IsEditable)
         {
             externalUrlPrefix = UrlPath.EnsureStartsWithSlash(externalReviewUrlGenerator.ReviewsUrl);
+        }
+        else if (headlessPreviewService.IsHeadless(externalReviewLinkDds.ContentLink))
+        {
+            externalUrlPrefix = externalReviewUrlGenerator.HeadlessPreviewUrl;
         }
         else
         {

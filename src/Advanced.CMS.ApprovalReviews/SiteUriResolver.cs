@@ -19,8 +19,7 @@ internal class SiteUriResolver(IApplicationRepository applicationRepository) : I
         //     : applicationResolver.GetByContent(contentReference, false);
         // return application as InProcessWebsite;
 
-        var applications = applicationRepository.List().Cast<InProcessWebsite>().ToList();
-        return applications.First();
+        return applicationRepository.List().OfType<InProcessWebsite>().FirstOrDefault();
     }
 
     public ContentReference GetStartPage(ContentReference contentReference = null)

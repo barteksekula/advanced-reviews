@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Advanced.CMS.ApprovalReviews;
+using Advanced.CMS.ExternalReviews.HeadlessPreview;
 using EPiServer.Applications;
 using EPiServer.Cms.Shell.UI.Rest.Projects;
 using EPiServer.Logging;
@@ -22,7 +23,8 @@ internal class ExternalReviewStore(
     INotificationProvider emailNotificationProvider,
     IOptions<ExternalReviewOptions> externalReviewOptions,
     CurrentProject currentProject,
-    ISiteUriResolver siteUriResolver)
+    ISiteUriResolver siteUriResolver,
+    HeadlessPreviewService headlessPreviewService)
     : RestControllerBase
 {
     private static readonly ILogger _log = LogManager.GetLogger(typeof(ExternalReviewStore));
@@ -149,6 +151,11 @@ internal class ExternalReviewStore(
         if (externalReviewOptions.Value.ShareLinkHost != null)
         {
             return externalReviewOptions.Value.ShareLinkHost;
+        }
+
+        if (headlessPreviewService.IsHeadless(contentLink))
+        {
+            return new Uri($"{Request.Scheme}://{Request.Host}");
         }
 
         var hosts = siteUriResolver.GetWebsite(contentLink)?.Hosts?.ToList() ?? [];

@@ -50,6 +50,11 @@ public class ContentPreviewModel
     public string EditableContentUrlSegment { get; set; }
 
     /// <summary>
+    /// True when the iframe shows a remote website that renders the content
+    /// </summary>
+    public bool IsRemote { get; set; }
+
+    /// <summary>
     /// Url where new pins will be posted to
     /// </summary>
     public string AddPinUrl { get; set; }

@@ -64,6 +64,11 @@ public abstract class OptionsOverrideFixture(SiteFixture siteFixture) : IAsyncLi
                 RolesWithoutPin = source.PinCodeSecurity.RolesWithoutPin,
                 AuthenticationCookieLifeTime = source.PinCodeSecurity.AuthenticationCookieLifeTime,
                 CodeLength = source.PinCodeSecurity.CodeLength
+            },
+            HeadlessPreview =
+            {
+                Enabled = source.HeadlessPreview.Enabled,
+                ReviewerRoles = source.HeadlessPreview.ReviewerRoles
             }
         };
 
@@ -104,5 +109,8 @@ public abstract class OptionsOverrideFixture(SiteFixture siteFixture) : IAsyncLi
         to.PinCodeSecurity.RolesWithoutPin = from.PinCodeSecurity.RolesWithoutPin;
         to.PinCodeSecurity.AuthenticationCookieLifeTime = from.PinCodeSecurity.AuthenticationCookieLifeTime;
         to.PinCodeSecurity.CodeLength = from.PinCodeSecurity.CodeLength;
+
+        to.HeadlessPreview.Enabled = from.HeadlessPreview.Enabled;
+        to.HeadlessPreview.ReviewerRoles = from.HeadlessPreview.ReviewerRoles;
     }
 }

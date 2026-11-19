@@ -5,16 +5,16 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import html2canvas from "html2canvas";
 import { inject, observer } from "mobx-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import ReactCrop, { Crop } from "react-image-crop";
 
 import DrawablePreview from "../drawable-preview/drawable-preview";
+import { PreviewFrame } from "../preview-frame/preview-frame";
 import { Dimensions } from "../store/review-store";
 
 interface ScreenshotPickerProps {
-    iframe: HTMLIFrameElement;
+    frame: PreviewFrame;
     propertyName?: string;
     documentRelativePosition?: Dimensions;
     documentSize?: Dimensions;
@@ -72,7 +72,7 @@ function resize(base64Str: string, maxWidth: number, maxHeight: number): Promise
 
 function getDefaultCrop(
     propertyName: string | undefined,
-    iframe: HTMLIFrameElement,
+    frame: PreviewFrame,
     documentRelativePosition: Dimensions,
     documentSize: Dimensions,
 ) {
@@ -82,13 +82,6 @@ function getDefaultCrop(
         x: 10,
         y: 10,
     };
-
-    function offset(el: HTMLElement) {
-        const rect = el.getBoundingClientRect(),
-            scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
-            scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        return { top: rect.top + scrollTop, left: rect.left + scrollLeft };
-    }
 
     // if user didn't click on the property then try to show default crop on the pin location
     function getDefaultDocumentCrop(position: Dimensions, size: Dimensions) {
@@ -123,6 +116,10 @@ function getDefaultCrop(
         return defaultDocumentCrop;
     }
 
+    if (frame.isRemote()) {
+        return { ...defaultCrop };
+    }
+
     const defaultDocumentCrop =
         getDefaultDocumentCrop(documentRelativePosition, documentSize) || Object.assign(defaultCrop);
 
@@ -130,38 +127,26 @@ function getDefaultCrop(
         return defaultDocumentCrop;
     }
 
-    const propertyEl: HTMLElement = iframe.contentDocument.querySelector(`[data-epi-property-name='${propertyName}']`);
-    if (!propertyEl) {
+    const propertyBox = frame.getPropertyBox(propertyName);
+    if (!propertyBox) {
         return defaultDocumentCrop;
     }
 
-    const iframeWidth = iframe.offsetWidth;
-    const iframeHeight = iframe.offsetHeight;
-
-    if (iframeWidth === 0 || iframeHeight === 0) {
+    const frameSize = frame.getDocumentSize();
+    if (frameSize.x === 0 || frameSize.y === 0) {
         return defaultDocumentCrop;
     }
-
-    const elWidth = propertyEl.offsetWidth;
-    const elHeight = propertyEl.offsetHeight;
-
-    const percentageWidth = (elWidth * 100) / iframeWidth;
-    const percentageHeight = (elHeight * 100) / iframeHeight;
-
-    const elOffset = offset(propertyEl);
-    const percentX = (elOffset.left * 100) / iframeWidth;
-    const percentY = (elOffset.top * 100) / iframeHeight;
 
     return {
-        width: percentageWidth,
-        height: percentageHeight,
-        x: percentX,
-        y: percentY,
+        width: (propertyBox.size.x * 100) / frameSize.x,
+        height: (propertyBox.size.y * 100) / frameSize.y,
+        x: (propertyBox.position.x * 100) / frameSize.x,
+        y: (propertyBox.position.y * 100) / frameSize.y,
     };
 }
 
 const ScreenshotDialog: React.FC<ScreenshotPickerProps> = ({
-    iframe,
+    frame,
     propertyName,
     documentRelativePosition,
     documentSize,
@@ -172,8 +157,8 @@ const ScreenshotDialog: React.FC<ScreenshotPickerProps> = ({
     maxHeight,
 }) => {
     const defaultCrop = useMemo(
-        () => getDefaultCrop(propertyName, iframe, documentRelativePosition, documentSize),
-        [propertyName, iframe, documentRelativePosition, documentSize],
+        () => getDefaultCrop(propertyName, frame, documentRelativePosition, documentSize),
+        [propertyName, frame, documentRelativePosition, documentSize],
     );
 
     const [crop, setCrop] = useState<Crop>(defaultCrop);
@@ -192,13 +177,21 @@ const ScreenshotDialog: React.FC<ScreenshotPickerProps> = ({
     }, [input, drawerInput]);
 
     useEffect(() => {
-        html2canvas(iframe.contentDocument.body, {
-            allowTaint: true,
-            useCORS: true,
-        }).then((canvas) => {
-            setInput(canvas.toDataURL());
-        });
-    }, [iframe]);
+        let isCurrent = true;
+        frame
+            .takeScreenshot()
+            .then((image) => isCurrent && setInput(image))
+            .catch((error) => {
+                console.warn("Couldn't take a screenshot", error);
+                if (isCurrent) {
+                    toggle();
+                }
+            });
+
+        return () => {
+            isCurrent = false;
+        };
+    }, [frame]);
 
     const cancel = () => {
         setCrop(defaultCrop);

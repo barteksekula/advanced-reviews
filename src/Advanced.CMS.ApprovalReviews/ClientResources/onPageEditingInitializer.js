@@ -35,6 +35,41 @@ define([
         return result;
     }
 
+    function getVisualBuilderContainer() {
+        var containers = document.getElementsByClassName("content-preview");
+        return containers.length === 1 ? containers[0] : null;
+    }
+
+    function getPreviewIframe() {
+        var visualBuilderContainer = getVisualBuilderContainer();
+        var previewIframe = visualBuilderContainer && visualBuilderContainer.querySelector("iframe");
+        if (previewIframe) {
+            return previewIframe;
+        }
+
+        // take the last iframe, we know it has to be from the preview
+        var iframes = document.getElementsByTagName("iframe");
+        return iframes.length > 1 ? iframes[iframes.length - 1] : iframes[0];
+    }
+
+    function isDetached(widget) {
+        return !widget.domNode || !widget.domNode.isConnected || !widget.iframe || !widget.iframe.isConnected ||
+            widget.iframe !== getPreviewIframe();
+    }
+
+    function destroyReviewWidget() {
+        if (!reviewWidget) {
+            return;
+        }
+
+        var container = reviewWidget.domNode && reviewWidget.domNode.parentNode;
+        reviewWidget.destroy();
+        reviewWidget = null;
+        if (container && container.parentNode) {
+            container.parentNode.removeChild(container);
+        }
+    }
+
     function initialize(options, language, avatarUrl) {
         topic.subscribe("/epi/shell/action/changeview", function () {
             reviewWidget = null;
@@ -42,15 +77,16 @@ define([
         });
 
         topic.subscribe("reviews:toggle", function (toggle) {
+            if (reviewWidget && isDetached(reviewWidget)) {
+                destroyReviewWidget();
+            }
+
             if (!reviewWidget) {
                 if (toggle) {
                     var div = document.createElement("div");
-                    var visualBuilderContainer = document.getElementsByClassName("content-preview");
-                    var visualBuilderMode = visualBuilderContainer.length === 1;
-
-                    // take the last iframe, we know it has to be from the preview
-                    var iframes = document.getElementsByTagName("iframe");
-                    var iframe = iframes.length > 1 ? iframes[iframes.length - 1] : iframes[0];
+                    var visualBuilderContainer = getVisualBuilderContainer();
+                    var visualBuilderMode = !!visualBuilderContainer;
+                    var iframe = getPreviewIframe();
                     reviewWidget = new ReviewWidget({
                         iframe: iframe,
                         language: language,
@@ -59,7 +95,7 @@ define([
                         avatarUrl: avatarUrl
                     });
                     reviewWidget.placeAt(div);
-                    var editLayoutContainer = visualBuilderMode ? visualBuilderContainer[0] : document.getElementsByClassName("epi-editorViewport")[0];
+                    var editLayoutContainer = visualBuilderMode ? visualBuilderContainer : document.getElementsByClassName("epi-editorViewport")[0];
                     editLayoutContainer.appendChild(div);
                 }
             }
@@ -91,10 +127,7 @@ define([
         var originalDestroy = OnPageEditing.prototype.destroy;
         OnPageEditing.prototype.destroy = function () {
             originalDestroy.apply(this, arguments);
-            if (reviewWidget) {
-                reviewWidget.destroy();
-                reviewWidget = null;
-            }
+            destroyReviewWidget();
         };
     }
 

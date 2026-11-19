@@ -9,8 +9,8 @@ using EPiServer.Cms.UI.VisitorGroups;
 using EPiServer.Data;
 using EPiServer.DependencyInjection;
 using EPiServer.Framework.Web.Resources;
-using EPiServer.Scheduler;
 using EPiServer.Web.Routing;
+using Optimizely.Graph.DependencyInjection;
 
 namespace Alloy.Sample
 {
@@ -29,8 +29,6 @@ namespace Alloy.Sample
             {
                 AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(_webHostingEnvironment.ContentRootPath, "App_Data"));
 
-                services.Configure<SchedulerOptions>(options => options.Enabled = false);
-
                 services.AddUIMappedFileProviders(_webHostingEnvironment.ContentRootPath, @"..\..\");
                 services.Configure<ClientResourceOptions>(uiOptions =>
                 {
@@ -48,6 +46,8 @@ namespace Alloy.Sample
                 // .AddCommerce()
                 .AddVisitorGroupsUI()
                 .AddTinyMce();
+
+            services.AddContentGraph();
 
             services.AddCmsImageSharpImageLibrary();
 

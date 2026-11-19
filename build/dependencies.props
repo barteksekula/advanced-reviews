@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <CmsVersion>13.2.0</CmsVersion>
+        <CmsVersion>13.5.0</CmsVersion>
 <!--        <CommerceVersion>14.30.0</CommerceVersion>-->
     </PropertyGroup>
     <ItemGroup>
@@ -9,6 +9,7 @@
         <PackageReference Update="EPiServer.CMS.UI.Core" Version="$(CmsVersion)"/>
         <PackageReference Update="EPiServer.CMS.UI.AspNetIdentity" Version="$(CmsVersion)"/>
         <PackageReference Update="EPiServer.CMS.UI.VisitorGroups" Version="$(CmsVersion)"/>
+        <PackageReference Update="Optimizely.Graph.Cms" Version="$(CmsVersion)"/>
 
         <PackageReference Update="xunit.assert" Version="2.9.3" />
         <PackageReference Update="xunit.core" Version="2.9.3" />
