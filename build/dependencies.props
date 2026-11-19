@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <CmsVersion>13.5.0</CmsVersion>
+        <CmsVersion>13.7.0</CmsVersion>
 <!--        <CommerceVersion>14.30.0</CommerceVersion>-->
     </PropertyGroup>
     <ItemGroup>

@@ -11,7 +11,7 @@ The [latest test report](https://barteksekula.github.io/advanced-reviews/) from 
 ## Requirements
 
 * .NET 10
-* CMS 13
+* CMS 13.7.0 or later
 * If you want to build locally you will need Node.js 22 (tested on Node.js 22.18.0)
 
 ## Introduction
@@ -400,6 +400,14 @@ build.cmd
 ```
 
 And then you can either run from VS, VS code or Rider. Or you can also run from the command line via `dotnet run`
+
+To test review links for headless websites, run
+
+```console
+run-headless.cmd
+```
+
+It starts `Alloy.Sample` on `http://localhost:8000` and `Headless.Sample` on `http://localhost:8001` through the `Headless.AppHost` Aspire project, writes the CMS URL to the console and stops both sites when it stops. See [Headless.Sample](src/Headless.Sample/README.md) for the Graph keys and the website application it needs.
 
 ### E2E tests
 
