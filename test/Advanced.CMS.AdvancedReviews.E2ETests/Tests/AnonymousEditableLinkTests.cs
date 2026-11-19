@@ -203,7 +203,7 @@ public class AnonymousEditableLinkTests(WebServerFixture fixture)
     private StandardPage CreateDraftPage()
     {
         var contentRepository = fixture.Services.GetInstance<IContentRepository>();
-        var website = (InProcessWebsite)fixture.Services.GetInstance<IApplicationRepository>().List().First();
+        var website = fixture.Services.GetInstance<IApplicationRepository>().List().OfType<InProcessWebsite>().First();
         var page = contentRepository.GetDefault<StandardPage>(website.EntryPoint);
         page.Name = "Reviewed page " + Guid.NewGuid().ToString("N");
         contentRepository.Save(page, AccessLevel.NoAccess);

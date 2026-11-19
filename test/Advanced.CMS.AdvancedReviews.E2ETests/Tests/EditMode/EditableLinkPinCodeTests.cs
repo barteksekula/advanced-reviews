@@ -79,7 +79,7 @@ public class EditableLinkPinCodeTests(WebServerFixture fixture)
     private StandardPage CreatePublishedPage()
     {
         var contentRepository = fixture.Services.GetInstance<IContentRepository>();
-        var website = (InProcessWebsite)fixture.Services.GetInstance<IApplicationRepository>().List().First();
+        var website = fixture.Services.GetInstance<IApplicationRepository>().List().OfType<InProcessWebsite>().First();
         var page = contentRepository.GetDefault<StandardPage>(website.EntryPoint);
         page.Name = "Reviewed page " + Guid.NewGuid().ToString("N");
         contentRepository.Save(page, SaveAction.Publish, AccessLevel.NoAccess);

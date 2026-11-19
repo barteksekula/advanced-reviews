@@ -17,11 +17,10 @@ When `ctx` is `edit`, the preview page loads `communicationinjector.js` from `Cm
 ## Setup
 
 1. Set the Graph keys for `Alloy.Sample` with user secrets, under `Optimizely:ContentGraph` with `GatewayAddress`, `AppKey`, `Secret` and `SingleKey`.
-2. Run `Alloy.Sample`. Content types are synchronized on startup and content by the Optimizely Graph synchronization jobs.
-3. Set `Graph:SingleKey` for this app with `dotnet user-secrets set Graph:SingleKey <key>`. Set `Graph:Endpoint` too when Graph is not `https://cg.optimizely.com/content/v2`.
-4. Run the app, it listens on `http://localhost:8001`.
-5. In CMS Settings, add a website application with
+2. Set `Graph:SingleKey` for this app with `dotnet user-secrets set Graph:SingleKey <key>`. Set `Graph:Endpoint` too when Graph is not `https://cg.optimizely.com/content/v2`.
+3. Run `Headless.AppHost` instead of `Alloy.Sample`, from the IDE, with `dotnet run --project src/Headless.AppHost`, or with `aspire run` from the repository root. It needs the Aspire CLI, see https://get.aspire.dev. It starts `Alloy.Sample` on `http://localhost:8000` and this app on `http://localhost:8001`, writes the CMS URL to the console when Alloy responds and stops both when it stops. Content types are synchronized on startup and content by the Optimizely Graph synchronization jobs.
+4. In CMS Settings, add a website application with
    * a Primary host `localhost:8001` using http
    * the preview URL format `{host}/preview?key={key}&ver={version}&loc={locale}&ctx={context}`
    * Use Preview Tokens selected
-6. Create a view link or an editable link for a draft page under the website entry point and open it.
+5. Create a view link or an editable link for a draft page under the website entry point and open it.

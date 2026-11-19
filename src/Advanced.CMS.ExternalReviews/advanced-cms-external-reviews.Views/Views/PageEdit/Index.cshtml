@@ -55,8 +55,9 @@
                     script.src = "@Model.ReviewJsScriptPath";
                     document.body.appendChild(script);
                 };
+                var isRemote = @(Model.IsRemote ? "true" : "false");
                 var iframeDocument = iframe.contentDocument;
-                if (iframeDocument && iframeDocument.readyState === "complete" && iframeDocument.URL !== "about:blank") {
+                if (isRemote || (iframeDocument && iframeDocument.readyState === "complete" && iframeDocument.URL !== "about:blank")) {
                     loadReviewScript();
                 } else {
                     iframe.addEventListener("load", loadReviewScript, { once: true });

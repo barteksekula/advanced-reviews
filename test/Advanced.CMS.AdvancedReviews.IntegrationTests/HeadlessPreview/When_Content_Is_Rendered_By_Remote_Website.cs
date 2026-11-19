@@ -1,5 +1,7 @@
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Web;
+using Advanced.CMS.AdvancedReviews.IntegrationTests.AnonymousEditableLinks;
 using Advanced.CMS.AdvancedReviews.IntegrationTests.Tooling;
 using Advanced.CMS.ExternalReviews.ReviewLinksRepository;
 using EPiServer.Applications;
@@ -15,6 +17,7 @@ namespace Advanced.CMS.AdvancedReviews.IntegrationTests.HeadlessPreview;
 [Collection(IntegrationTestCollection.Name)]
 public class When_Content_Is_Rendered_By_Remote_Website(When_Content_Is_Rendered_By_Remote_Website.TestFixture fixture)
     : IClassFixture<CommonFixture>,
+      IClassFixture<AnonymousEditableLinksEnabledFixture>,
       IClassFixture<When_Content_Is_Rendered_By_Remote_Website.TestFixture>
 {
     private const string RemoteHost = "headless.example.com";
@@ -51,7 +54,7 @@ public class When_Content_Is_Rendered_By_Remote_Website(When_Content_Is_Rendered
                 PreferredUrlScheme = UrlScheme.Https,
                 Type = ApplicationHostType.Primary
             });
-            _website.PreviewUrlFormats[UrlFormatKey.Any] = new UrlFormat("{host}/preview?key={key}&ver={version}&loc={locale}");
+            _website.PreviewUrlFormats[UrlFormatKey.Any] = new UrlFormat("{host}/preview?key={key}&ver={version}&loc={locale}&ctx={context}");
             await _applicationRepository.SaveAsync(_website);
         }
 
@@ -115,6 +118,41 @@ public class When_Content_Is_Rendered_By_Remote_Website(When_Content_Is_Rendered
         var response = await fixture.Client.GetAsync($"/advanced-reviews/preview/{link.Token}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Editable_Link_Shows_Remote_Preview_In_Edit_Context()
+    {
+        var link = fixture.LinksRepository.AddLink(fixture.Page.ContentLink, true, TimeSpan.FromDays(1), null);
+
+        var response = await fixture.Client.GetAsync($"/advanced-reviews/edit/{link.Token}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.True(response.Headers.CacheControl?.NoStore);
+        Assert.Equal("no-referrer", Assert.Single(response.Headers.GetValues("Referrer-Policy")));
+
+        var html = await response.Content.ReadAsStringAsync();
+        var iframeSource = Regex.Match(html, "<iframe id=\"editableIframe\" src=\"([^\"]+)\"").Groups[1].Value;
+        var location = new Uri(WebUtility.HtmlDecode(iframeSource));
+        Assert.Equal(RemoteHost, location.Host);
+
+        var query = HttpUtility.ParseQueryString(location.Query);
+        Assert.Equal("edit", query["ctx"]);
+        Assert.Equal(fixture.Page.ContentGuid.ToString("N"), query["key"]);
+        Assert.Equal(fixture.Page.ContentLink.WorkID.ToString(), query["ver"]);
+        Assert.True(fixture.PreviewTokenService.TryValidatePreviewToken(query["preview_token"], out _, out var principal));
+        Assert.True(principal.IsInRole("Anonymous"));
+        Assert.False(principal.IsInRole("WebEditors"));
+    }
+
+    [Fact]
+    public async Task View_Link_Uses_Preview_Context()
+    {
+        var link = CreateViewLink();
+
+        var response = await fixture.Client.GetAsync(link.LinkUrl);
+
+        Assert.Equal("preview", HttpUtility.ParseQueryString(response.Headers.Location.Query)["ctx"]);
     }
 
     private ExternalReviewLink CreateViewLink() =>

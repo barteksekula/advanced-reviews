@@ -62,9 +62,8 @@ const IframeOverlay: React.FC<IframeOverlayProps> = ({
             }
 
             const documentPoint = { x: e.offsetX, y: e.offsetY };
-            const framePoint = external ? { x: e.pageX, y: e.pageY } : documentPoint;
             toggleOverlays(false);
-            const hit = frame.hitTest(framePoint, documentPoint);
+            const hit = frame.hitTest(documentPoint);
             toggleOverlays(true);
 
             const reviewLocation = new PinLocation(reviewStore, {
@@ -94,7 +93,7 @@ const IframeOverlay: React.FC<IframeOverlayProps> = ({
 
             reviewLocationCreated(reviewLocation);
         },
-        [external, frame, reviewStore, reviewLocationCreated, toggleOverlays],
+        [frame, reviewStore, reviewLocationCreated, toggleOverlays],
     );
 
     const updateLayout = useCallback(() => {
@@ -122,8 +121,9 @@ const IframeOverlay: React.FC<IframeOverlayProps> = ({
                 ? current
                 : next,
         );
-        if (overlay.scrollTop !== container.scrollTop) {
-            overlay.scrollTop = container.scrollTop;
+        const scrollTop = frame.getScrollPosition().y;
+        if (overlay.scrollTop !== scrollTop) {
+            overlay.scrollTop = scrollTop;
         }
     }, [external, frame]);
 

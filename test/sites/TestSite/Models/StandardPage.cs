@@ -23,7 +23,7 @@ public class StandardPage : PageData
         {
             var iContentRepository = ServiceLocator.Current.GetInstance<IContentRepository>();
             var iApplicationRepository = ServiceLocator.Current.GetInstance<IApplicationRepository>();
-            return iContentRepository.GetChildren<PageData>((iApplicationRepository.List().First() as InProcessWebsite)
+            return iContentRepository.GetChildren<PageData>(iApplicationRepository.List().OfType<InProcessWebsite>().First()
                     .EntryPoint).FirstOrDefault()?.Name;
         }
     }

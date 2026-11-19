@@ -22,8 +22,9 @@ export interface PreviewFrame {
     getDocumentSize(): Dimensions;
     getNodeBox(selector: string): ElementBox | null;
     getPropertyBox(name: string): ElementBox | null;
-    hitTest(framePoint: Dimensions, documentPoint: Dimensions): FrameHit;
+    hitTest(documentPoint: Dimensions): FrameHit;
     getScrollContainer(): HTMLElement;
+    getScrollPosition(): Dimensions;
     scroll(left: number, top: number): void;
     takeScreenshot(): Promise<string>;
     subscribe(listener: () => void): () => void;
@@ -275,7 +276,7 @@ export default function createPreviewFrame(iframe: HTMLIFrameElement, external =
         if (!node) {
             return null;
         }
-        const nodeOffset = offset(node, external);
+        const nodeOffset = offset(node);
         return {
             position: { x: nodeOffset.left, y: nodeOffset.top },
             size: { x: node.offsetWidth, y: node.offsetHeight },
@@ -298,7 +299,7 @@ export default function createPreviewFrame(iframe: HTMLIFrameElement, external =
             return {};
         }
 
-        const nodeOffset = offset(clickedElement, external);
+        const nodeOffset = offset(clickedElement);
         const hit: FrameHit = {
             node: {
                 selector: getCssSelector(clickedElement),
@@ -347,9 +348,14 @@ export default function createPreviewFrame(iframe: HTMLIFrameElement, external =
         return hit;
     };
 
-    const hitTest = (framePoint: Dimensions, documentPoint: Dimensions): FrameHit => {
+    const hitTest = (documentPoint: Dimensions): FrameHit => {
         const document = getDocument();
-        return document ? hitTestDocument(document, framePoint) : hitTestRemote(documentPoint);
+        if (!document) {
+            return hitTestRemote(documentPoint);
+        }
+
+        const view = document.defaultView;
+        return hitTestDocument(document, { x: documentPoint.x - view.scrollX, y: documentPoint.y - view.scrollY });
     };
 
     const getScrollContainer = (): HTMLElement => {
@@ -369,13 +375,26 @@ export default function createPreviewFrame(iframe: HTMLIFrameElement, external =
         return iframe.parentElement;
     };
 
-    const scroll = (left: number, top: number) => {
+    const scrollsInsideFrame = () =>
+        !isRemote() &&
+        (external || getScrollContainer().nodeName === "BODY" || iframe.offsetHeight < getDocumentSize().y - 1);
+
+    const getScrollPosition = (): Dimensions => {
+        if (scrollsInsideFrame()) {
+            return { x: iframe.contentWindow.scrollX, y: iframe.contentWindow.scrollY };
+        }
+
         const container = getScrollContainer();
-        if (!isRemote() && (external || container.nodeName === "BODY")) {
+        return { x: container.scrollLeft, y: container.scrollTop };
+    };
+
+    const scroll = (left: number, top: number) => {
+        if (scrollsInsideFrame()) {
             iframe.contentWindow.scrollTo(left, top);
             return;
         }
 
+        const container = getScrollContainer();
         container.scrollLeft = left;
         container.scrollTop = top;
     };
@@ -440,6 +459,7 @@ export default function createPreviewFrame(iframe: HTMLIFrameElement, external =
         getPropertyBox,
         hitTest,
         getScrollContainer,
+        getScrollPosition,
         scroll,
         takeScreenshot,
         subscribe,

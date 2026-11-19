@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.Playwright;
 using static Microsoft.Playwright.Assertions;
 
@@ -6,6 +7,23 @@ namespace Advanced.CMS.AdvancedReviews.E2ETests.PageObjectModels;
 public class EditModePage(IPage page)
 {
     private ILocator NavigationPaneToggle => page.GetByTitle("Toggle navigation pane");
+    private ILocator AdvancedReviewButton => page.GetByRole(AriaRole.Button, new() { NameRegex = new Regex("Advanced Review") });
+
+    public IFrameLocator Preview => page.FrameLocator("iframe[title='preview']");
+    public ILocator ReviewOverlay => page.Locator("#review-overlay");
+    public ILocator Pins => page.Locator(".review-location");
+
+    public async Task TurnOnAdvancedReviewAsync()
+    {
+        await AdvancedReviewButton.ClickAsync();
+        await Expect(ReviewOverlay).ToBeVisibleAsync();
+    }
+
+    public async Task TurnOffAdvancedReviewAsync()
+    {
+        await AdvancedReviewButton.ClickAsync();
+        await Expect(ReviewOverlay).ToBeHiddenAsync();
+    }
 
     public ILocator AddReviewLinkButton => page.GetByRole(AriaRole.Button, new() { Name = "Add link" });
     public ILocator ReviewLinks => page.Locator(".external-reviews-list .list-item");
@@ -58,7 +76,7 @@ public class EditModePage(IPage page)
     public async Task<EditModePage> OpenContentAsync(ContentReference contentLink, string expectedName)
     {
         await page.GotoAsync($"/Optimizely/CMS/#context=epi.cms.contentdata:///{contentLink.ID}");
-        await Expect(page.FrameLocator("iframe[title='preview']").GetByText(expectedName)).ToBeVisibleAsync();
+        await Expect(Preview.GetByText(expectedName)).ToBeVisibleAsync();
         return this;
     }
 

@@ -77,7 +77,7 @@ public class ViewLinkTests(WebServerFixture fixture)
     private ContentReference CreatePublishedPageWithDraft()
     {
         var contentRepository = fixture.Services.GetInstance<IContentRepository>();
-        var website = (InProcessWebsite)fixture.Services.GetInstance<IApplicationRepository>().List().First();
+        var website = fixture.Services.GetInstance<IApplicationRepository>().List().OfType<InProcessWebsite>().First();
         var page = contentRepository.GetDefault<StandardPage>(website.EntryPoint);
         page.Name = "Reviewed page " + Guid.NewGuid().ToString("N");
         page.Html = new XhtmlString($"<p>{PublishedText}</p>");
