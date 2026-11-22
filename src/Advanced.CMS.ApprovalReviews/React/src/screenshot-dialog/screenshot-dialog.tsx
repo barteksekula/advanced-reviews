@@ -76,7 +76,8 @@ function getDefaultCrop(
     documentRelativePosition: Dimensions,
     documentSize: Dimensions,
 ) {
-    const defaultCrop = {
+    const defaultCrop: Crop = {
+        unit: "%",
         width: 50,
         height: 50,
         x: 10,
@@ -84,7 +85,7 @@ function getDefaultCrop(
     };
 
     // if user didn't click on the property then try to show default crop on the pin location
-    function getDefaultDocumentCrop(position: Dimensions, size: Dimensions) {
+    function getDefaultDocumentCrop(position: Dimensions, size: Dimensions): Crop | null {
         const rectangleSize = 20;
 
         if (!position || !size) {
@@ -95,7 +96,7 @@ function getDefaultCrop(
             return null;
         }
 
-        const defaultDocumentCrop: any = {};
+        const defaultDocumentCrop: Crop = { unit: "%" };
         defaultDocumentCrop.width = rectangleSize;
         defaultDocumentCrop.height = rectangleSize;
 
@@ -120,8 +121,7 @@ function getDefaultCrop(
         return { ...defaultCrop };
     }
 
-    const defaultDocumentCrop =
-        getDefaultDocumentCrop(documentRelativePosition, documentSize) || Object.assign(defaultCrop);
+    const defaultDocumentCrop = getDefaultDocumentCrop(documentRelativePosition, documentSize) || { ...defaultCrop };
 
     if (!propertyName) {
         return defaultDocumentCrop;
@@ -138,6 +138,7 @@ function getDefaultCrop(
     }
 
     return {
+        unit: "%",
         width: (propertyBox.size.x * 100) / frameSize.x,
         height: (propertyBox.size.y * 100) / frameSize.y,
         x: (propertyBox.position.x * 100) / frameSize.x,
@@ -212,24 +213,39 @@ const ScreenshotDialog: React.FC<ScreenshotPickerProps> = ({
         setDrawerInput(resizedImage);
     };
 
+    const toPixelCrop = (image: HTMLImageElement): Crop => {
+        if (crop.unit !== "%") {
+            return crop;
+        }
+
+        return {
+            unit: "px",
+            x: (crop.x * image.width) / 100,
+            y: (crop.y * image.height) / 100,
+            width: (crop.width * image.width) / 100,
+            height: (crop.height * image.height) / 100,
+        };
+    };
+
     const getCroppedImg = (image) => {
+        const pixelCrop = toPixelCrop(image);
         const canvas = document.createElement("canvas");
         const scaleX = image.naturalWidth / image.width;
         const scaleY = image.naturalHeight / image.height;
-        canvas.width = crop.width;
-        canvas.height = crop.height;
+        canvas.width = pixelCrop.width;
+        canvas.height = pixelCrop.height;
         const ctx = canvas.getContext("2d");
 
         ctx.drawImage(
             image,
-            crop.x * scaleX,
-            crop.y * scaleY,
-            crop.width * scaleX,
-            crop.height * scaleY,
+            pixelCrop.x * scaleX,
+            pixelCrop.y * scaleY,
+            pixelCrop.width * scaleX,
+            pixelCrop.height * scaleY,
             0,
             0,
-            crop.width,
-            crop.height,
+            pixelCrop.width,
+            pixelCrop.height,
         );
 
         return canvas.toDataURL();

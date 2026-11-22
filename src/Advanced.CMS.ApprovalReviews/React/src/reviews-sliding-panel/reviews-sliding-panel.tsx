@@ -136,9 +136,9 @@ const SlidingPanel: React.FC<SlidingPanelProps> = ({ frame, reviewStore, resourc
         };
     }, [reviewStore]);
 
-    const onSelected = (index: number): void => {
+    const onSelected = (location: PinLocation): void => {
         //TODO: implement scroll into view for point
-        reviewStore.selectedPinLocation = reviewStore.reviewLocations[index];
+        reviewStore.selectedPinLocation = location;
     };
 
     const showPanel = () => {
@@ -172,7 +172,7 @@ const SlidingPanel: React.FC<SlidingPanelProps> = ({ frame, reviewStore, resourc
         reviewStore.remove(pinToRemove);
     };
 
-    const { editedPinLocation, filter, reviewLocations, currentUser } = reviewStore!;
+    const { editedPinLocation, filter, filteredReviewLocations, selectedPinLocation, currentUser } = reviewStore!;
     const res = resources!;
 
     const chipPropertyNameSettings = {
@@ -237,7 +237,7 @@ const SlidingPanel: React.FC<SlidingPanelProps> = ({ frame, reviewStore, resourc
                                 <Filters filter={filter} />
                                 <h3>List of Pins</h3>
                                 <List className="locations">
-                                    {reviewLocations.map((location, index) => (
+                                    {filteredReviewLocations.map((location) => (
                                         <ListItem
                                             key={location.id}
                                             disablePadding
@@ -269,8 +269,8 @@ const SlidingPanel: React.FC<SlidingPanelProps> = ({ frame, reviewStore, resourc
                                         >
                                             <ListItemButton
                                                 title={res.panel.clicktoedit}
-                                                selected={reviewStore.selectedPinLocationIndex === index}
-                                                onClick={() => onSelected(index)}
+                                                selected={selectedPinLocation === location}
+                                                onClick={() => onSelected(location)}
                                                 onDoubleClick={(e) => onEditClick(e, location)}
                                             >
                                                 <Comment

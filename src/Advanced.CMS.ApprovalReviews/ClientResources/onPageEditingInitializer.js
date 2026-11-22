@@ -1,17 +1,53 @@
 define([
+    "dojo/_base/declare",
     "dojo/topic",
     "dojo/dom-class",
+    "dojo/when",
+    "epi/dependency",
+    "epi-cms/_ContentContextMixin",
     "epi-cms/contentediting/OnPageEditing",
     "advanced-cms-approval-reviews/dist/review-component-widget"
 ], function (
+    declare,
     topic,
     domClass,
+    when,
+    dependency,
+    _ContentContextMixin,
     OnPageEditing,
     ReviewWidget) {
 
     var reviewWidget = null;
 
-    var latestPropertyNameMappings = [];
+    var latestPropertyNameMappings = {};
+
+    var metadataDisplayNames = {};
+
+    var contentContext = null;
+
+    function getPropertyNameMapping() {
+        return Object.assign({}, metadataDisplayNames, latestPropertyNameMappings);
+    }
+
+    function loadMetadataDisplayNames() {
+        contentContext = contentContext || new (declare([_ContentContextMixin], {}))();
+        return when(contentContext.getCurrentContext()).then(function (context) {
+            if (!context || context.type !== "epi.cms.contentdata") {
+                return null;
+            }
+            return dependency.resolve("epi.shell.MetadataManager")
+                .getMetadataForType("EPiServer.Core.ContentData", { contentLink: context.id });
+        }).then(function (metadata) {
+            var result = {};
+            addMetadataDisplayNames(result, metadata && metadata.properties);
+            metadataDisplayNames = result;
+            if (reviewWidget) {
+                reviewWidget.updateDisplayNamesDictionary(getPropertyNameMapping());
+            }
+        }, function (error) {
+            console.warn("Couldn't load property display names", error);
+        });
+    }
 
     function toggleReviewOverlay(value) {
         if (reviewWidget) {
@@ -19,19 +55,40 @@ define([
         }
     }
 
+    function toPascalCase(name) {
+        return name[0].toUpperCase() + name.substring(1);
+    }
+
+    var legacyPropertyNames = {
+        icontent_name: "PageName",
+        iroutable_routesegment: "PageURLSegment"
+    };
+
+    function addMetadataDisplayNames(result, properties) {
+        (properties || []).forEach(function (property) {
+            if (property.name && property.displayName) {
+                result[toPascalCase(property.name)] = property.displayName;
+                var legacyName = legacyPropertyNames[property.name.toLowerCase()];
+                if (legacyName) {
+                    result[legacyName] = property.displayName;
+                }
+            }
+            addMetadataDisplayNames(result, property.properties);
+        });
+    }
+
     function getDisplayNamesDictionary(editableNodes) {
+        var result = {};
         if (!editableNodes) {
-            return {};
+            return result;
         }
 
-        var result = {};
         editableNodes.filter(function (x) {
             return x.property && x.property.metadata;
         }).forEach(function (x) {
             // epi attributes are capital case but property names are lowercase
-            var key = x.property.propertyNodeName[0].toUpperCase() + x.property.propertyNodeName.substring(1);
-            result[key] = x.property.metadata.displayName;
-            });
+            result[toPascalCase(x.property.propertyNodeName)] = x.property.metadata.displayName;
+        });
         return result;
     }
 
@@ -90,7 +147,7 @@ define([
                     reviewWidget = new ReviewWidget({
                         iframe: iframe,
                         language: language,
-                        propertyNameMapping: latestPropertyNameMappings,
+                        propertyNameMapping: getPropertyNameMapping(),
                         options: options,
                         avatarUrl: avatarUrl
                     });
@@ -104,6 +161,10 @@ define([
             }
 
             toggleReviewOverlay(toggle);
+
+            if (toggle) {
+                loadMetadataDisplayNames();
+            }
         });
 
         var originalOnReadySetupEditMode = OnPageEditing.prototype.onReadySetupEditMode;
@@ -113,14 +174,16 @@ define([
         };
 
         var originalCreateUpdateControllers = OnPageEditing.prototype._createUpdateControllers;
-        OnPageEditing.prototype._createUpdateControllers = function (doc) {
+        OnPageEditing.prototype._createUpdateControllers = function (doc, props) {
             originalCreateUpdateControllers.apply(this, arguments);
 
             // create dictionary for names and display names
-            var editableNodes = this._getEditableNodes(doc);
+            var editableNodes = doc || !this._getEditableNodesFromEpiProps
+                ? this._getEditableNodes(doc)
+                : this._getEditableNodesFromEpiProps(props);
             latestPropertyNameMappings = getDisplayNamesDictionary(editableNodes);
             if (reviewWidget) {
-                reviewWidget.updateDisplayNamesDictionary(latestPropertyNameMappings);
+                reviewWidget.updateDisplayNamesDictionary(getPropertyNameMapping());
             }
         };
 

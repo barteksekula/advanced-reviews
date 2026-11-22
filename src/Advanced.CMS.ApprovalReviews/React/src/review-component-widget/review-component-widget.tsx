@@ -36,7 +36,7 @@ export default declare([WidgetBase], {
      * @param propertyNameMapping dictionary with name and displayname pairs
      */
     updateDisplayNamesDictionary: function (propertyNameMapping: object) {
-        this.stores.reviewStore.propertyNameMapping = propertyNameMapping;
+        this.stores.reviewStore.updateDisplayNamesDictionary(propertyNameMapping);
     },
     loadPins: function () {
         this.stores.reviewStore.load();
